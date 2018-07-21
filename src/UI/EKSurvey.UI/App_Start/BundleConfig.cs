@@ -1,5 +1,4 @@
-﻿using System.Web;
-using System.Web.Optimization;
+﻿using System.Web.Optimization;
 
 namespace EKSurvey.UI
 {
@@ -24,6 +23,7 @@ namespace EKSurvey.UI
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
+                      "~/Content/octicons.css",
                       "~/Content/site.css"));
         }
     }
