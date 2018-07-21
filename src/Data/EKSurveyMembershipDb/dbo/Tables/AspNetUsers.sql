@@ -2,6 +2,7 @@
     [Id] [nvarchar](128) NOT NULL,
     [Email] [nvarchar](256),
     [EmailConfirmed] [bit] NOT NULL,
+    [SecondaryEmail] [nvarchar](256) NULL,
     [PasswordHash] [nvarchar](max),
     [SecurityStamp] [nvarchar](max),
     [PhoneNumber] [nvarchar](max),

@@ -1,15 +1,12 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Security.Claims;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using EKSurvey.Core.Models.Identity;
+using EKSurvey.Core.Models.ViewModels.Account;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-using EKSurvey.UI.Models;
 
 namespace EKSurvey.UI.Controllers
 {
@@ -393,7 +390,7 @@ namespace EKSurvey.UI.Controllers
         public ActionResult LogOff()
         {
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Survey");
         }
 
         //

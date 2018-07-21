@@ -3,10 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using EKSurvey.Core.Models.ViewModels.Manager;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-using EKSurvey.UI.Models;
 
 namespace EKSurvey.UI.Controllers
 {
