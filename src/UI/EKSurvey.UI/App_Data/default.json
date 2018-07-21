@@ -1,0 +1,11 @@
+﻿{
+  "surveys": [
+    {
+      "name": "Default survey",
+      "questions": [
+        { "1": "What is your name?" },
+        { "2": "What is your quest?" },
+        { "3": "What is your favorite color?" }
+      ]
+    }] 
+}
