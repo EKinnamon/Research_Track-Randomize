@@ -1,18 +1,15 @@
-namespace EKSurvey.UI.Migrations
-{
-    using System;
-    using System.Data.Entity;
-    using System.Data.Entity.Migrations;
-    using System.Linq;
+using System.Data.Entity.Migrations;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<EKSurvey.UI.Models.ApplicationDbContext>
+namespace EKSurvey.Data.Migrations
+{
+    internal sealed class Configuration : DbMigrationsConfiguration<MembershipDbContext>
     {
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
         }
 
-        protected override void Seed(EKSurvey.UI.Models.ApplicationDbContext context)
+        protected override void Seed(MembershipDbContext context)
         {
             //  This method will be called after migrating to the latest version.
 
