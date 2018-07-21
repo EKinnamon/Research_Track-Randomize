@@ -1,0 +1,9 @@
+﻿CREATE TABLE [dbo].[Tests]
+(
+	[Id] UNIQUEIDENTIFIER NOT NULL CONSTRAINT [DF_Tests_Id] DEFAULT NEWID(),
+	[SurveyId] NVARCHAR(256) NOT NULL,
+	[SubjectId] NVARCHAR(256) NOT NULL,
+	[ResponsesJson] NVARCHAR(MAX) NULL
+
+	CONSTRAINT [PK_Tests_SurveyId_SubjectId] PRIMARY KEY ([SurveyId], [SubjectId])
+)

@@ -2,10 +2,24 @@
   "surveys": [
     {
       "name": "Default survey",
+      "version": "1.0.0",
+      "isActive":  true, 
       "questions": [
-        { "1": "What is your name?" },
-        { "2": "What is your quest?" },
-        { "3": "What is your favorite color?" }
+        {
+          "id":  1,
+          "type": "Text", 
+          "text": "What is your name?"
+        },
+        {
+          "id":  2,
+          "type": "Text",
+          "text":  "What is your quest." 
+        },
+        {
+          "id": 3,
+          "type": "Text",
+          "text": "What is your favorite color?"
+        }
       ]
     }] 
 }
