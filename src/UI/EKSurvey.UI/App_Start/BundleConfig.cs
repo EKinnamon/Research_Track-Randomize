@@ -23,7 +23,7 @@ namespace EKSurvey.UI
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
-                      "~/Content/octicons.css",
+                      "~/Content/font-awesome.css",
                       "~/Content/site.css"));
         }
     }
