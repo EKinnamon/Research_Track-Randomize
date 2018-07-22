@@ -13,7 +13,7 @@ namespace EKSurvey.UI.Modules
 {
     public class ApplicationModule : Module
     {
-        private static void GenerateMapperConfigration(IMapperConfigurationExpression config)
+        private static void GenerateMapperConfiguration(IMapperConfigurationExpression config)
         {
             config.AddProfile<ViewModelProfile>();
             config.ConstructServicesUsing(DependencyResolver.Current.GetService);
@@ -30,6 +30,14 @@ namespace EKSurvey.UI.Modules
             builder.Register(c => new UserStore<ApplicationUser>(c.ResolveNamed<DbContext>("membershipDbContext")))
                 .As<IUserStore<ApplicationUser>>()
                 .InstancePerLifetimeScope();
+
+            builder.Register(c => new MapperConfiguration(GenerateMapperConfiguration))
+                .AsSelf()
+                .SingleInstance();
+
+            builder.Register(c => c.Resolve<MapperConfiguration>().CreateMapper())
+                .As<IMapper>()
+                .SingleInstance();
 
         }
     }
