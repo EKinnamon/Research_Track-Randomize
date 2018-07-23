@@ -24,6 +24,8 @@
         <div class="tab-content" id="authenticationContent">
             <div class="tab-pane fade show active" id="login">
                 @Html.Partial("_LoginForm", new LoginViewModel())
+                
+                @Html.Partial("_ForgotPassword", new ForgotPasswordViewModel())
             </div>
             <div class="tab-pane fade show" id="register">
                 @Html.Partial("_RegisterForm", new RegisterViewModel())

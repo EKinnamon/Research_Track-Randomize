@@ -26,19 +26,6 @@ namespace EKSurvey.UI.Controllers
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
-
-        //public ApplicationSignInManager SignInManager
-        //{
-        //    get => _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
-        //    private set => _signInManager = value;
-        //}
-
-        //public ApplicationUserManager UserManager
-        //{
-        //    get => _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-        //    private set => _userManager = value;
-        //}
-
         //
         // GET: /Account/Login
         [AllowAnonymous]
@@ -140,7 +127,6 @@ namespace EKSurvey.UI.Controllers
                 return RedirectToAction("Login");
 
             var user = _mapper.Map<ApplicationUser>(model);
-            //var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
@@ -415,13 +401,7 @@ namespace EKSurvey.UI.Controllers
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
 
-        private IAuthenticationManager AuthenticationManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().Authentication;
-            }
-        }
+        private IAuthenticationManager AuthenticationManager => HttpContext.GetOwinContext().Authentication;
 
         private void AddErrors(IdentityResult result)
         {
