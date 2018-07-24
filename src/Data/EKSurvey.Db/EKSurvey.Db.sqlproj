@@ -62,5 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\Tests.sql" />
+    <Build Include="dbo\Tables\Surveys.sql" />
+    <Build Include="dbo\Tables\Sections.sql" />
+    <Build Include="dbo\Tables\SurveySections.sql" />
+    <Build Include="dbo\Tables\SectionQuestions.sql" />
   </ItemGroup>
 </Project>

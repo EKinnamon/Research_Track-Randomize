@@ -1,0 +1,9 @@
+﻿CREATE TABLE [dbo].[Surveys]
+(
+	[Id] INT NOT NULL IDENTITY (1,1),
+	[Name] NVARCHAR(256) NOT NULL,
+	[Version] NVARCHAR(16) NOT NULL,
+	[IsActive] BIT NOT NULL CONSTRAINT [DF_Surveys_IsActive] DEFAULT 1
+
+	CONSTRAINT [PK_Surveys_Id] PRIMARY KEY ([Id])
+)

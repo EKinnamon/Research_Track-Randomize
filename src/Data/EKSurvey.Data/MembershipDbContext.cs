@@ -5,9 +5,7 @@ namespace EKSurvey.Data
 {
     public class MembershipDbContext : IdentityDbContext<ApplicationUser>
     {
-        public MembershipDbContext() : base("MembershipConnection", throwIfV1Schema: false)
-        {
-        }
+        public MembershipDbContext() : base("MembershipConnection", throwIfV1Schema: false) { }
 
         public static MembershipDbContext Create()
         {
