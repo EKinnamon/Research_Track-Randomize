@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EKSurvey.Core.Models.Entities
@@ -15,5 +16,7 @@ namespace EKSurvey.Core.Models.Entities
 
         [ForeignKey("SectionId")]
         public virtual Section Section { get; set; }
+
+        public virtual ICollection<TestResponse> TestResponses { get; set; } = new HashSet<TestResponse>();
     }
 }

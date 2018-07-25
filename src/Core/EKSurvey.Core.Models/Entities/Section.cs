@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EKSurvey.Core.Models.Entities
@@ -10,6 +11,7 @@ namespace EKSurvey.Core.Models.Entities
 
         public int SurveyId { get; set; }
 
+        [MaxLength(256)]
         public string Name { get; set; }
 
         public int Order { get; set; }
@@ -17,6 +19,8 @@ namespace EKSurvey.Core.Models.Entities
         [ForeignKey("SurveyId")]
         public virtual Survey Survey { get; set; }
 
-        public virtual ICollection<Page> Pages { get; set; }
+        public virtual ICollection<Page> Pages { get; set; } = new HashSet<Page>();
+
+        public virtual ICollection<TestResponse> TestResponses { get; set; } = new HashSet<TestResponse>();
     }
 }

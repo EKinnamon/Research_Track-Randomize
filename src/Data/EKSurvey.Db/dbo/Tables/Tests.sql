@@ -1,13 +1,12 @@
 ﻿CREATE TABLE [dbo].[Tests] (
-    [Id] [uniqueidentifier] NOT NULL,
-    [UserId] [nvarchar](max),
-    [SurveyId] [int] NOT NULL,
-    [Started] [datetime] NOT NULL,
-    [Modified] [datetime],
-    [Completed] [datetime],
-    CONSTRAINT [PK_dbo.Tests] PRIMARY KEY ([Id])
+    [Id] UNIQUEIDENTIFIER NOT NULL CONSTRAINT [DF_Tests_Id] DEFAULT NEWID(),
+    [UserId] NVARCHAR(128),
+    [SurveyId] INT NOT NULL,
+    [Started] DATETIME NOT NULL CONSTRAINT [DF_Tests_Started] DEFAULT GETUTCDATE(),
+    [Modified] DATETIME,
+    [Completed] DATETIME,
+    CONSTRAINT [PK_Tests_Id] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_Tests_SurveyId] FOREIGN KEY ([SurveyId]) REFERENCES [dbo].[Surveys] ([Id]) ON DELETE CASCADE
 )
 GO
-ALTER TABLE [dbo].[Tests] ADD CONSTRAINT [FK_dbo.Tests_dbo.Surveys_SurveyId] FOREIGN KEY ([SurveyId]) REFERENCES [dbo].[Surveys] ([Id]) ON DELETE CASCADE
-GO
-CREATE INDEX [IX_SurveyId] ON [dbo].[Tests]([SurveyId])
+CREATE INDEX [IX_Tests_SurveyId] ON [dbo].[Tests]([SurveyId])

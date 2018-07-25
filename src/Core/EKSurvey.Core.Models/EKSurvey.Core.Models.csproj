@@ -80,6 +80,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataTransfer\UserSurvey.cs" />
     <Compile Include="Entities\Pages\HtmlPage.cs" />
     <Compile Include="Entities\Pages\IPage.cs" />
     <Compile Include="Entities\Pages\Page.cs" />

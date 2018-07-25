@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EKSurvey.Core.Models.Entities
@@ -20,5 +21,7 @@ namespace EKSurvey.Core.Models.Entities
 
         [ForeignKey("SurveyId")]
         public virtual Survey Survey { get; set; }
+
+        public virtual ICollection<TestResponse> TestResponses { get; set; } = new HashSet<TestResponse>();
     }
 }

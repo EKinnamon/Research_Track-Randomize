@@ -1,0 +1,11 @@
+﻿CREATE USER [EKSurveyUser]
+	FROM LOGIN [EKSurveyUser]
+	WITH DEFAULT_SCHEMA = dbo
+
+GO
+
+GRANT CONNECT TO [EKSurveyUser]
+
+GO
+
+ALTER ROLE [db_owner] ADD MEMBER [EKSurveyUser]

@@ -1,21 +1,18 @@
 ﻿CREATE TABLE [dbo].[TestResponses] (
-    [TestId] [uniqueidentifier] NOT NULL,
-    [SectionId] [int] NOT NULL,
-    [PageId] [int] NOT NULL,
-    [Response] [nvarchar](max),
-    [Created] [datetime] NOT NULL,
-    [Modified] [datetime],
-    CONSTRAINT [PK_dbo.TestResponses] PRIMARY KEY ([TestId], [SectionId], [PageId])
+    [TestId] UNIQUEIDENTIFIER NOT NULL,
+	[SectionId] INT NOT NULL,
+    [PageId] INT NOT NULL,
+    [Response] NVARCHAR(MAX),
+    [Created] DATETIME NOT NULL,
+    [Modified] DATETIME NULL,
+    CONSTRAINT [PK_TestResponses_TestId_SectionId_PageId] PRIMARY KEY ([TestId], [SectionId], [PageId]),
+    CONSTRAINT [FK_TestResponses_TestId] FOREIGN KEY ([TestId]) REFERENCES [dbo].[Tests] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_TestResponses_PageId] FOREIGN KEY ([PageId]) REFERENCES [dbo].[Pages] ([Id]),
+    CONSTRAINT [FK_TestResponses_SectionId] FOREIGN KEY ([SectionId]) REFERENCES [dbo].[Sections] ([Id])
 )
 GO
-ALTER TABLE [dbo].[TestResponses] ADD CONSTRAINT [FK_dbo.TestResponses_dbo.Pages_PageId] FOREIGN KEY ([PageId]) REFERENCES [dbo].[Pages] ([Id]) ON DELETE CASCADE
+CREATE INDEX [IX_TestResponses_TestId] ON [dbo].[TestResponses]([TestId])
 GO
-ALTER TABLE [dbo].[TestResponses] ADD CONSTRAINT [FK_dbo.TestResponses_dbo.Sections_SectionId] FOREIGN KEY ([SectionId]) REFERENCES [dbo].[Sections] ([Id]) ON DELETE CASCADE
+CREATE INDEX [IX_TestResponses_SectionId] ON [dbo].[TestResponses]([SectionId])
 GO
-ALTER TABLE [dbo].[TestResponses] ADD CONSTRAINT [FK_dbo.TestResponses_dbo.Tests_TestId] FOREIGN KEY ([TestId]) REFERENCES [dbo].[Tests] ([Id]) ON DELETE CASCADE
-GO
-CREATE INDEX [IX_TestId] ON [dbo].[TestResponses]([TestId])
-GO
-CREATE INDEX [IX_SectionId] ON [dbo].[TestResponses]([SectionId])
-GO
-CREATE INDEX [IX_PageId] ON [dbo].[TestResponses]([PageId])
+CREATE INDEX [IX_TestResponses_PageId] ON [dbo].[TestResponses]([PageId])

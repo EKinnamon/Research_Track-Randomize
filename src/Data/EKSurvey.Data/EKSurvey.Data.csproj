@@ -54,10 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MembershipDbContext.cs" />
-    <Compile Include="Migrations\201807250649273_Initial.cs" />
-    <Compile Include="Migrations\201807250649273_Initial.Designer.cs">
-      <DependentUpon>201807250649273_Initial.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\MembershipDbContextConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -72,11 +68,6 @@
       <Project>{E2F4918F-BA62-4D90-93A5-18FC1B33BC3D}</Project>
       <Name>EKSurvey.Core.Models</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201807250649273_Initial.resx">
-      <DependentUpon>201807250649273_Initial.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

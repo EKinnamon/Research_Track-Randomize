@@ -1,12 +1,12 @@
 ﻿CREATE TABLE [dbo].[Pages] (
-    [Id] [int] NOT NULL IDENTITY,
-    [SectionId] [int] NOT NULL,
-    [Order] [int] NOT NULL,
-    [Range] [int],
-    [Text] [nvarchar](max),
-    [True] [nvarchar](max),
-    [False] [nvarchar](max),
-    [Discriminator] [nvarchar](128) NOT NULL,
+    [Id] INT NOT NULL IDENTITY(1,1),
+    [SectionId] INT NOT NULL,
+    [Order] INT NOT NULL,
+    [Range] INT,
+    [Text] NVARCHAR(MAX),
+    [True] NVARCHAR(MAX),
+    [False] NVARCHAR(MAX),
+    [Discriminator] NVARCHAR(128) NOT NULL,
     CONSTRAINT [PK_Pages_Id] PRIMARY KEY ([Id]),
 	CONSTRAINT [FK_Pages_SectionId] FOREIGN KEY ([SectionId]) REFERENCES [dbo].[Sections] ([Id]) ON DELETE CASCADE
 )

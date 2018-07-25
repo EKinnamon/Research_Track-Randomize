@@ -1,11 +1,10 @@
 ﻿CREATE TABLE [dbo].[Sections] (
-    [Id] [int] NOT NULL IDENTITY,
-    [SurveyId] [int] NOT NULL,
-    [Name] [nvarchar](MAX),
-    [Order] [int] NOT NULL,
-    CONSTRAINT [PK_dbo.Sections] PRIMARY KEY ([Id])
+    [Id] INT NOT NULL IDENTITY(1,1),
+    [SurveyId] INT NOT NULL,
+    [Name] NVARCHAR(256),
+    [Order] INT NOT NULL,
+    CONSTRAINT [PK_Sections_Id] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_Sections_SurveId] FOREIGN KEY ([SurveyId]) REFERENCES [dbo].[Surveys] ([Id]) ON DELETE CASCADE
 )
 GO
-ALTER TABLE [dbo].[Sections] ADD CONSTRAINT [FK_dbo.Sections_dbo.Surveys_SurveyId] FOREIGN KEY ([SurveyId]) REFERENCES [dbo].[Surveys] ([Id]) ON DELETE CASCADE
-GO
-CREATE INDEX [IX_SurveyId] ON [dbo].[Sections]([SurveyId])
+CREATE INDEX [IX_Sections_SurveyId] ON [dbo].[Sections]([SurveyId])
