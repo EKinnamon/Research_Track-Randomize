@@ -1,9 +1,13 @@
-﻿CREATE TABLE [dbo].[Tests]
-(
-	[Id] UNIQUEIDENTIFIER NOT NULL CONSTRAINT [DF_Tests_Id] DEFAULT NEWID(),
-	[SurveyId] NVARCHAR(256) NOT NULL,
-	[SubjectId] NVARCHAR(256) NOT NULL,
-	[ResponsesJson] NVARCHAR(MAX) NULL
-
-	CONSTRAINT [PK_Tests_SurveyId_SubjectId] PRIMARY KEY ([SurveyId], [SubjectId])
+﻿CREATE TABLE [dbo].[Tests] (
+    [Id] [uniqueidentifier] NOT NULL,
+    [UserId] [nvarchar](max),
+    [SurveyId] [int] NOT NULL,
+    [Started] [datetime] NOT NULL,
+    [Modified] [datetime],
+    [Completed] [datetime],
+    CONSTRAINT [PK_dbo.Tests] PRIMARY KEY ([Id])
 )
+GO
+ALTER TABLE [dbo].[Tests] ADD CONSTRAINT [FK_dbo.Tests_dbo.Surveys_SurveyId] FOREIGN KEY ([SurveyId]) REFERENCES [dbo].[Surveys] ([Id]) ON DELETE CASCADE
+GO
+CREATE INDEX [IX_SurveyId] ON [dbo].[Tests]([SurveyId])

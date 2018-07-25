@@ -17,5 +17,8 @@ namespace EKSurvey.Core.Models.Entities
         public DateTime? Modified { get; set; }
 
         public DateTime? Completed { get; set; }
+
+        [ForeignKey("SurveyId")]
+        public virtual Survey Survey { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace EKSurvey.Core.Models.Entities
 {
-    public class RangeQuestion : Question
+    public class RangeQuestion : Page, IQuestion
     {
         public int Range { get; set; }
     }

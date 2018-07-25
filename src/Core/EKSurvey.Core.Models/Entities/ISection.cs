@@ -5,9 +5,9 @@ namespace EKSurvey.Core.Models.Entities
     public interface ISection
     {
         int Id { get; set; }
-
+        int SurveyId { get; set; }
         string Name { get; set; }
-
-        ICollection<Survey> Surveys { get; set; }
+        Survey Survey { get; set; }
+        ICollection<Page> Pages { get; set; }
     }
 }
