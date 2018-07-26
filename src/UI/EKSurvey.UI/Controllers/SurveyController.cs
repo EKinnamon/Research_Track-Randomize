@@ -26,7 +26,8 @@ namespace EKSurvey.UI.Controllers
         // GET: Survey
         public async Task<ActionResult> Index()
         {
-            var surveys = await _surveyManager.GetSurveysAsync(User.Identity.GetUserId());
+            var surveys1 = _surveyManager.GetUserSurveys(User.Identity.GetUserId());
+            var surveys = await _surveyManager.GetUserSurveysAsync(User.Identity.GetUserId());
             var viewModel = _mapper.Map<IndexViewModel>(surveys);
 
             return View(viewModel);

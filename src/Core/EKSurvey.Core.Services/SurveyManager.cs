@@ -27,7 +27,7 @@ namespace EKSurvey.Core.Services
         public IQueryable<Survey> GetActiveSurveys()
         {
             var surveys =
-                from s in Surveys
+                from s in Surveys.Include(s => s.Tests)
                 where s.IsActive &&
                       !s.Deleted.HasValue
                 select s;
@@ -40,7 +40,7 @@ namespace EKSurvey.Core.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             var surveys =
-                from s in Surveys
+                from s in Surveys.Include(s => s.Tests)
                 where s.IsActive &&
                       !s.Deleted.HasValue
                 select s;
@@ -73,11 +73,13 @@ namespace EKSurvey.Core.Services
                       !t.Completed.HasValue
                 select s;
 
+            var surveyList = Surveys.ToList();
+
             results = _mapper.Map<IEnumerable<UserSurvey>>(surveys, Opt);
             return new HashSet<UserSurvey>(results);
         }
 
-        public async Task<ICollection<UserSurvey>> GetSurveysAsync(string userId, bool includeCompleted = false, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ICollection<UserSurvey>> GetUserSurveysAsync(string userId, bool includeCompleted = false, CancellationToken cancellationToken = default(CancellationToken))
         {
             IEnumerable<UserSurvey> results;
 
@@ -101,6 +103,8 @@ namespace EKSurvey.Core.Services
                 where !s.Deleted.HasValue &&
                       t.Completed.HasValue
                 select s;
+
+            var surveyList = surveys.ToList();
 
             results = _mapper.Map<IEnumerable<UserSurvey>>(surveys, Opt);
             return new HashSet<UserSurvey>(results);

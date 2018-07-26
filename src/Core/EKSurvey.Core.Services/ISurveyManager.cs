@@ -8,6 +8,6 @@ namespace EKSurvey.Core.Services
     public interface ISurveyManager
     {
         ICollection<UserSurvey> GetUserSurveys(string userId, bool includeCompleted = false);
-        Task<ICollection<UserSurvey>> GetSurveysAsync(string userId, bool includeCompleted = false, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ICollection<UserSurvey>> GetUserSurveysAsync(string userId, bool includeCompleted = false, CancellationToken cancellationToken = default(CancellationToken));
     }
 }
