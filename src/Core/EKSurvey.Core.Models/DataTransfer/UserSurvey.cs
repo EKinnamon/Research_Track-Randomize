@@ -18,6 +18,8 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public DateTime? Modified { get; set; }
 
+        public DateTime? Started { get; set; }
+
         public DateTime? Completed { get; set; }
 
     }

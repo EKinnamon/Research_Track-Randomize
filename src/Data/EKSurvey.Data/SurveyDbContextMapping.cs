@@ -1,0 +1,32 @@
+﻿using System.Data.Entity.ModelConfiguration;
+using EKSurvey.Core.Models.Entities;
+
+namespace EKSurvey.Data
+{
+    public class TestResponseMap : EntityTypeConfiguration<TestResponse>
+    {
+        public TestResponseMap()
+        {
+            //this.HasRequired(tr => tr.Test)
+            //    .WithMany(t => t.TestResponses)
+            //    .WillCascadeOnDelete(true);
+
+            this.HasRequired(t => t.Section)
+                .WithMany(s => s.TestResponses)
+                .WillCascadeOnDelete(false);
+
+
+            this.HasRequired(t => t.Page)
+                .WithMany(p => p.TestResponses)
+                .WillCascadeOnDelete(false);
+        }
+    }
+
+    public class TestMap : EntityTypeConfiguration<Test> { }
+
+    public class PageMap : EntityTypeConfiguration<Page> { }
+
+    public class SectionMap : EntityTypeConfiguration<Section> { }
+
+    public class SurveyMap : EntityTypeConfiguration<Survey> { }
+}

@@ -16,6 +16,7 @@ namespace EKSurvey.UI.Modules
         private static void GenerateMapperConfiguration(IMapperConfigurationExpression config)
         {
             config.AddProfile<ViewModelProfile>();
+            config.AddProfile<DtoModelProfile>();
             config.ConstructServicesUsing(DependencyResolver.Current.GetService);
         }
 

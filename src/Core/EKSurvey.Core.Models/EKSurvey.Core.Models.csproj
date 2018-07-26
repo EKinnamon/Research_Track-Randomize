@@ -86,7 +86,6 @@
     <Compile Include="Entities\Pages\Page.cs" />
     <Compile Include="Entities\Pages\FreeTextQuestion.cs" />
     <Compile Include="Entities\Pages\IQuestion.cs" />
-    <Compile Include="Entities\ISection.cs" />
     <Compile Include="Entities\Pages\RangeQuestion.cs" />
     <Compile Include="Entities\Pages\StaticTextPage.cs" />
     <Compile Include="Entities\Test.cs" />
@@ -111,6 +110,9 @@
     <Compile Include="ViewModels\Manager\ManageLoginsViewModel.cs" />
     <Compile Include="ViewModels\Manager\SetPasswordViewModel.cs" />
     <Compile Include="ViewModels\Manager\VerifyPhoneNumberViewModel.cs" />
+    <Compile Include="ViewModels\Survey\IndexViewModel.cs" />
+    <Compile Include="ViewModels\Test\CreateViewModel.cs" />
+    <Compile Include="ViewModels\Test\ResponseViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

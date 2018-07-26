@@ -7,7 +7,7 @@ namespace EKSurvey.Core.Models.Entities
     [Table("Pages")]
     public abstract class Page : IPage
     {
-        [Key]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         public int SectionId { get; set; }

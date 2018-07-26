@@ -4,7 +4,9 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using AutoMapper;
+
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
 
@@ -18,11 +20,10 @@ namespace EKSurvey.Core.Services
         public SurveyManager(DbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(dbContext));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         protected DbSet<Survey> Surveys => _dbContext.Set<Survey>();
-        protected DbSet<Test> Tests => _dbContext.Set<Test>();
 
         public IQueryable<Survey> GetActiveSurveys()
         {
@@ -60,20 +61,10 @@ namespace EKSurvey.Core.Services
                 return new HashSet<UserSurvey>(results);
             }
 
-            var userTests =
-                from t in Tests
-                where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) &&
-                      !t.Completed.HasValue
-                select t;
-
             var surveys =
                 from s in GetActiveSurveys()
-                join t in userTests on s.Id equals t.SurveyId
-                where !s.Deleted.HasValue && 
-                      !t.Completed.HasValue
+                where !s.Tests.Any(st => st.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase))
                 select s;
-
-            var surveyList = Surveys.ToList();
 
             results = _mapper.Map<IEnumerable<UserSurvey>>(surveys, Opt);
             return new HashSet<UserSurvey>(results);
@@ -91,20 +82,10 @@ namespace EKSurvey.Core.Services
                 return new HashSet<UserSurvey>(results);
             }
 
-            var userTests =
-                from t in Tests
-                where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) &&
-                      !t.Completed.HasValue
-                select t;
-
             var surveys =
                 from s in await GetActiveSurveysAsync(cancellationToken)
-                join t in userTests on s.Id equals t.SurveyId
-                where !s.Deleted.HasValue &&
-                      t.Completed.HasValue
+                where !s.Tests.Any(st => st.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase))
                 select s;
-
-            var surveyList = surveys.ToList();
 
             results = _mapper.Map<IEnumerable<UserSurvey>>(surveys, Opt);
             return new HashSet<UserSurvey>(results);

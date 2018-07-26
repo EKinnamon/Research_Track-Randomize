@@ -1,7 +1,38 @@
-﻿@model dynamic
+﻿@using EKSurvey.Core.Models.ViewModels.Survey
+@using EKSurvey.Core.Models.ViewModels.Test
+@model IndexViewModel
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "Available Surveys";
 }
+<div class="row">
+    <div class="col-md-6 bg-light py-5">
+        <h2 class="display-4">Available Surveys</h2>
+        @if (Model.NextSurvey == null)
+        {
+            <p class="lead">There are no available surveys at this time. Thank you for your participation.</p>
+        }
+        else
+        {
+            <h3>@Model.NextSurvey.Name</h3>
+            <p class="lead mb-5">
+                You may begin the survey at any time. If you need to stop the survey, you may. It will continue where you left off.
+            </p>
+            <div class="row">
+                <div class="offset-md-4 col-md-8">
+                    @(!Model.NextSurvey.Started.HasValue 
+                          ? Html.Partial("~/Views/Test/_Create.cshtml", new CreateViewModel {SurveyId = Model.NextSurvey.Id, SurveyName = Model.NextSurvey.Name, UserId = Model.NextSurvey.UserId}) 
+                          : Html.ActionLink($"Continue {Model.NextSurvey.Name}", "Respond", "Test", new ResponseViewModel {SurveyId = Model.NextSurvey.Id, UserId = Model.NextSurvey.UserId}, new {@class = "btn btn-primary btn-block"}))
+                </div>
+            </div>
+        }
+    </div>
+    <div class="col-md-6">
+        @if (Model.AvailableSurveys.Any())
+        {
 
-<h2>title</h2>
+        }
+        
+        @if (Model.)
+    </div>
+</div>

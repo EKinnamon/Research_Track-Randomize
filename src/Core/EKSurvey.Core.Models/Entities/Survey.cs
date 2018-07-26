@@ -27,8 +27,7 @@ namespace EKSurvey.Core.Models.Entities
 
         public DateTime? Deleted { get; set; }
 
-        public virtual ICollection<Section> Sections { get; set; } = new HashSet<Section>();
-
+        //public virtual ICollection<Section> Sections { get; set; } = new HashSet<Section>();
 
         public virtual ICollection<Test> Tests { get; set; } = new HashSet<Test>();
     }

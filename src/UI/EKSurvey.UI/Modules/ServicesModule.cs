@@ -32,6 +32,10 @@ namespace EKSurvey.UI.Modules
             builder.Register(c => new SurveyManager(c.ResolveNamed<DbContext>("surveyDbContext"), c.Resolve<IMapper>()))
                 .As<ISurveyManager>()
                 .InstancePerRequest();
+
+            builder.Register(c => new TestManager(c.ResolveNamed<DbContext>("surveyDbContext"), c.Resolve<IMapper>()))
+                .As<ITestManager>()
+                .InstancePerRequest();
         }
     }
 }

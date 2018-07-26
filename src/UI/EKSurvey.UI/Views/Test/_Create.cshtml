@@ -1,0 +1,12 @@
+﻿@using EKSurvey.Core.Models.ViewModels.Test
+@model CreateViewModel
+@using (Html.BeginForm("Create", "Test", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.UserId)
+    @Html.HiddenFor(m => m.SurveyId)
+    <button class="btn btn-success btn-block" type="submit">
+        <i class="fa fa-check-square-o"></i>
+        Begin @Model.SurveyName
+    </button>
+}

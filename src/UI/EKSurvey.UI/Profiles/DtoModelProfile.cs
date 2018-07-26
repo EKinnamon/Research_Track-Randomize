@@ -17,11 +17,11 @@ namespace EKSurvey.UI.Profiles
                     var userId = ctx.Items["userId"].ToString();
                     dest.UserId = userId;
 
-                    var userTests =
-                        from ut in src.Tests
-                        where ut.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase)
-                        select ut;
-                    dest.Completed = userTests.FirstOrDefault(t => t.Completed.HasValue)?.Completed;
+                    var userTest = src.Tests.FirstOrDefault(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
+
+                    dest.Started = userTest?.Started;
+
+                    dest.Completed = userTest?.Completed;
                 });
         }
     }

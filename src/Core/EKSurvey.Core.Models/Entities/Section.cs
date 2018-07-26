@@ -5,8 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace EKSurvey.Core.Models.Entities
 {
     [Table("Sections")]
-    public class Section : ISection
+    public class Section
     {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         public int SurveyId { get; set; }

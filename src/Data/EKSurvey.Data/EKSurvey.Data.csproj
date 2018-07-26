@@ -58,6 +58,7 @@
     <Compile Include="Migrations\MembershipDbContextConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SurveyDbContext.cs" />
+    <Compile Include="SurveyDbContextMapping.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
