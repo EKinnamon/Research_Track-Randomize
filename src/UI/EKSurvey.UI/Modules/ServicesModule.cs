@@ -1,5 +1,8 @@
-﻿using System.Web;
+﻿using System.Data.Entity;
+using System.Web;
 using Autofac;
+using AutoMapper;
+using EKSurvey.Core.Services;
 using EKSurvey.Data;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
@@ -14,10 +17,21 @@ namespace EKSurvey.UI.Modules
                 .As<IOwinContext>()
                 .InstancePerRequest();
 
-            builder.Register(x => HttpContext.Current.GetOwinContext().Get<MembershipDbContext>()).AsSelf().InstancePerRequest();
-            builder.Register(x => HttpContext.Current.GetOwinContext().Get<ApplicationUserManager>()).AsSelf().InstancePerRequest();
-            builder.Register(x => HttpContext.Current.GetOwinContext().Get<ApplicationSignInManager>()).AsSelf().InstancePerRequest();
+            builder.Register(c => HttpContext.Current.GetOwinContext().Get<MembershipDbContext>())
+                .AsSelf()
+                .InstancePerRequest();
 
+            builder.Register(c => HttpContext.Current.GetOwinContext().Get<ApplicationUserManager>())
+                .AsSelf()
+                .InstancePerRequest();
+
+            builder.Register(c => HttpContext.Current.GetOwinContext().Get<ApplicationSignInManager>())
+                .AsSelf()
+                .InstancePerRequest();
+
+            builder.Register(c => new SurveyManager(c.ResolveNamed<DbContext>("surveyDbContext"), c.Resolve<IMapper>()))
+                .As<ISurveyManager>()
+                .InstancePerRequest();
         }
     }
 }
