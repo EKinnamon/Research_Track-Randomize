@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using AutoMapper;
 using EKSurvey.Core.Models.ViewModels.Test;
 using EKSurvey.Core.Services;
+using Elmah;
 
 namespace EKSurvey.UI.Controllers
 {
@@ -35,6 +36,7 @@ namespace EKSurvey.UI.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
+                ErrorSignal.FromCurrentContext().Raise(ex);
                 TempData["Errors"] = ModelState;
             }
 
