@@ -5,9 +5,12 @@
 @{
     ViewBag.Title = "Available Surveys";
 }
+
+@Html.Partial("_Notification")
+
 <div class="row">
     <div class="col-md-6 bg-light py-5">
-        <h2 class="display-4">Available Surveys</h2>
+        <h2 class="display-4">Your surveys</h2>
         @if (Model.NextSurvey == null)
         {
             <p class="lead">There are no available surveys at this time. Thank you for your participation.</p>
@@ -16,7 +19,7 @@
         {
             <h3>@Model.NextSurvey.Name</h3>
             <p class="lead mb-5">
-                You may begin the survey at any time. If you need to stop the survey, you may. It will continue where you left off.
+                You may start and stop the survey at any time.
             </p>
             <div class="row">
                 <div class="offset-md-4 col-md-8">
@@ -30,9 +33,37 @@
     <div class="col-md-6">
         @if (Model.AvailableSurveys.Any())
         {
+            <table class="table">
+                <thead>
+                <tr>
+                    <th colspan="2">Available Surveys</th>
+                </tr>
+                </thead>
+                <tfoot></tfoot>
+                <tbody>
+                    @foreach (var survey in Model.AvailableSurveys)
+                    {
+                        <tr>
+                            <th>@survey.Name</th>
+                            <td class="text-right">
+                                @if (!survey.Started.HasValue)
+                                {
+                                    @Html.Partial("~/Views/Test/_Create.cshtml", new CreateViewModel { SurveyId = survey.Id, SurveyName = survey.Name, UserId = survey.UserId }, new ViewDataDictionary {{"FormContext", "table"}})
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary" type="button">thing</button>
+                                }
+                            </td>
+                        </tr>
+                    }
 
+                </tbody>
+            </table>
         }
         
-        @if (Model.)
+        @if (Model.CompletedSurveys.Any())
+        {
+        }
     </div>
 </div>

@@ -35,6 +35,7 @@ namespace EKSurvey.UI.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
+                TempData["Errors"] = ModelState;
             }
 
             return RedirectToAction("Index", "Survey");

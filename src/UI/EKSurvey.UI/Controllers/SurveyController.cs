@@ -26,6 +26,11 @@ namespace EKSurvey.UI.Controllers
         [HttpGet]
         public async Task<ActionResult> Index()
         {
+            if (TempData["Errors"] != null)
+            {
+                ViewBag.Errors = TempData["Errors"];
+            }
+
             var surveys = await _surveyManager.GetUserSurveysAsync(User.Identity.GetUserId());
             var viewModel = _mapper.Map<IndexViewModel>(surveys);
 
