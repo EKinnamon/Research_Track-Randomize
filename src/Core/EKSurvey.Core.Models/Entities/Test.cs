@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,6 +11,7 @@ namespace EKSurvey.Core.Models.Entities
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
+        [StringLength(128)]
         public string UserId { get; set; }
 
         public int SurveyId { get; set; }
@@ -21,8 +23,9 @@ namespace EKSurvey.Core.Models.Entities
         public DateTime? Completed { get; set; }
 
         [ForeignKey("SurveyId")]
+
         public virtual Survey Survey { get; set; }
 
-        //public virtual ICollection<TestResponse> TestResponses { get; set; } = new HashSet<TestResponse>();
+        public virtual ICollection<TestResponse> TestResponses { get; set; } = new HashSet<TestResponse>();
     }
 }

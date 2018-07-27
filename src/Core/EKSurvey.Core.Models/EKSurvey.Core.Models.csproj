@@ -81,17 +81,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataTransfer\UserSurvey.cs" />
-    <Compile Include="Entities\Pages\HtmlPage.cs" />
     <Compile Include="Entities\Pages\IPage.cs" />
-    <Compile Include="Entities\Pages\Page.cs" />
-    <Compile Include="Entities\Pages\FreeTextQuestion.cs" />
     <Compile Include="Entities\Pages\IQuestion.cs" />
-    <Compile Include="Entities\Pages\RangeQuestion.cs" />
+    <Compile Include="Entities\Pages\Page.cs" />
     <Compile Include="Entities\Pages\StaticTextPage.cs" />
     <Compile Include="Entities\Test.cs" />
     <Compile Include="Entities\Section.cs" />
     <Compile Include="Entities\TestResponse.cs" />
-    <Compile Include="Entities\Pages\TrueFalseQuestion.cs" />
     <Compile Include="Entities\Survey.cs" />
     <Compile Include="Identity\ApplicationUser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

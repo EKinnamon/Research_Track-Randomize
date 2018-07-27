@@ -7,16 +7,11 @@ namespace EKSurvey.Data
     {
         public TestResponseMap()
         {
-            //this.HasRequired(tr => tr.Test)
-            //    .WithMany(t => t.TestResponses)
-            //    .WillCascadeOnDelete(true);
-
-            this.HasRequired(t => t.Section)
+            this.HasRequired(tr => tr.Section)
                 .WithMany(s => s.TestResponses)
                 .WillCascadeOnDelete(false);
 
-
-            this.HasRequired(t => t.Page)
+            this.HasRequired(tr => tr.Page)
                 .WithMany(p => p.TestResponses)
                 .WillCascadeOnDelete(false);
         }

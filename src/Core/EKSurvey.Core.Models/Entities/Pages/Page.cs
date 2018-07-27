@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace EKSurvey.Core.Models.Entities
 {
     [Table("Pages")]
-    public abstract class Page : IPage
+    public class Page : IPage
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }

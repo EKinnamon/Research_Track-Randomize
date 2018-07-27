@@ -12,11 +12,11 @@ namespace EKSurvey.Core.Models.Entities
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(256)]
+        [StringLength(256)]
         public string Name { get; set; }
 
         [Required]
-        [MaxLength(64)]
+        [StringLength(64)]
         public string Version { get; set; }
 
         public bool IsActive { get; set; } = true;
@@ -27,7 +27,7 @@ namespace EKSurvey.Core.Models.Entities
 
         public DateTime? Deleted { get; set; }
 
-        //public virtual ICollection<Section> Sections { get; set; } = new HashSet<Section>();
+        public virtual ICollection<Section> Sections { get; set; } = new HashSet<Section>();
 
         public virtual ICollection<Test> Tests { get; set; } = new HashSet<Test>();
     }

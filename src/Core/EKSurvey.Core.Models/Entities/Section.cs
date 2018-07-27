@@ -12,12 +12,13 @@ namespace EKSurvey.Core.Models.Entities
 
         public int SurveyId { get; set; }
 
-        [MaxLength(256)]
+        [StringLength(256)]
         public string Name { get; set; }
 
         public int Order { get; set; }
 
         [ForeignKey("SurveyId")]
+
         public virtual Survey Survey { get; set; }
 
         public virtual ICollection<Page> Pages { get; set; } = new HashSet<Page>();
