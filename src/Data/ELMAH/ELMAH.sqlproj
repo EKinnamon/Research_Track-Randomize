@@ -4,16 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <Name>EKSurvey.Db</Name>
+    <Name>ELMAH</Name>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
-    <ProjectGuid>{913cfde4-f626-4472-b084-a234fd941a1f}</ProjectGuid>
+    <ProjectGuid>{ad8ea5d6-20bf-436e-b0fb-b3fd93d24c94}</ProjectGuid>
     <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
-    <RootNamespace>EKSurvey.Db</RootNamespace>
-    <AssemblyName>EKSurvey.Db</AssemblyName>
+    <RootNamespace>ELMAH</RootNamespace>
+    <AssemblyName>ELMAH</AssemblyName>
     <ModelCollation>1033, CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
@@ -57,19 +57,19 @@
   <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
     <Folder Include="Properties" />
-    <Folder Include="dbo" />
-    <Folder Include="dbo\Tables" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+    <Folder Include="dbo\Stored Procedures\" />
     <Folder Include="Security" />
     <Folder Include="Security\Logins" />
     <Folder Include="Security\Users" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Security\Users\EKSurveyUser.sql" />
-    <Build Include="Security\Logins\EKSurveyUser.sql" />
-    <Build Include="dbo\Tables\Pages.sql" />
-    <Build Include="dbo\Tables\Sections.sql" />
-    <Build Include="dbo\Tables\Surveys.sql" />
-    <Build Include="dbo\Tables\TestResponses.sql" />
-    <Build Include="dbo\Tables\Tests.sql" />
+    <Build Include="dbo\Tables\ELMAH_Error.sql" />
+    <Build Include="dbo\Stored Procedures\ELMAH_GetErrorXml.sql" />
+    <Build Include="dbo\Stored Procedures\ELMAH_GetErrorsXml.sql" />
+    <Build Include="dbo\Stored Procedures\ELMAH_LogError.sql" />
+    <Build Include="Security\Logins\ELMAH.sql" />
+    <Build Include="Security\Users\ELMAH.sql" />
   </ItemGroup>
 </Project>
