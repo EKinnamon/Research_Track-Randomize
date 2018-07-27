@@ -28,7 +28,7 @@ namespace EKSurvey.Core.Services
             {
                 SurveyId = surveyId,
                 UserId = userId,
-                Started = DateTime.UtcNow,
+                Started = DateTime.UtcNow
             };
 
             return test;
@@ -39,7 +39,6 @@ namespace EKSurvey.Core.Services
             var survey = Surveys.Find(surveyId) ?? throw new SurveyNotFoundException(surveyId);
 
             var test = GenerateTest(surveyId, userId);
-            test.Survey = survey;
             Tests.Add(test);
             _dbContext.SaveChanges();
 
@@ -48,10 +47,9 @@ namespace EKSurvey.Core.Services
 
         public async Task<Test> CreateAsync(int surveyId, string userId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var survey = await Surveys.FindAsync(cancellationToken, surveyId) ?? throw new SurveyNotFoundException(surveyId);
+            var survey = Surveys.FindAsync(cancellationToken, surveyId) ?? throw new SurveyNotFoundException(surveyId);
 
             var test = GenerateTest(surveyId, userId);
-            test.Survey = survey;
             Tests.Add(test);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
