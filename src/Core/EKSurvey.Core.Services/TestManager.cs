@@ -36,7 +36,9 @@ namespace EKSurvey.Core.Services
 
         public Test Create(int surveyId, string userId)
         {
-            var survey = Surveys.Find(surveyId) ?? throw new SurveyNotFoundException(surveyId);
+            var survey = Surveys.Find(surveyId);
+            if (survey == null)
+                throw new SurveyNotFoundException(surveyId);
 
             var test = GenerateTest(surveyId, userId);
             Tests.Add(test);
@@ -47,7 +49,9 @@ namespace EKSurvey.Core.Services
 
         public async Task<Test> CreateAsync(int surveyId, string userId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var survey = Surveys.FindAsync(cancellationToken, surveyId) ?? throw new SurveyNotFoundException(surveyId);
+            var survey = Surveys.FindAsync(cancellationToken, surveyId);
+            if (survey == null)
+                throw new SurveyNotFoundException(surveyId);
 
             var test = GenerateTest(surveyId, userId);
             Tests.Add(test);
