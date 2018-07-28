@@ -10,7 +10,7 @@ namespace EKSurvey.Core.Models.Entities
     {
         public Guid Id { get; set; }
 
-        [Key, Column(Order=0), StringLength(128)]
+        [Key, Column(Order=0), Required, StringLength(128)]
         public string UserId { get; set; }
 
         [Key, Column(Order=1)]
