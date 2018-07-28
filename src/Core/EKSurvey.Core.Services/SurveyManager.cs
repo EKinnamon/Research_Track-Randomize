@@ -63,7 +63,7 @@ namespace EKSurvey.Core.Services
 
             var surveys =
                 from s in GetActiveSurveys()
-                where !s.Tests.Any(st => st.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase))
+                where !s.Tests.Any(st => st.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && st.Completed.HasValue)
                 select s;
 
             results = _mapper.Map<IEnumerable<UserSurvey>>(surveys, Opt);
@@ -84,7 +84,7 @@ namespace EKSurvey.Core.Services
 
             var surveys =
                 from s in await GetActiveSurveysAsync(cancellationToken)
-                where !s.Tests.Any(st => st.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase))
+                where !s.Tests.Any(st => st.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && st.Completed.HasValue)
                 select s;
 
             results = _mapper.Map<IEnumerable<UserSurvey>>(surveys, Opt);

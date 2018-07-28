@@ -27,12 +27,12 @@ namespace EKSurvey.UI.Modules
             builder.RegisterType<MembershipDbContext>()
                 .Named<DbContext>("membershipDbContext")
                 .AsSelf()
-                .SingleInstance();
+                .InstancePerRequest();
 
             builder.RegisterType<SurveyDbContext>()
                 .Named<DbContext>("surveyDbContext")
                 .AsSelf()
-                .SingleInstance();
+                .InstancePerRequest();
 
             builder.Register(c => new UserStore<ApplicationUser>(c.ResolveNamed<DbContext>("membershipDbContext")))
                 .As<IUserStore<ApplicationUser>>()
