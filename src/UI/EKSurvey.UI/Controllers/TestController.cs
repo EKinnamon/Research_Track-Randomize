@@ -8,6 +8,7 @@ using EKSurvey.Core.Models.ViewModels.Test;
 using EKSurvey.Core.Services;
 
 using Elmah;
+using Microsoft.AspNet.Identity;
 
 namespace EKSurvey.UI.Controllers
 {
@@ -49,10 +50,10 @@ namespace EKSurvey.UI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Respond(ResponseViewModel viewModel)
+        public async Task<ActionResult> Respond(int id)
         {
-            var page = await _surveyManager.GetCurrentUserPageAsync(viewModel.UserId, viewModel.SurveyId);
-            _mapper.Map(page, viewModel);
+            var page = await _surveyManager.GetCurrentUserPageAsync(User.Identity.GetUserId(), id);
+            var viewModel = _mapper.Map<ResponseViewModel>(page);
             return View(viewModel);
         }
     }
