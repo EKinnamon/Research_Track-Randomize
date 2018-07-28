@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using EKSurvey.Core.Models.Enums;
 
 namespace EKSurvey.Core.Models.Entities
 {
@@ -16,6 +17,8 @@ namespace EKSurvey.Core.Models.Entities
         public string Name { get; set; }
 
         public int Order { get; set; }
+
+        public SelectorType? SelectorType { get; set; }
 
         [ForeignKey("SurveyId")]
 

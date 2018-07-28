@@ -23,9 +23,7 @@
             </p>
             <div class="row">
                 <div class="offset-md-4 col-md-8">
-                    @(!Model.NextSurvey.Started.HasValue 
-                          ? Html.Partial("~/Views/Test/_Create.cshtml", new CreateViewModel {SurveyId = Model.NextSurvey.Id, SurveyName = Model.NextSurvey.Name, UserId = Model.NextSurvey.UserId}) 
-                          : Html.ActionLink($"Continue {Model.NextSurvey.Name}", "Respond", "Test", new { Model.NextSurvey.Id }, new {@class = "btn btn-primary btn-block"}))
+                    @Html.Partial("_TestStartContinuePrompt", Model.NextSurvey)
                 </div>
             </div>
         }
@@ -46,14 +44,7 @@
                         <tr>
                             <th>@survey.Name</th>
                             <td class="text-right">
-                                @if (!survey.Started.HasValue)
-                                {
-                                    @Html.Partial("~/Views/Test/_Create.cshtml", new CreateViewModel { SurveyId = survey.Id, SurveyName = survey.Name, UserId = survey.UserId }, new ViewDataDictionary {{"FormContext", "table"}})
-                                }
-                                else
-                                {
-                                    <button class="btn btn-primary" type="button">thing</button>
-                                }
+                                @Html.Partial("_TestStartContinuePrompt", Model.NextSurvey, new ViewDataDictionary{{"formContext", "table"}})
                             </td>
                         </tr>
                     }

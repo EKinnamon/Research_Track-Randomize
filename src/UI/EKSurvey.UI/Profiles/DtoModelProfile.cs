@@ -31,17 +31,21 @@ namespace EKSurvey.UI.Profiles
                     var userId = ctx.Items["userId"].ToString();
                     dest.UserId = userId;
 
-                    var userTest = src.Survey.Tests.FirstOrDefault(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
+                    dest.TestId = src.TestSectionMarkers
+                        .First(tsm => tsm.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase))
+                        .TestId;
 
-                    dest.Started = userTest?.TestResponses
-                        .Where(r => r.SectionId == src.Id)
-                        .Min(r => r.Created);
+                    dest.Started = src.TestSectionMarkers
+                        .Where(tsm => tsm.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && !tsm.Completed.HasValue)
+                        .Max(tsm => tsm.Started);
 
-                    dest.Modified = userTest?.TestResponses
-                        .Where(r => r.SectionId == src.Id)
+                    dest.Modified = src.TestResponses
+                        .Where(r => r.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && r.SectionId == src.Id)
                         .Max(r => r.Modified.GetValueOrDefault(r.Created));
 
-                    //var sectionCompleted = userTest.TestResponses.
+                    dest.Completed = src.TestSectionMarkers
+                        .Where(tsm => tsm.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && tsm.Completed.HasValue)
+                        .Max(tsm => tsm.Completed);
                 });
         }
     }

@@ -334,6 +334,7 @@
     <Content Include="Views\Test\_Create.cshtml" />
     <Content Include="Views\Shared\_Notification.cshtml" />
     <Content Include="Views\Test\Respond.cshtml" />
+    <Content Include="Views\Survey\_TestStartContinuePrompt.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

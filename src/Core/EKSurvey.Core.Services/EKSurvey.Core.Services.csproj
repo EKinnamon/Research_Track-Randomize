@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\InvalidSectionConfiguration.cs" />
     <Compile Include="Exceptions\SectionNotFoundException.cs" />
     <Compile Include="ISurveyManager.cs" />
     <Compile Include="ITestManager.cs" />

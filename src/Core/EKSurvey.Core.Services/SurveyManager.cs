@@ -9,6 +9,7 @@ using AutoMapper;
 
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
+using EKSurvey.Core.Models.Enums;
 using EKSurvey.Core.Services.Exceptions;
 
 namespace EKSurvey.Core.Services
@@ -27,6 +28,34 @@ namespace EKSurvey.Core.Services
         protected DbSet<Survey> Surveys => _dbContext.Set<Survey>();
         protected DbSet<Section> Sections => _dbContext.Set<Section>();
         protected DbSet<Page> Pages => _dbContext.Set<Page>();
+
+        private static Action<IMappingOperationOptions> Opt(string userId) => o => o.Items.Add("userId", userId);
+
+        private static UserSection SelectSection(IList<UserSection> sections, SelectorType selectorType)
+        {
+            var rng = new Random();
+            var selectionIndex = 0;
+            switch (selectorType)
+            {
+                case SelectorType.Random:
+                    selectionIndex = rng.Next(0, sections.Count);
+                    break;
+                case SelectorType.ResponseStandardDeviation:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(selectorType), selectorType, null);
+            }
+
+            return sections[selectionIndex];
+        }
+
+        private void MakeActiveSection(UserSection userSection)
+        {
+            var section = Sections.Find(userSection.Id);
+            var sectionMarker = new TestSectionMarker
+            {
+            };
+        }
 
         public IQueryable<Survey> GetActiveSurveys()
         {
@@ -51,8 +80,6 @@ namespace EKSurvey.Core.Services
 
             return Task.FromResult(surveys);
         }
-
-        private static Action<IMappingOperationOptions> Opt(string userId) => o => o.Items.Add("userId", userId);
 
         public ICollection<UserSurvey> GetUserSurveys(string userId, bool includeCompleted = false)
         {
@@ -99,11 +126,70 @@ namespace EKSurvey.Core.Services
             return new HashSet<UserSection>(results.OrderBy(i => i.Order));
         }
 
-        public async Task<ICollection<UserSection>> GetUserSectionsAsync(string userId, int surveyId)
+        public async Task<ICollection<UserSection>> GetUserSectionsAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
             var survey = await Surveys.FindAsync(surveyId) ?? throw new SurveyNotFoundException(surveyId);
             var results = _mapper.Map<ICollection<UserSection>>(survey.Sections, Opt(userId));
             return new HashSet<UserSection>(results.OrderBy(i => i.Order));
+        }
+
+        public UserSection GetCurrentUserSection(string userId, int surveyId)
+        {
+            var survey = Surveys.Find(surveyId) ?? throw new SurveyNotFoundException(surveyId);
+            var sections = GetUserSections(userId, surveyId);
+            var activeSection = sections.FirstOrDefault(s => s.Started.HasValue && !s.Completed.HasValue);
+            if (activeSection != null)
+                return activeSection;
+            
+            // create a new active section
+            var availableSections =
+                from s in sections
+                where !s.Started.HasValue
+                orderby s.Order
+                select s;
+
+            var sectionStacks =
+                from s in availableSections
+                group s by s.Order
+                into st
+                select new { Order = st.Key, Stack = st.ToList() };
+
+            var stack = sectionStacks.OrderBy(st => st.Order).FirstOrDefault()?.Stack ?? new List<UserSection>();
+
+            if (!stack.Any())
+                return null;
+
+            var selectors = stack
+                .Select(s => s.SelectorType)
+                .Distinct()
+                .Where(s => s.HasValue)
+                .Cast<SelectorType>()
+                .ToList();
+
+            if (selectors.Count > 1)
+            {
+                throw new InvalidSectionConfiguration(survey.Name);
+            }
+
+            activeSection = SelectSection(stack, selectors.First());
+
+            MakeActiveSection(activeSection);
+
+            return activeSection;
+        }
+
+        public ICollection<UserPage> GetUserPages(string userId, int sectionId)
+        {
+            var section = Sections.Find(sectionId) ?? throw new SectionNotFoundException(sectionId);
+            var results = _mapper.Map<ICollection<UserPage>>(section.Pages, Opt(userId));
+            return new HashSet<UserPage>(results.OrderBy(i => i.Page.Order));
+        }
+
+        public async Task<ICollection<UserPage>> GetUserPagesAsync(string userId, int sectionId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var section = await Sections.FindAsync(sectionId) ?? throw new SectionNotFoundException(sectionId);
+            var results = _mapper.Map<ICollection<UserPage>>(section.Pages, Opt(userId));
+            return new HashSet<UserPage>(results.OrderBy(i => i.Page.Order));
         }
 
         public UserPage GetCurrentUserPage(string userId, int surveyId)
@@ -115,17 +201,13 @@ namespace EKSurvey.Core.Services
             return pages.OrderBy(p => p.Page.Order).FirstOrDefault(p => !p.Responded.HasValue);
         }
 
-        public  ICollection<UserPage> GetUserPages(string userId, int sectionId)
+        public async Task<UserPage> GetCurrentUserPageAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var section = Sections.Find(sectionId) ?? throw new SectionNotFoundException(sectionId);
-            var results = _mapper.Map<ICollection<UserPage>>(section.Pages, Opt(userId));
-            return new HashSet<UserPage>(results.OrderBy(i => i.Page.Order));
-        }
+            var sections = await GetUserSectionsAsync(userId, surveyId, cancellationToken);
+            var currentSection = sections.First(s => !s.Completed.HasValue);
+            var pages = GetUserPages(userId, currentSection.Id);
 
-
-        public Task<UserPage> GetCurrentUserPageAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
+            return pages.OrderBy(p => p.Page.Order).FirstOrDefault(p => !p.Responded.HasValue);
         }
 
     }

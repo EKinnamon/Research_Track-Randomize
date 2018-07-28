@@ -8,12 +8,12 @@ namespace EKSurvey.Core.Models.Entities
     [Table("Tests")]
     public class Test
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
-        [StringLength(128)]
+        [Key, Column(Order=0), StringLength(128)]
         public string UserId { get; set; }
 
+        [Key, Column(Order=1)]
         public int SurveyId { get; set; }
 
         public DateTime Started { get; set; }

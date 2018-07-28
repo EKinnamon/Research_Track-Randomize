@@ -11,7 +11,8 @@ namespace EKSurvey.Core.Models.Entities
         public Guid TestId { get; set; }
         [Key, Column(Order = 1), DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int SectionId { get; set; }
-        public DateTime Completed { get; set; }
+        public DateTime Started { get; set; }
+        public DateTime? Completed { get; set; }
         [ForeignKey("TestId")]
         public virtual Test Test { get; set; }
         [ForeignKey("SectionId")]

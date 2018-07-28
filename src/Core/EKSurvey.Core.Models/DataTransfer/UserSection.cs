@@ -1,4 +1,5 @@
 ﻿using System;
+using EKSurvey.Core.Models.Enums;
 
 namespace EKSurvey.Core.Models.DataTransfer
 {
@@ -10,9 +11,13 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public int SurveyId { get; set; }
 
+        public Guid TestId { get; set; }
+
         public string Name { get; set; }
 
         public int Order { get; set; }
+
+        public SelectorType? SelectorType { get; set; }
 
         public DateTime? Started { get; set; }
 

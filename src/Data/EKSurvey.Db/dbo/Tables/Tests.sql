@@ -5,8 +5,9 @@
     [Started] DATETIME NOT NULL CONSTRAINT [DF_Tests_Started] DEFAULT GETUTCDATE(),
     [Modified] DATETIME,
     [Completed] DATETIME,
-    CONSTRAINT [PK_Tests_Id] PRIMARY KEY ([Id]),
-    CONSTRAINT [FK_Tests_SurveyId] FOREIGN KEY ([SurveyId]) REFERENCES [dbo].[Surveys] ([Id]) ON DELETE CASCADE
+    CONSTRAINT [UK_Tests_Id] UNIQUE ([Id]),
+	CONSTRAINT [PK_Tests_UserId_SurveyId] PRIMARY KEY ([UserId], SurveyId),
+    CONSTRAINT [FK_Tests_SurveyId] FOREIGN KEY ([SurveyId]) REFERENCES [dbo].[Surveys] ([Id])
 )
 GO
 CREATE INDEX [IX_Tests_SurveyId] ON [dbo].[Tests]([SurveyId])

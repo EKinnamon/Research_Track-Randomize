@@ -1,0 +1,23 @@
+﻿@using EKSurvey.Core.Models.DataTransfer
+@using EKSurvey.Core.Models.ViewModels.Test
+@model UserSurvey
+
+@{
+    var formContext = ViewBag.FormContext ?? string.Empty;
+    var buttonClass = formContext.Equals("table", StringComparison.OrdinalIgnoreCase)
+        ? "btn-primary"
+        : "btn-success btn-block";
+}
+
+
+@if (!Model.Started.HasValue)
+{
+    @Html.Partial("~/Views/Test/_Create.cshtml", new CreateViewModel { SurveyId = Model.Id, SurveyName = Model.Name, UserId = Model.UserId }, ViewData)
+}
+else
+{
+<a class="btn @buttonClass" href="@Url.Action("Respond", "Test")">
+    Continue @Model.Name
+    <i class="fa fa-arrow-right"></i>
+</a>
+}
