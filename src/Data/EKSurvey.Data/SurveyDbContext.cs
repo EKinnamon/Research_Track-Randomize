@@ -20,6 +20,8 @@ namespace EKSurvey.Data
 
         public virtual DbSet<Test> Tests { get; set; }
 
+        public virtual DbSet<TestSectionMarker> TestSectionMarkers { get; set; }
+
         public virtual DbSet<TestResponse> TestResponses { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -28,6 +30,7 @@ namespace EKSurvey.Data
             modelBuilder.Configurations.Add(new SectionMap());
             modelBuilder.Configurations.Add(new PageMap());
             modelBuilder.Configurations.Add(new TestMap());
+            modelBuilder.Configurations.Add(new TestSectionMarkerMap());
             modelBuilder.Configurations.Add(new TestResponseMap());
         }
     }

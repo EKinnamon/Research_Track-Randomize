@@ -80,6 +80,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataTransfer\UserPage.cs" />
+    <Compile Include="DataTransfer\UserSection.cs" />
     <Compile Include="DataTransfer\UserSurvey.cs" />
     <Compile Include="Entities\Pages\IPage.cs" />
     <Compile Include="Entities\Pages\IQuestion.cs" />
@@ -89,6 +91,7 @@
     <Compile Include="Entities\Section.cs" />
     <Compile Include="Entities\TestResponse.cs" />
     <Compile Include="Entities\Survey.cs" />
+    <Compile Include="Entities\TestSectionMarker.cs" />
     <Compile Include="Identity\ApplicationUser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\Account\ExternalLoginConfirmationViewModel.cs" />

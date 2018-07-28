@@ -23,8 +23,9 @@ namespace EKSurvey.Core.Models.Entities
         public DateTime? Completed { get; set; }
 
         [ForeignKey("SurveyId")]
-
         public virtual Survey Survey { get; set; }
+
+        public virtual ICollection<TestSectionMarker> TestSectionMarkers { get; set; } = new HashSet<TestSectionMarker>();
 
         public virtual ICollection<TestResponse> TestResponses { get; set; } = new HashSet<TestResponse>();
     }

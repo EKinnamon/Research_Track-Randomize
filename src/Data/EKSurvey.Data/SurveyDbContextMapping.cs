@@ -19,6 +19,21 @@ namespace EKSurvey.Data
 
     public class TestMap : EntityTypeConfiguration<Test> { }
 
+    public class TestSectionMarkerMap : EntityTypeConfiguration<TestSectionMarker>
+    {
+        public TestSectionMarkerMap()
+        {
+            this.HasRequired(tsm => tsm.Section)
+                .WithMany(s => s.TestSectionMarkers)
+                .WillCascadeOnDelete(false);
+
+            this.HasRequired(tsm => tsm.Test)
+                .WithMany(t => t.TestSectionMarkers)
+                .WillCascadeOnDelete(true);
+        }
+    }
+
+
     public class PageMap : EntityTypeConfiguration<Page> { }
 
     public class SectionMap : EntityTypeConfiguration<Section> { }

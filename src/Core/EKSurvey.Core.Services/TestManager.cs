@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Entity;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -59,5 +60,18 @@ namespace EKSurvey.Core.Services
 
             return test;
         }
+
+        //public Test Get(int surveyId, string userId)
+        //{
+        //    var test = Tests.SingleOrDefault(t => t.SurveyId == surveyId && t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
+        //    return test;
+        //}
+
+        //public async Task<Test> GetAsync(int surveyId, string userId, CancellationToken cancellationToken = default(CancellationToken))
+        //{
+        //    var test = await Tests.SingleOrDefaultAsync( t => t.SurveyId == surveyId && t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase), cancellationToken);
+        //    return test;
+        //}
+
     }
 }

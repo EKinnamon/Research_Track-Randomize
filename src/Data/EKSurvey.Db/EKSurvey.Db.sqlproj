@@ -71,5 +71,6 @@
     <Build Include="dbo\Tables\Surveys.sql" />
     <Build Include="dbo\Tables\TestResponses.sql" />
     <Build Include="dbo\Tables\Tests.sql" />
+    <Build Include="dbo\Tables\TestSectionMarkers.sql" />
   </ItemGroup>
 </Project>
