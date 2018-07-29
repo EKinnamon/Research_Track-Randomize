@@ -85,8 +85,8 @@
     <Compile Include="DataTransfer\UserSurvey.cs" />
     <Compile Include="Entities\Pages\FreeTextQuestion.cs" />
     <Compile Include="Entities\Pages\IPage.cs" />
+    <Compile Include="Entities\Pages\IQuestion.cs" />
     <Compile Include="Entities\Pages\Page.cs" />
-    <Compile Include="Attributes\QuestionAttribute.cs" />
     <Compile Include="Entities\Pages\RangeQuestion.cs" />
     <Compile Include="Entities\Pages\StaticTextPage.cs" />
     <Compile Include="Entities\Pages\TrueFalseQuestion.cs" />
@@ -121,6 +121,8 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Attributes\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

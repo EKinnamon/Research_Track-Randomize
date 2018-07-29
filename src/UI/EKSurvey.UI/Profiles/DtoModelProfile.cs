@@ -4,6 +4,7 @@ using System.Linq;
 using AutoMapper;
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
+using Page = EKSurvey.Core.Models.Entities.Page;
 
 namespace EKSurvey.UI.Profiles
 {
@@ -29,7 +30,7 @@ namespace EKSurvey.UI.Profiles
                 // Id, SurveyId, Name, Order
                 .AfterMap((src, dest, ctx) =>
                 {
-                    var dbContext = ctx.Items["dbContext"] as DbContext;
+                    var dbContext = ctx.Items["dbContext"] as DbContext ?? throw new AutoMapperMappingException("DbContext must be supplied for this mapping."); 
                     var userId = ctx.Items["userId"].ToString();
                     dest.UserId = userId;
                     var userTest = dbContext.Set<Test>().Find(userId, src.SurveyId);
@@ -55,6 +56,30 @@ namespace EKSurvey.UI.Profiles
                     dest.Completed = src.TestSectionMarkers
                         .SingleOrDefault(tsm => tsm.TestId == userTest.Id && tsm.SectionId == src.Id)?.Completed;
                 });
+
+            CreateMap<IPage, UserPage>()
+                .ForMember(dest => dest.Page, opt => opt.MapFrom(src => src))
+                .AfterMap((src, dest, ctx) =>
+                {
+                    var dbContext = ctx.Items["dbContext"] as DbContext ?? throw new AutoMapperMappingException("DbContext must be supplied for this mapping.");
+                    var userId = ctx.Items["userId"].ToString();
+                    dest.UserId = userId;
+
+                    var page = src as Page ?? throw new AutoMapperMappingException("Invalid page type being mapped.");
+
+                    dest.SurveyId = page.Section.SurveyId;
+                    if (!(page is IQuestion))
+                        return;
+
+                    var test = dbContext.Set<Test>().Find(userId, page.Section.SurveyId);
+                    if (test == null)
+                        return;
+
+                    var userResponse = page.TestResponses.SingleOrDefault(tr => tr.TestId == test.Id);
+                    dest.Responded = userResponse?.Created;
+                    dest.Modified = userResponse?.Modified;
+                });
+
         }
     }
 }

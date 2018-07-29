@@ -1,7 +1,5 @@
-﻿using EKSurvey.Core.Models.Attributes;
-
+﻿
 namespace EKSurvey.Core.Models.Entities
 {
-    [Question]
-    public class FreeTextQuestion : Page { }
+    public class FreeTextQuestion : Page, IQuestion { }
 }

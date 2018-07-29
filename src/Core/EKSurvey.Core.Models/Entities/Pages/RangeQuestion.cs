@@ -1,9 +1,6 @@
-﻿using EKSurvey.Core.Models.Attributes;
-
-namespace EKSurvey.Core.Models.Entities
+﻿namespace EKSurvey.Core.Models.Entities
 {
-    [Question]
-    public class RangeQuestion : Page
+    public class RangeQuestion : Page, IQuestion
     {
         public int Range { get; set; }
     }

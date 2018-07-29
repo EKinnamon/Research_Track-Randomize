@@ -44,7 +44,7 @@
                         <tr>
                             <th>@survey.Name</th>
                             <td class="text-right">
-                                @Html.Partial("_TestStartContinuePrompt", Model.NextSurvey, new ViewDataDictionary{{"formContext", "table"}})
+                                @Html.Partial("_TestStartContinuePrompt", survey, new ViewDataDictionary{{"formContext", "table"}})
                             </td>
                         </tr>
                     }
