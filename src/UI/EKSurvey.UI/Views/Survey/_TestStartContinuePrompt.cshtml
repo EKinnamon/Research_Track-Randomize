@@ -16,7 +16,7 @@
 }
 else
 {
-<a class="btn @buttonClass" href="@Url.Action("Respond", "Test")">
+<a class="btn @buttonClass" href="@Url.Action("Respond", "Test", new { id = Model.Id })">
     Continue @Model.Name
     <i class="fa fa-arrow-right"></i>
 </a>
