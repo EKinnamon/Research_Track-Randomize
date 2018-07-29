@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using AutoMapper;
 using EKSurvey.Core.Models.DataTransfer;
@@ -28,24 +29,20 @@ namespace EKSurvey.UI.Profiles
                 // Id, SurveyId, Name, Order
                 .AfterMap((src, dest, ctx) =>
                 {
+                    var dbContext = ctx.Items["dbContext"] as DbContext;
                     var userId = ctx.Items["userId"].ToString();
                     dest.UserId = userId;
+                    var userTest = dbContext.Set<Test>().Find(userId, src.SurveyId);
+                    var sectionResponses = dbContext.Set<TestResponse>().Where(tr => tr.Page.SectionId == src.Id);
 
-                    dest.TestId = src.TestSectionMarkers
-                        .First(tsm => tsm.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase))
-                        .TestId;
+                    if (userTest == null)
+                        return;
 
                     dest.Started = src.TestSectionMarkers
-                        .Where(tsm => tsm.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && !tsm.Completed.HasValue)
-                        .Max(tsm => tsm.Started);
-
-                    dest.Modified = src.TestResponses
-                        .Where(r => r.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && r.SectionId == src.Id)
-                        .Max(r => r.Modified.GetValueOrDefault(r.Created));
-
+                        .SingleOrDefault(tsm => tsm.TestId == userTest.Id && tsm.SectionId == src.Id)?.Started;
+                    dest.Modified = sectionResponses.Max(sr => sr.Modified.GetValueOrDefault(sr.Created));
                     dest.Completed = src.TestSectionMarkers
-                        .Where(tsm => tsm.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && tsm.Completed.HasValue)
-                        .Max(tsm => tsm.Completed);
+                        .SingleOrDefault(tsm => tsm.TestId == userTest.Id && tsm.SectionId == src.Id)?.Completed;
                 });
         }
     }

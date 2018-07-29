@@ -13,8 +13,6 @@ namespace EKSurvey.Core.Models.Entities
         public int SectionId { get; set; }
         public DateTime Started { get; set; }
         public DateTime? Completed { get; set; }
-        [ForeignKey("TestId")]
-        public virtual Test Test { get; set; }
         [ForeignKey("SectionId")]
         public virtual Section Section { get; set; }
     }

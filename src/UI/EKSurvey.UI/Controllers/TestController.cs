@@ -36,8 +36,7 @@ namespace EKSurvey.UI.Controllers
             try
             {
                 var test = await _testManager.CreateAsync(viewModel.SurveyId, viewModel.UserId);
-                var responseViewModel = _mapper.Map<ResponseViewModel>(test);
-                return RedirectToAction("Respond", responseViewModel);
+                return RedirectToAction("Respond", new { id = viewModel.SurveyId });
             }
             catch (Exception ex)
             {

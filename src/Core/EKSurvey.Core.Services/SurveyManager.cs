@@ -29,8 +29,11 @@ namespace EKSurvey.Core.Services
         protected DbSet<Section> Sections => _dbContext.Set<Section>();
         protected DbSet<Page> Pages => _dbContext.Set<Page>();
 
-        private static Action<IMappingOperationOptions> Opt(string userId) => o => o.Items.Add("userId", userId);
-
+        private Action<IMappingOperationOptions> Opt(string userId) => o =>
+        {
+            o.Items.Add("dbContext", _dbContext);
+            o.Items.Add("userId", userId);
+        };
         private static UserSection SelectSection(IList<UserSection> sections, SelectorType selectorType)
         {
             var rng = new Random();
@@ -48,13 +51,34 @@ namespace EKSurvey.Core.Services
 
             return sections[selectionIndex];
         }
-
         private void MakeActiveSection(UserSection userSection)
         {
-            var section = Sections.Find(userSection.Id);
+            var section = Sections.Find(userSection.Id) ?? throw new SectionNotFoundException(userSection.Id);
+
             var sectionMarker = new TestSectionMarker
             {
+                TestId = userSection.TestId,
+                SectionId = userSection.Id,
+                Started = DateTime.UtcNow,
             };
+
+            section.TestSectionMarkers.Add(sectionMarker);
+            _dbContext.SaveChanges();
+            userSection = _mapper.Map<UserSection>(section);
+        }
+        private async Task MakeActiveSectionAsync(UserSection userSection)
+        {
+            var section = await Sections.FindAsync(userSection.Id) ?? throw new SectionNotFoundException(userSection.Id);
+            var sectionMarker = new TestSectionMarker
+            {
+                TestId = userSection.TestId,
+                SectionId = userSection.Id,
+                Started = DateTime.UtcNow
+            };
+
+            section.TestSectionMarkers.Add(sectionMarker);
+            await _dbContext.SaveChangesAsync();
+            userSection = _mapper.Map<UserSection>(section);
         }
 
         public IQueryable<Survey> GetActiveSurveys()
@@ -128,7 +152,7 @@ namespace EKSurvey.Core.Services
 
         public async Task<ICollection<UserSection>> GetUserSectionsAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var survey = await Surveys.FindAsync(surveyId) ?? throw new SurveyNotFoundException(surveyId);
+            var survey = await Surveys.FindAsync(cancellationToken, surveyId) ?? throw new SurveyNotFoundException(surveyId);
             var results = _mapper.Map<ICollection<UserSection>>(survey.Sections, Opt(userId));
             return new HashSet<UserSection>(results.OrderBy(i => i.Order));
         }
@@ -138,6 +162,7 @@ namespace EKSurvey.Core.Services
             var survey = Surveys.Find(surveyId) ?? throw new SurveyNotFoundException(surveyId);
             var sections = GetUserSections(userId, surveyId);
             var activeSection = sections.FirstOrDefault(s => s.Started.HasValue && !s.Completed.HasValue);
+
             if (activeSection != null)
                 return activeSection;
             
@@ -154,7 +179,9 @@ namespace EKSurvey.Core.Services
                 into st
                 select new { Order = st.Key, Stack = st.ToList() };
 
-            var stack = sectionStacks.OrderBy(st => st.Order).FirstOrDefault()?.Stack ?? new List<UserSection>();
+            var stack = sectionStacks
+                .OrderBy(st => st.Order)
+                .FirstOrDefault()?.Stack ?? new List<UserSection>();
 
             if (!stack.Any())
                 return null;
@@ -167,13 +194,57 @@ namespace EKSurvey.Core.Services
                 .ToList();
 
             if (selectors.Count > 1)
-            {
                 throw new InvalidSectionConfiguration(survey.Name);
-            }
 
             activeSection = SelectSection(stack, selectors.First());
 
             MakeActiveSection(activeSection);
+
+            return activeSection;
+        }
+
+        public async Task<UserSection> GetCurrentUserSectionAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var survey = await Surveys.FindAsync(cancellationToken, surveyId) ?? throw new SurveyNotFoundException(surveyId);
+            var sections = await GetUserSectionsAsync(userId, surveyId, cancellationToken);
+            var activeSection = sections.FirstOrDefault(s => s.Started.HasValue && !s.Completed.HasValue);
+
+            if (activeSection != null)
+                return activeSection;
+
+            // create a new active section;
+            var availableSections = 
+                from s in sections
+                where !s.Started.HasValue
+                orderby s.Order
+                select s;
+
+            var sectionStacks =
+                from s in availableSections
+                group s by s.Order
+                into st
+                select new { Order = st.Key, Stack = st.ToList() };
+
+            var stack = sectionStacks
+                .OrderBy(st => st.Order)
+                .FirstOrDefault()?.Stack ?? new List<UserSection>();
+
+            if (!stack.Any())
+                return null;
+
+            var selectors = stack
+                .Select(s => s.SelectorType)
+                .Distinct()
+                .Where(s => s.HasValue)
+                .Cast<SelectorType>()
+                .ToList();
+
+            if (selectors.Count > 1)
+                throw new InvalidSectionConfiguration(survey.Name);
+
+            activeSection = SelectSection(stack, selectors.First());
+
+            await MakeActiveSectionAsync(activeSection);
 
             return activeSection;
         }
@@ -194,18 +265,16 @@ namespace EKSurvey.Core.Services
 
         public UserPage GetCurrentUserPage(string userId, int surveyId)
         {
-            var sections = GetUserSections(userId, surveyId);
-            var currentSection = sections.First(s => !s.Completed.HasValue);
-            var pages = GetUserPages(userId, currentSection.Id);
+            var activeSection = GetCurrentUserSection(userId, surveyId);
+            var pages = GetUserPages(userId, activeSection.Id);
 
             return pages.OrderBy(p => p.Page.Order).FirstOrDefault(p => !p.Responded.HasValue);
         }
 
         public async Task<UserPage> GetCurrentUserPageAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var sections = await GetUserSectionsAsync(userId, surveyId, cancellationToken);
-            var currentSection = sections.First(s => !s.Completed.HasValue);
-            var pages = GetUserPages(userId, currentSection.Id);
+            var activeSection = await GetCurrentUserSectionAsync(userId, surveyId, cancellationToken);
+            var pages = await GetUserPagesAsync(userId, activeSection.Id, cancellationToken);
 
             return pages.OrderBy(p => p.Page.Order).FirstOrDefault(p => !p.Responded.HasValue);
         }

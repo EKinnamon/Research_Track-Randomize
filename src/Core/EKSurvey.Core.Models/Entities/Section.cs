@@ -20,14 +20,11 @@ namespace EKSurvey.Core.Models.Entities
 
         public SelectorType? SelectorType { get; set; }
 
-        [ForeignKey("SurveyId")]
-
         public virtual Survey Survey { get; set; }
-
-        public virtual ICollection<TestSectionMarker> TestSectionMarkers { get; set; } = new HashSet<TestSectionMarker>();
 
         public virtual ICollection<Page> Pages { get; set; } = new HashSet<Page>();
 
-        public virtual ICollection<TestResponse> TestResponses { get; set; } = new HashSet<TestResponse>();
+        public virtual ICollection<TestSectionMarker> TestSectionMarkers { get; set; } = new HashSet<TestSectionMarker>();
+
     }
 }
