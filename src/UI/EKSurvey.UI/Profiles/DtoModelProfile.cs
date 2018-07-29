@@ -38,9 +38,20 @@ namespace EKSurvey.UI.Profiles
                     if (userTest == null)
                         return;
 
+                    dest.TestId = userTest.Id;
+
                     dest.Started = src.TestSectionMarkers
                         .SingleOrDefault(tsm => tsm.TestId == userTest.Id && tsm.SectionId == src.Id)?.Started;
-                    dest.Modified = sectionResponses.Max(sr => sr.Modified.GetValueOrDefault(sr.Created));
+
+                    if (sectionResponses.Any())
+                    {
+                        dest.Modified = sectionResponses
+                            .ToList()
+                            .Select(sr => sr.Modified.GetValueOrDefault(sr.Created))
+                            .Max();
+                    }
+
+
                     dest.Completed = src.TestSectionMarkers
                         .SingleOrDefault(tsm => tsm.TestId == userTest.Id && tsm.SectionId == src.Id)?.Completed;
                 });

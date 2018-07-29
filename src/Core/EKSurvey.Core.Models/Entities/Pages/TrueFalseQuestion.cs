@@ -1,6 +1,9 @@
-﻿namespace EKSurvey.Core.Models.Entities
+﻿using EKSurvey.Core.Models.Attributes;
+
+namespace EKSurvey.Core.Models.Entities
 {
-    public class TrueFalseQuestion : Page, IQuestion
+    [Question]
+    public class TrueFalseQuestion : Page
     {
         public string True { get; set; }
 

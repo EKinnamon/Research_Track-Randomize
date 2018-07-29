@@ -186,17 +186,9 @@ namespace EKSurvey.Core.Services
             if (!stack.Any())
                 return null;
 
-            var selectors = stack
-                .Select(s => s.SelectorType)
-                .Distinct()
-                .Where(s => s.HasValue)
-                .Cast<SelectorType>()
-                .ToList();
-
-            if (selectors.Count > 1)
-                throw new InvalidSectionConfiguration(survey.Name);
-
-            activeSection = SelectSection(stack, selectors.First());
+            activeSection = stack.Count == 1 
+                ? stack.First() 
+                : SelectSection(stack, stack.First().SelectorType.GetValueOrDefault());
 
             MakeActiveSection(activeSection);
 
@@ -232,17 +224,9 @@ namespace EKSurvey.Core.Services
             if (!stack.Any())
                 return null;
 
-            var selectors = stack
-                .Select(s => s.SelectorType)
-                .Distinct()
-                .Where(s => s.HasValue)
-                .Cast<SelectorType>()
-                .ToList();
-
-            if (selectors.Count > 1)
-                throw new InvalidSectionConfiguration(survey.Name);
-
-            activeSection = SelectSection(stack, selectors.First());
+            activeSection = stack.Count == 1
+                ? stack.First()
+                : SelectSection(stack, stack.First().SelectorType.GetValueOrDefault());
 
             await MakeActiveSectionAsync(activeSection);
 
@@ -258,7 +242,7 @@ namespace EKSurvey.Core.Services
 
         public async Task<ICollection<UserPage>> GetUserPagesAsync(string userId, int sectionId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var section = await Sections.FindAsync(sectionId) ?? throw new SectionNotFoundException(sectionId);
+            var section = await Sections.FindAsync(cancellationToken, sectionId) ?? throw new SectionNotFoundException(sectionId);
             var results = _mapper.Map<ICollection<UserPage>>(section.Pages, Opt(userId));
             return new HashSet<UserPage>(results.OrderBy(i => i.Page.Order));
         }
