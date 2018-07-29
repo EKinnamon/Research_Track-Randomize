@@ -1,0 +1,10 @@
+﻿@using EKSurvey.Core.Models.Entities
+@model EKSurvey.Core.Models.ViewModels.Test.ResponseViewModel
+@{
+    var staticPage = (StaticTextPage) Model.Page;
+}
+
+@if (staticPage.IsHtml)
+{
+    @Html.Raw(staticPage.Text);
+}

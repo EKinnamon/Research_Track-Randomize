@@ -51,9 +51,12 @@ namespace EKSurvey.UI.Controllers
         [HttpGet]
         public async Task<ActionResult> Respond(int id)
         {
-            var page = await _surveyManager.GetCurrentUserPageAsync(User.Identity.GetUserId(), id);
-            var viewModel = _mapper.Map<ResponseViewModel>(page);
-            return View(viewModel);
+            var userPage = await _surveyManager.GetCurrentUserPageAsync(User.Identity.GetUserId(), id);
+            var viewModel = _mapper.Map<ResponseViewModel>(userPage);
+
+            var pageType = userPage.Page.GetType().BaseType;
+
+            return View(pageType.Name, viewModel);
         }
     }
 }
