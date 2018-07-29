@@ -34,6 +34,7 @@ namespace EKSurvey.Core.Services
             o.Items.Add("dbContext", _dbContext);
             o.Items.Add("userId", userId);
         };
+
         private static UserSection SelectSection(IList<UserSection> sections, SelectorType selectorType)
         {
             var rng = new Random();
@@ -64,7 +65,7 @@ namespace EKSurvey.Core.Services
 
             section.TestSectionMarkers.Add(sectionMarker);
             _dbContext.SaveChanges();
-            userSection = _mapper.Map<UserSection>(section);
+            userSection = _mapper.Map<UserSection>(section, Opt(userSection.UserId));
         }
         private async Task MakeActiveSectionAsync(UserSection userSection)
         {
@@ -78,7 +79,7 @@ namespace EKSurvey.Core.Services
 
             section.TestSectionMarkers.Add(sectionMarker);
             await _dbContext.SaveChangesAsync();
-            userSection = _mapper.Map<UserSection>(section);
+            userSection = _mapper.Map<UserSection>(section, Opt(userSection.UserId));
         }
 
         public IQueryable<Survey> GetActiveSurveys()
