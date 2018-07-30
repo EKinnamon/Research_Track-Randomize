@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="Exceptions\InvalidSectionConfiguration.cs" />
     <Compile Include="Exceptions\SectionNotFoundException.cs" />
+    <Compile Include="Exceptions\TestNotFoundException.cs" />
     <Compile Include="ISurveyManager.cs" />
     <Compile Include="ITestManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

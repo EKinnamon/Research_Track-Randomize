@@ -16,6 +16,7 @@ namespace EKSurvey.Core.Services
 
         public DbSet<Survey> Surveys => _dbContext.Set<Survey>();
         public DbSet<Test> Tests => _dbContext.Set<Test>();
+        public DbSet<TestResponse> TestResponses => _dbContext.Set<TestResponse>();
 
         public TestManager(DbContext dbContext, IMapper mapper)
         {
@@ -61,17 +62,76 @@ namespace EKSurvey.Core.Services
             return test;
         }
 
-        //public Test Get(int surveyId, string userId)
-        //{
-        //    var test = Tests.SingleOrDefault(t => t.SurveyId == surveyId && t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
-        //    return test;
-        //}
+        public Test Get(string userId, int surveyId)
+        {
+            var test = Tests.SingleOrDefault(t => t.SurveyId == surveyId && t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
+            return test;
+        }
 
-        //public async Task<Test> GetAsync(int surveyId, string userId, CancellationToken cancellationToken = default(CancellationToken))
-        //{
-        //    var test = await Tests.SingleOrDefaultAsync( t => t.SurveyId == surveyId && t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase), cancellationToken);
-        //    return test;
-        //}
+        public async Task<Test> GetAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var test = await Tests.SingleOrDefaultAsync(t => t.SurveyId == surveyId && t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase), cancellationToken);
+            return test;
+        }
 
+        public TestResponse Respond(string userId, int surveyId, string response, int pageId)
+        {
+            var currentTest = Tests.Find(userId, surveyId) ?? throw new TestNotFoundException(userId, surveyId);
+            var testResponse = TestResponses.Find(currentTest.Id, pageId);
+
+            if (testResponse == null)
+            {
+                testResponse = new TestResponse
+                {
+                    TestId = currentTest.Id,
+                    PageId = pageId,
+                    Response = response,
+                    Created = DateTime.UtcNow,
+                    Responded = string.IsNullOrWhiteSpace(response) ? (DateTime?) null : DateTime.UtcNow
+                };
+
+                TestResponses.Add(testResponse);
+            }
+            else
+            {
+                testResponse.Response = response;
+                testResponse.Modified = DateTime.UtcNow;
+                testResponse.Responded = DateTime.UtcNow;
+            }
+
+            _dbContext.SaveChanges();
+
+            return testResponse;
+        }
+
+        public async Task<TestResponse> RespondAsync(string userId, int surveyId, string response, int pageId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var currentTest = await Tests.FindAsync(cancellationToken, userId, surveyId) ?? throw new TestNotFoundException(userId, surveyId);
+            var testResponse = await TestResponses.FindAsync(cancellationToken, currentTest.Id, pageId);
+
+            if (testResponse == null)
+            {
+                testResponse = new TestResponse
+                {
+                    TestId = currentTest.Id,
+                    PageId = pageId,
+                    Response = response,
+                    Created = DateTime.UtcNow,
+                    Responded = string.IsNullOrWhiteSpace(response) ? (DateTime?) null : DateTime.UtcNow
+                };
+
+                TestResponses.Add(testResponse);
+            }
+            else
+            {
+                testResponse.Response = response;
+                testResponse.Modified = DateTime.UtcNow;
+                testResponse.Responded = DateTime.UtcNow;
+            }
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return testResponse;
+        }
     }
 }

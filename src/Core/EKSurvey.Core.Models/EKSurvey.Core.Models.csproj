@@ -115,14 +115,13 @@
     <Compile Include="ViewModels\Manager\VerifyPhoneNumberViewModel.cs" />
     <Compile Include="ViewModels\Survey\IndexViewModel.cs" />
     <Compile Include="ViewModels\Test\CreateViewModel.cs" />
+    <Compile Include="Attributes\ResponseRequiredAttribute.cs" />
     <Compile Include="ViewModels\Test\ResponseViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Attributes\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

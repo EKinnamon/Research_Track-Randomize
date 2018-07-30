@@ -9,6 +9,7 @@ using EKSurvey.Core.Services;
 
 using Elmah;
 using Microsoft.AspNet.Identity;
+using Exception = System.Exception;
 
 namespace EKSurvey.UI.Controllers
 {
@@ -53,7 +54,7 @@ namespace EKSurvey.UI.Controllers
         {
             var userSection = await _surveyManager.GetCurrentUserSectionAsync(User.Identity.GetUserId(), id);
             var userPages = (await _surveyManager.GetUserPagesAsync(User.Identity.GetUserId(), userSection.Id)).ToList();
-
+            var userTest = await _testManager.GetAsync(User.Identity.GetUserId(), id);
             var userPage = pageId.HasValue
                 ? userPages.Single(p => p.Page.Id == pageId.Value)
                 : await _surveyManager.GetCurrentUserPageAsync(User.Identity.GetUserId(), id);
@@ -61,13 +62,33 @@ namespace EKSurvey.UI.Controllers
             var viewModel = _mapper.Map<ResponseViewModel>(userPage);
 
             var pageIndex = userPages.FindIndex(up => up.Page.Id == userPage.Page.Id);
+            viewModel.TestId = userTest.Id;
             viewModel.PriorPageId = pageIndex != 0 
                 ? userPages[pageIndex - 1].Page.Id 
                 : (int?) null;
 
-            var pageType = userPage.Page.GetType().BaseType;
+            return View(viewModel.PageType?.Name, viewModel);
+        }
 
-            return View(pageType.Name, viewModel);
+        [HttpPost]
+        public async Task<ActionResult> Respond(ResponseViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(viewModel.PageType?.Name, viewModel);
+            }
+
+            try
+            {
+                var response = await _testManager.RespondAsync(User.Identity.GetUserId(), viewModel.SurveyId, viewModel.Response, viewModel.PageId);
+                return RedirectToAction("Respond", new { id = viewModel.SurveyId });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            return View(viewModel.PageType?.Name, viewModel);
         }
     }
 }

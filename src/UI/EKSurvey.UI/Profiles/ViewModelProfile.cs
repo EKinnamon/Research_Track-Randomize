@@ -25,7 +25,9 @@ namespace EKSurvey.UI.Profiles
 
             CreateMap<UserPage, ResponseViewModel>()
                 // UserId, SurveyId, Page mapped.
-                .ForMember(dest => dest.PriorPageId, opt => opt.Ignore());
+                .ForMember(dest => dest.PriorPageId, opt => opt.Ignore())
+                .ForMember(dest => dest.TestId, opt => opt.Ignore())
+                .ForMember(dest => dest.PageId, opt => opt.MapFrom(src => src.Page.Id));
         }
     }
 }
