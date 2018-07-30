@@ -19,6 +19,8 @@ namespace EKSurvey.Core.Models.Entities
 
         public DateTime? Modified { get; set; }
 
+        public DateTime? Responded { get; set; }
+
         [ForeignKey("PageId")]
         public virtual Page Page { get; set; }
 

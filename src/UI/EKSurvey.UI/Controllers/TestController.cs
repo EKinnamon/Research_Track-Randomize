@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
 using AutoMapper;
-
 using EKSurvey.Core.Models.ViewModels.Test;
 using EKSurvey.Core.Services;
 
@@ -49,10 +49,21 @@ namespace EKSurvey.UI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Respond(int id)
+        public async Task<ActionResult> Respond(int id, int? pageId)
         {
-            var userPage = await _surveyManager.GetCurrentUserPageAsync(User.Identity.GetUserId(), id);
+            var userSection = await _surveyManager.GetCurrentUserSectionAsync(User.Identity.GetUserId(), id);
+            var userPages = (await _surveyManager.GetUserPagesAsync(User.Identity.GetUserId(), userSection.Id)).ToList();
+
+            var userPage = pageId.HasValue
+                ? userPages.Single(p => p.Page.Id == pageId.Value)
+                : await _surveyManager.GetCurrentUserPageAsync(User.Identity.GetUserId(), id);
+
             var viewModel = _mapper.Map<ResponseViewModel>(userPage);
+
+            var pageIndex = userPages.FindIndex(up => up.Page.Id == userPage.Page.Id);
+            viewModel.PriorPageId = pageIndex != 0 
+                ? userPages[pageIndex - 1].Page.Id 
+                : (int?) null;
 
             var pageType = userPage.Page.GetType().BaseType;
 

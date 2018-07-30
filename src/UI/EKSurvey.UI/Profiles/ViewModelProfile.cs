@@ -6,6 +6,7 @@ using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Identity;
 using EKSurvey.Core.Models.ViewModels.Account;
 using EKSurvey.Core.Models.ViewModels.Survey;
+using EKSurvey.Core.Models.ViewModels.Test;
 
 namespace EKSurvey.UI.Profiles
 {
@@ -21,6 +22,10 @@ namespace EKSurvey.UI.Profiles
                 .ForMember(dest => dest.AvailableSurveys, opt => opt.MapFrom(src => new HashSet<UserSurvey>(src.Where(i => !i.Completed.HasValue).OrderBy(i => i.Modified.GetValueOrDefault(i.Created)).Skip(1))))
                 .ForMember(dest => dest.CompletedSurveys, opt => opt.MapFrom(src => new HashSet<UserSurvey>(src.Where(i => i.Completed.HasValue))))
                 .ForMember(dest => dest.NextSurvey, opt => opt.MapFrom(src => src.OrderBy(i => i.Started.GetValueOrDefault(DateTime.UtcNow)).ThenBy(i => i.Modified.GetValueOrDefault(i.Created)).FirstOrDefault()));
+
+            CreateMap<UserPage, ResponseViewModel>()
+                // UserId, SurveyId, Page mapped.
+                .ForMember(dest => dest.PriorPageId, opt => opt.Ignore());
         }
     }
 }
