@@ -26,5 +26,9 @@ namespace EKSurvey.Core.Services
 
         UserPage GetCurrentUserPage(string userId, int surveyId);
         Task<UserPage> GetCurrentUserPageAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken));
+
+        ICollection<UserResponse> GetSectionResponses(string userId, int id);
+        Task<ICollection<UserResponse>> GetSectionResponsesAsync(string userId, int id,
+            CancellationToken cancellationToken = default(CancellationToken));
     }
 }

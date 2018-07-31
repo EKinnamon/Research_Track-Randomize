@@ -28,6 +28,7 @@ namespace EKSurvey.Core.Services
         protected DbSet<Survey> Surveys => _dbContext.Set<Survey>();
         protected DbSet<Section> Sections => _dbContext.Set<Section>();
         protected DbSet<Page> Pages => _dbContext.Set<Page>();
+        protected DbSet<Test> Tests => _dbContext.Set<Test>();
 
         private Action<IMappingOperationOptions> Opt(string userId) => o =>
         {
@@ -264,5 +265,38 @@ namespace EKSurvey.Core.Services
             return pages.OrderBy(p => p.Page.Order).FirstOrDefault(p => !p.Responded.HasValue);
         }
 
+        public ICollection<UserResponse> GetSectionResponses(string userId, int id)
+        {
+            var section = Sections.Find(id) ?? throw new SectionNotFoundException(id);
+            var test = Tests.Find(userId, section.SurveyId) ?? throw new TestNotFoundException(userId, id);
+
+            var sectionResponses =
+                from p in section.Pages
+                from r in p.TestResponses
+                where r.TestId == test.Id
+                orderby r.Page.Order
+                select r;
+
+            var responses = _mapper.Map<ICollection<UserResponse>>(sectionResponses, Opt(userId));
+
+            return responses;
+        }
+
+        public async Task<ICollection<UserResponse>> GetSectionResponsesAsync(string userId, int id, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var section = await Sections.FindAsync(cancellationToken, id) ?? throw new SectionNotFoundException(id);
+            var test = await Tests.FindAsync(cancellationToken, userId, section.SurveyId) ?? throw new TestNotFoundException(userId, id);
+
+            var sectionResponses =
+                from p in section.Pages
+                from r in p.TestResponses
+                where r.TestId == test.Id
+                orderby r.Page.Order
+                select r;
+
+            var responses = _mapper.Map<ICollection<UserResponse>>(sectionResponses, Opt(userId));
+
+            return responses;
+        }
     }
 }

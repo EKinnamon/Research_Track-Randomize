@@ -27,7 +27,7 @@ namespace EKSurvey.UI.Profiles
                 });
 
             CreateMap<Section, UserSection>()
-                // Id, SurveyId, Name, Order
+                // Id, SurveyId, Name, Order mapped.
                 .AfterMap((src, dest, ctx) =>
                 {
                     var dbContext = ctx.Items["dbContext"] as DbContext ?? throw new AutoMapperMappingException("DbContext must be supplied for this mapping."); 
@@ -74,10 +74,23 @@ namespace EKSurvey.UI.Profiles
                         return;
 
                     var userResponse = page.TestResponses.SingleOrDefault(tr => tr.TestId == test.Id);
+                    dest.Response = userResponse?.Response;
                     dest.Responded = userResponse?.Responded;
                     dest.Modified = userResponse?.Modified;
                 });
 
+            CreateMap<TestResponse, UserResponse>()
+                // PageId, TestId, Response mapped
+                .ForMember(dest => dest.SurveyId, opt => opt.MapFrom(src => src.Page.Section.SurveyId))
+                .ForMember(dest => dest.SectionId, opt => opt.MapFrom(src => src.Page.SectionId))
+                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Page.Order))
+                .ForMember(dest => dest.IsQuestion, opt => opt.MapFrom(src => src.Page is IQuestion))
+                .ForMember(dest => dest.IsHtml, opt => opt.MapFrom(src => src.Page.IsHtml))
+                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Page.Text))
+                .AfterMap((src, dest, ctx) =>
+                {
+                    dest.UserId = ctx.Items["userId"].ToString();
+                });
         }
     }
 }

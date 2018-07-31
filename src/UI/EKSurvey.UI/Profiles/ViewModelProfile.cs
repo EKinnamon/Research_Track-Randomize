@@ -24,10 +24,21 @@ namespace EKSurvey.UI.Profiles
                 .ForMember(dest => dest.NextSurvey, opt => opt.MapFrom(src => src.OrderBy(i => i.Started.GetValueOrDefault(DateTime.UtcNow)).ThenBy(i => i.Modified.GetValueOrDefault(i.Created)).FirstOrDefault()));
 
             CreateMap<UserPage, ResponseViewModel>()
-                // UserId, SurveyId, Page mapped.
+                // UserId, SurveyId, Response, Page mapped.
                 .ForMember(dest => dest.PriorPageId, opt => opt.Ignore())
                 .ForMember(dest => dest.TestId, opt => opt.Ignore())
                 .ForMember(dest => dest.PageId, opt => opt.MapFrom(src => src.Page.Id));
+
+            CreateMap<UserSection, SectionReviewViewModel>()
+                // SurveyId mapped
+                .ForMember(dest => dest.SectionId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Responses, opt => opt.Ignore());
+
+            CreateMap<ICollection<UserResponse>, SectionReviewViewModel>()
+                .ForMember(dest => dest.SurveyId, opt => opt.Ignore())
+                .ForMember(dest => dest.SectionId, opt => opt.Ignore())
+                .ForMember(dest => dest.Responses, opt => opt.MapFrom(src => src));
+
         }
     }
 }

@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataTransfer\UserPage.cs" />
+    <Compile Include="DataTransfer\UserResponse.cs" />
     <Compile Include="DataTransfer\UserSection.cs" />
     <Compile Include="DataTransfer\UserSurvey.cs" />
     <Compile Include="Entities\Pages\FreeTextQuestion.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="ViewModels\Test\CreateViewModel.cs" />
     <Compile Include="Attributes\ResponseRequiredAttribute.cs" />
     <Compile Include="ViewModels\Test\ResponseViewModel.cs" />
+    <Compile Include="ViewModels\Test\SectionReviewViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

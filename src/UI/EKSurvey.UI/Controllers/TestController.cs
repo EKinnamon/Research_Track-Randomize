@@ -59,6 +59,11 @@ namespace EKSurvey.UI.Controllers
                 ? userPages.Single(p => p.Page.Id == pageId.Value)
                 : await _surveyManager.GetCurrentUserPageAsync(User.Identity.GetUserId(), id);
 
+            if (userPage == null)
+            {
+                return RedirectToAction("SectionReview", "Test", new { id });
+            }
+
             var viewModel = _mapper.Map<ResponseViewModel>(userPage);
 
             var pageIndex = userPages.FindIndex(up => up.Page.Id == userPage.Page.Id);
@@ -93,6 +98,17 @@ namespace EKSurvey.UI.Controllers
             }
 
             return View(viewModel.Page.GetType().BaseType?.Name, viewModel);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> SectionReview(int id)
+        {
+            var userSection = await _surveyManager.GetCurrentUserSectionAsync(User.Identity.GetUserId(), id);
+            var sectionResponses = await _surveyManager.GetSectionResponsesAsync(User.Identity.GetUserId(), userSection.Id);
+            var viewModel = _mapper.Map<SectionReviewViewModel>(userSection);
+            _mapper.Map(sectionResponses, viewModel);
+
+            return View(viewModel);
         }
     }
 }
