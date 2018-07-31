@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using EKSurvey.Core.Models.Entities;
+using EKSurvey.Core.Models.ViewModels.Test;
 
 namespace EKSurvey.Core.Models.Attributes
 {
@@ -8,8 +9,6 @@ namespace EKSurvey.Core.Models.Attributes
     public sealed class ResponseRequiredAttribute : ValidationAttribute
     {
         private readonly string _pagePropertyName;
-
-        public Type PageType => throw new NotImplementedException();
 
         public ResponseRequiredAttribute(string pagePropertyName)
         {
@@ -19,7 +18,11 @@ namespace EKSurvey.Core.Models.Attributes
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             var valueString = value as string;
-            if (PageType.IsAssignableFrom(typeof(IQuestion)) && string.IsNullOrWhiteSpace(valueString))
+
+            if (!(validationContext.ObjectInstance is ResponseViewModel responseViewModel))
+                return null;
+
+            if (responseViewModel.PageType.IsAssignableFrom(typeof(IQuestion)) && string.IsNullOrWhiteSpace(valueString))
             {
                 return new ValidationResult(this.FormatErrorMessage(validationContext.DisplayName));
             }

@@ -67,7 +67,7 @@ namespace EKSurvey.UI.Controllers
                 ? userPages[pageIndex - 1].Page.Id 
                 : (int?) null;
 
-            return View(viewModel.PageType?.Name, viewModel);
+            return View((viewModel.Page.GetType().BaseType ?? viewModel.Page.GetType()).Name, viewModel);
         }
 
         [HttpPost]
@@ -75,7 +75,11 @@ namespace EKSurvey.UI.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(viewModel.PageType?.Name, viewModel);
+                var userSection = await _surveyManager.GetCurrentUserSectionAsync(User.Identity.GetUserId(), viewModel.SurveyId);
+                var userPages = (await _surveyManager.GetUserPagesAsync(User.Identity.GetUserId(), userSection.Id)).ToList();
+                var userPage = userPages.Single(p => p.Page.Id == viewModel.PageId);
+
+                return View(userPage.Page.GetType().BaseType?.Name, viewModel);
             }
 
             try
@@ -88,7 +92,7 @@ namespace EKSurvey.UI.Controllers
                 ModelState.AddModelError(string.Empty, ex.Message);
             }
 
-            return View(viewModel.PageType?.Name, viewModel);
+            return View(viewModel.Page.GetType().BaseType?.Name, viewModel);
         }
     }
 }

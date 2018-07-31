@@ -11,5 +11,14 @@ namespace EKSurvey.Core.Services.Exceptions
             SurveyName = surveyName;
         }
 
+        public InvalidSectionConfiguration(string surveyName, string message) : base(message)
+        {
+            SurveyName = surveyName;
+        }
+
+        public InvalidSectionConfiguration(string surveyName, string message, Exception innerException) : base(message, innerException)
+        {
+            SurveyName = surveyName;
+        }
     }
 }

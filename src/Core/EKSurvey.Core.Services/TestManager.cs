@@ -17,6 +17,7 @@ namespace EKSurvey.Core.Services
         public DbSet<Survey> Surveys => _dbContext.Set<Survey>();
         public DbSet<Test> Tests => _dbContext.Set<Test>();
         public DbSet<TestResponse> TestResponses => _dbContext.Set<TestResponse>();
+        public DbSet<Page> Pages => _dbContext.Set<Page>();
 
         public TestManager(DbContext dbContext, IMapper mapper)
         {
@@ -77,7 +78,10 @@ namespace EKSurvey.Core.Services
         public TestResponse Respond(string userId, int surveyId, string response, int pageId)
         {
             var currentTest = Tests.Find(userId, surveyId) ?? throw new TestNotFoundException(userId, surveyId);
+            var currentPage = Pages.Find(pageId) ?? throw new PageNotFoundException(pageId);
             var testResponse = TestResponses.Find(currentTest.Id, pageId);
+
+            var responseExpected = currentPage.GetType().IsAssignableFrom(typeof(IQuestion));
 
             if (testResponse == null)
             {
@@ -87,7 +91,7 @@ namespace EKSurvey.Core.Services
                     PageId = pageId,
                     Response = response,
                     Created = DateTime.UtcNow,
-                    Responded = string.IsNullOrWhiteSpace(response) ? (DateTime?) null : DateTime.UtcNow
+                    Responded = responseExpected && string.IsNullOrWhiteSpace(response) ? (DateTime?)null : DateTime.UtcNow
                 };
 
                 TestResponses.Add(testResponse);
@@ -99,7 +103,7 @@ namespace EKSurvey.Core.Services
                 testResponse.Responded = DateTime.UtcNow;
             }
 
-            _dbContext.SaveChanges();
+            _dbContext.SaveChangesAsync();
 
             return testResponse;
         }
@@ -107,7 +111,10 @@ namespace EKSurvey.Core.Services
         public async Task<TestResponse> RespondAsync(string userId, int surveyId, string response, int pageId, CancellationToken cancellationToken = default(CancellationToken))
         {
             var currentTest = await Tests.FindAsync(cancellationToken, userId, surveyId) ?? throw new TestNotFoundException(userId, surveyId);
+            var currentPage = await Pages.FindAsync(cancellationToken, pageId) ?? throw new PageNotFoundException(pageId);
             var testResponse = await TestResponses.FindAsync(cancellationToken, currentTest.Id, pageId);
+
+            var responseExpected = currentPage.GetType().IsAssignableFrom(typeof(IQuestion));
 
             if (testResponse == null)
             {
@@ -117,7 +124,7 @@ namespace EKSurvey.Core.Services
                     PageId = pageId,
                     Response = response,
                     Created = DateTime.UtcNow,
-                    Responded = string.IsNullOrWhiteSpace(response) ? (DateTime?) null : DateTime.UtcNow
+                    Responded = responseExpected && string.IsNullOrWhiteSpace(response) ? (DateTime?) null : DateTime.UtcNow
                 };
 
                 TestResponses.Add(testResponse);

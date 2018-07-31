@@ -13,6 +13,8 @@ namespace EKSurvey.Core.Models.Entities
         public int SectionId { get; set; }
 
         public int Order { get; set; }
+        public bool IsHtml { get; set; }
+        public string Text { get; set; }
 
         [ForeignKey("SectionId")]
         public virtual Section Section { get; set; }

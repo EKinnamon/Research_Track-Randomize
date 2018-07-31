@@ -68,15 +68,13 @@ namespace EKSurvey.UI.Profiles
                     var page = src as Page ?? throw new AutoMapperMappingException("Invalid page type being mapped.");
 
                     dest.SurveyId = page.Section.SurveyId;
-                    if (!(page is IQuestion))
-                        return;
 
                     var test = dbContext.Set<Test>().Find(userId, page.Section.SurveyId);
                     if (test == null)
                         return;
 
                     var userResponse = page.TestResponses.SingleOrDefault(tr => tr.TestId == test.Id);
-                    dest.Responded = userResponse?.Created;
+                    dest.Responded = userResponse?.Responded;
                     dest.Modified = userResponse?.Modified;
                 });
 

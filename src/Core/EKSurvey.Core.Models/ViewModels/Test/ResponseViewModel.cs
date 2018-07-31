@@ -22,14 +22,25 @@ namespace EKSurvey.Core.Models.ViewModels.Test
 
         public int? PriorPageId { get; set; }
 
-        private string _pageType;
-        public string PageType
+        private string _pageTypeName;
+        public string PageTypeName
         {
-            get => Page != null 
-                ? Page.GetType().BaseType?.ToString() 
-                : _pageType;
+            get => Page != null ? PageType.FullName : _pageTypeName;
+            set => _pageTypeName = value;
 
-            set => _pageType = value;
+        }
+
+        public Type PageType
+        {
+            get
+            {
+                if (Page != null)
+                    return Page.GetType().BaseType ?? Page.GetType();
+
+                return !string.IsNullOrWhiteSpace(PageTypeName) 
+                    ? Type.GetType(PageTypeName) 
+                    : null;
+            } 
         }
 
         public IPage Page { get; set; }
