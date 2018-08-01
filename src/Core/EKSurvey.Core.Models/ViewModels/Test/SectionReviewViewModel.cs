@@ -7,7 +7,7 @@ namespace EKSurvey.Core.Models.ViewModels.Test
     {
         public int SurveyId { get; set; }
         public int SectionId { get; set; }
-
         public ICollection<UserResponse> Responses { get; set; }
+        public bool IsLastSection { get; set; }
     }
 }

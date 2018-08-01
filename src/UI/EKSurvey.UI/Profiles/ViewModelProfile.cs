@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using AutoMapper;
 using EKSurvey.Core.Models.DataTransfer;
@@ -32,11 +33,13 @@ namespace EKSurvey.UI.Profiles
             CreateMap<UserSection, SectionReviewViewModel>()
                 // SurveyId mapped
                 .ForMember(dest => dest.SectionId, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Responses, opt => opt.Ignore());
+                .ForMember(dest => dest.Responses, opt => opt.Ignore())
+                .ForMember(dest => dest.IsLastSection, opt => opt.Ignore());
 
             CreateMap<ICollection<UserResponse>, SectionReviewViewModel>()
                 .ForMember(dest => dest.SurveyId, opt => opt.Ignore())
                 .ForMember(dest => dest.SectionId, opt => opt.Ignore())
+                .ForMember(dest => dest.IsLastSection, opt => opt.Ignore())
                 .ForMember(dest => dest.Responses, opt => opt.MapFrom(src => src));
 
         }

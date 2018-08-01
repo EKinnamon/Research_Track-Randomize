@@ -1,10 +1,13 @@
 ﻿@model EKSurvey.Core.Models.ViewModels.Test.SectionReviewViewModel
 
 @{
+    var surveyClosing = Model.IsLastSection
+        ? "completing the survey"
+        : "continuing to the next section";
 }
 
 <h2>Section Review</h2>
-<p class="lead">Before continuing to the next section, please review and confirm that the following is correct.</p>
+<p class="lead">Before @surveyClosing, please review and confirm that the following is correct.</p>
 <table class="table">
     <thead>
     <tr>

@@ -103,11 +103,12 @@ namespace EKSurvey.UI.Controllers
         [HttpGet]
         public async Task<ActionResult> SectionReview(int id)
         {
+            var sections = await _surveyManager.GetUserSectionsAsync(User.Identity.GetUserId(), id);
             var userSection = await _surveyManager.GetCurrentUserSectionAsync(User.Identity.GetUserId(), id);
             var sectionResponses = await _surveyManager.GetSectionResponsesAsync(User.Identity.GetUserId(), userSection.Id);
             var viewModel = _mapper.Map<SectionReviewViewModel>(userSection);
             _mapper.Map(sectionResponses, viewModel);
-
+            viewModel.IsLastSection = sections.Last().Id == userSection.Id;
             return View(viewModel);
         }
     }
