@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
 
 namespace EKSurvey.Core.Services
@@ -14,5 +15,7 @@ namespace EKSurvey.Core.Services
 
         TestResponse Respond(string userId, int surveyId, string response, int pageId);
         Task<TestResponse> RespondAsync(string userId, int surveyId, string response, int pageId, CancellationToken cancellationToken = default(CancellationToken));
+        UserSurvey CompleteCurrentSection(string userId);
+        Task<UserSurvey> CompleteCurrentSectionAsync(string userId, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

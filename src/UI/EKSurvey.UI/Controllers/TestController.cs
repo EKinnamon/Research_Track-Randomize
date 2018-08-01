@@ -95,6 +95,7 @@ namespace EKSurvey.UI.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
+                ErrorSignal.FromCurrentContext().Raise(ex);
             }
 
             return View(viewModel.Page.GetType().BaseType?.Name, viewModel);
@@ -110,6 +111,36 @@ namespace EKSurvey.UI.Controllers
             _mapper.Map(sectionResponses, viewModel);
             viewModel.IsLastSection = sections.Last().Id == userSection.Id;
             return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> SectionComplete()
+        {
+            if (!ModelState.IsValid)
+            {
+
+            }
+
+            try
+            {
+                var userSurvey = await _testManager.CompleteCurrentSectionAsync(User.Identity.GetUserId());
+                return userSurvey.Completed.HasValue
+                    ? RedirectToAction("SurveyComplete") 
+                    : RedirectToAction("Respond", new {id = userSurvey.Id});
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                ErrorSignal.FromCurrentContext().Raise(ex);
+            }
+
+            return RedirectToAction("SectionReview");
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> SurveyComplete()
+        {
+            throw new NotImplementedException();
         }
     }
 }

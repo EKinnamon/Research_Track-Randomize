@@ -21,6 +21,5 @@ namespace EKSurvey.Core.Models.DataTransfer
         public DateTime? Started { get; set; }
 
         public DateTime? Completed { get; set; }
-
     }
 }

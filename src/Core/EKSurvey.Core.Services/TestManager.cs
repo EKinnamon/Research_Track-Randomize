@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
 using EKSurvey.Core.Services.Exceptions;
 
@@ -141,5 +142,14 @@ namespace EKSurvey.Core.Services
             return testResponse;
         }
 
+        public UserSurvey CompleteCurrentSection(string userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserSurvey> CompleteCurrentSectionAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
     }
 }
