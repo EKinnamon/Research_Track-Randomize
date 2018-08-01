@@ -159,9 +159,16 @@ namespace EKSurvey.Core.Services
             return new HashSet<UserSection>(results.OrderBy(i => i.Order));
         }
 
+        private void ThrowIfSurveyDoesNotExist(int surveyId)
+        {
+            if (Surveys.Find(surveyId) == null)
+                throw new SurveyNotFoundException(surveyId);
+        }
+
         public UserSection GetCurrentUserSection(string userId, int surveyId)
         {
-            var survey = Surveys.Find(surveyId) ?? throw new SurveyNotFoundException(surveyId);
+            ThrowIfSurveyDoesNotExist(surveyId);
+
             var sections = GetUserSections(userId, surveyId);
             var activeSection = sections.FirstOrDefault(s => s.Started.HasValue && !s.Completed.HasValue);
 
@@ -199,7 +206,7 @@ namespace EKSurvey.Core.Services
 
         public async Task<UserSection> GetCurrentUserSectionAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var survey = await Surveys.FindAsync(cancellationToken, surveyId) ?? throw new SurveyNotFoundException(surveyId);
+            ThrowIfSurveyDoesNotExist(surveyId);
             var sections = await GetUserSectionsAsync(userId, surveyId, cancellationToken);
             var activeSection = sections.FirstOrDefault(s => s.Started.HasValue && !s.Completed.HasValue);
 

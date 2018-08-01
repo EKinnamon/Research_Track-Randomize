@@ -13,6 +13,7 @@ namespace EKSurvey.Core.Services
     public class TestManager : ITestManager
     {
         private readonly DbContext _dbContext;
+        private readonly ISurveyManager _surveyManager;
         private readonly IMapper _mapper;
 
         public DbSet<Survey> Surveys => _dbContext.Set<Survey>();
@@ -20,9 +21,10 @@ namespace EKSurvey.Core.Services
         public DbSet<TestResponse> TestResponses => _dbContext.Set<TestResponse>();
         public DbSet<Page> Pages => _dbContext.Set<Page>();
 
-        public TestManager(DbContext dbContext, IMapper mapper)
+        public TestManager(DbContext dbContext, ISurveyManager surveyManager, IMapper mapper)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _surveyManager = surveyManager ?? ;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
@@ -142,12 +144,13 @@ namespace EKSurvey.Core.Services
             return testResponse;
         }
 
-        public UserSurvey CompleteCurrentSection(string userId)
+        public UserSurvey CompleteCurrentSection(string userId, int surveyId)
         {
-            throw new NotImplementedException();
+            var section = _surveyManager.GetCurrentUserSection(userId, surveyId);
+
         }
 
-        public Task<UserSurvey> CompleteCurrentSectionAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<UserSurvey> CompleteCurrentSectionAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }

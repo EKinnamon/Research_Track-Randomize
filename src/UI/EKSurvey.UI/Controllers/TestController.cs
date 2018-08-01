@@ -114,7 +114,7 @@ namespace EKSurvey.UI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> SectionComplete()
+        public async Task<ActionResult> SectionComplete(int id)
         {
             if (!ModelState.IsValid)
             {
@@ -123,7 +123,7 @@ namespace EKSurvey.UI.Controllers
 
             try
             {
-                var userSurvey = await _testManager.CompleteCurrentSectionAsync(User.Identity.GetUserId());
+                var userSurvey = await _testManager.CompleteCurrentSectionAsync(User.Identity.GetUserId(), id);
                 return userSurvey.Completed.HasValue
                     ? RedirectToAction("SurveyComplete") 
                     : RedirectToAction("Respond", new {id = userSurvey.Id});
