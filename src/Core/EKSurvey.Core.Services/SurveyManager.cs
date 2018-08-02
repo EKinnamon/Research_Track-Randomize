@@ -305,5 +305,20 @@ namespace EKSurvey.Core.Services
 
             return responses;
         }
+
+        public UserSurvey GetUserSurvey(string userId, int surveyId)
+        {
+            var survey = Surveys.Find(surveyId) ?? throw new SurveyNotFoundException(surveyId);
+            var result = _mapper.Map<UserSurvey>(survey);
+            return result;
+        }
+
+        public async Task<UserSurvey> GetUserSurveyAsync(string userId, int surveyId,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var survey = await Surveys.FindAsync(surveyId) ?? throw new SurveyNotFoundException(surveyId);
+            var result = _mapper.Map<UserSurvey>(survey);
+            return result;
+        }
     }
 }

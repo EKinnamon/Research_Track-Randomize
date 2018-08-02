@@ -30,5 +30,7 @@ namespace EKSurvey.Core.Services
         ICollection<UserResponse> GetSectionResponses(string userId, int id);
         Task<ICollection<UserResponse>> GetSectionResponsesAsync(string userId, int id, CancellationToken cancellationToken = default(CancellationToken));
 
+        UserSurvey GetUserSurvey(string userId, int surveyId);
+        Task<UserSurvey> GetUserSurveyAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

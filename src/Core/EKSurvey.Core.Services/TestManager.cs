@@ -17,14 +17,16 @@ namespace EKSurvey.Core.Services
         private readonly IMapper _mapper;
 
         public DbSet<Survey> Surveys => _dbContext.Set<Survey>();
+        public DbSet<Section> Sections => _dbContext.Set<Section>();
         public DbSet<Test> Tests => _dbContext.Set<Test>();
         public DbSet<TestResponse> TestResponses => _dbContext.Set<TestResponse>();
         public DbSet<Page> Pages => _dbContext.Set<Page>();
+        public DbSet<TestSectionMarker> TestSectionMarkers => _dbContext.Set<TestSectionMarker>();
 
         public TestManager(DbContext dbContext, ISurveyManager surveyManager, IMapper mapper)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _surveyManager = surveyManager ?? ;
+            _surveyManager = surveyManager ?? throw new ArgumentNullException(nameof(surveyManager));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
@@ -147,12 +149,52 @@ namespace EKSurvey.Core.Services
         public UserSurvey CompleteCurrentSection(string userId, int surveyId)
         {
             var section = _surveyManager.GetCurrentUserSection(userId, surveyId);
+            var sectionMarker = TestSectionMarkers.Find(section.TestId, section.Id) ?? throw new SectionMarkerNotFoundException(section.TestId, section.Id);
 
+            sectionMarker.Completed = DateTime.UtcNow;
+
+            // Check if the survey is complete
+            var sectionMarkers =
+                from s in Sections
+                join tsm in TestSectionMarkers on s.Id equals tsm.SectionId into sm
+                from m in sm.DefaultIfEmpty()
+                select new { SectionId = s.Id, m.Completed };
+
+            if (sectionMarkers.All(sm => sm.Completed.HasValue))
+            {
+                var test = Tests.Find(userId, surveyId) ?? throw new TestNotFoundException(userId, surveyId);
+                test.Completed = DateTime.UtcNow;
+            }
+
+            _dbContext.SaveChanges();
+            var result = _surveyManager.GetUserSurvey(userId, surveyId);
+            return result;
         }
 
-        public Task<UserSurvey> CompleteCurrentSectionAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<UserSurvey> CompleteCurrentSectionAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            var section = await _surveyManager.GetCurrentUserSectionAsync(userId, surveyId, cancellationToken);
+            var sectionMarker = await TestSectionMarkers.FindAsync(cancellationToken, section.TestId, section.Id) ?? throw new SectionMarkerNotFoundException(section.TestId, section.Id);
+
+            sectionMarker.Completed = DateTime.UtcNow;
+
+            // Check if the survey is complete
+            var sectionMarkers =
+                from s in Sections
+                join tsm in TestSectionMarkers on s.Id equals tsm.SectionId into sm
+                from m in sm.DefaultIfEmpty()
+                select new { SectionId = s.Id, m.Completed };
+
+            if (sectionMarkers.All(sm => sm.Completed.HasValue))
+            {
+                // Close the test if all the section markers are complete.
+                var test = Tests.Find(userId, surveyId) ?? throw new TestNotFoundException(userId, surveyId);
+                test.Completed = DateTime.UtcNow;
+            }
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            var result = await _surveyManager.GetUserSurveyAsync(userId, surveyId, cancellationToken);
+            return result;
         }
     }
 }
