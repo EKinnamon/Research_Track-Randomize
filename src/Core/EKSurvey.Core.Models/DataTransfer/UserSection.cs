@@ -19,6 +19,8 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public SelectorType? SelectorType { get; set; }
 
+        public bool? IsSelected { get; set; }
+
         public DateTime? Started { get; set; }
 
         public DateTime? Modified { get; set; }

@@ -134,7 +134,7 @@ namespace EKSurvey.UI.Controllers
                 ErrorSignal.FromCurrentContext().Raise(ex);
             }
 
-            return RedirectToAction("SectionReview");
+            return RedirectToAction("SectionReview", new { id });
         }
 
         [HttpGet]

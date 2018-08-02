@@ -32,5 +32,13 @@
 </table>
 @using (Html.BeginForm("SectionComplete", "Test", FormMethod.Post, new {@class = "mt-5"}))
 {
-
+    @Html.Hidden("Id", Model.SurveyId)
+    <div class="row">
+        <div class="offset-10 col-2">
+            <button class="btn btn-block btn-primary">
+                @(Model.IsLastSection ? "Finish Survey" : "Continue")
+                <i class="fa fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
 }

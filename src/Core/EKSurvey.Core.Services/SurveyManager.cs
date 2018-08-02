@@ -75,6 +75,7 @@ namespace EKSurvey.Core.Services
             {
                 TestId = userSection.TestId,
                 SectionId = userSection.Id,
+                IsSelected = true,
                 Started = DateTime.UtcNow
             };
 
@@ -309,15 +310,14 @@ namespace EKSurvey.Core.Services
         public UserSurvey GetUserSurvey(string userId, int surveyId)
         {
             var survey = Surveys.Find(surveyId) ?? throw new SurveyNotFoundException(surveyId);
-            var result = _mapper.Map<UserSurvey>(survey);
+            var result = _mapper.Map<UserSurvey>(survey, Opt(userId));
             return result;
         }
 
-        public async Task<UserSurvey> GetUserSurveyAsync(string userId, int surveyId,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<UserSurvey> GetUserSurveyAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var survey = await Surveys.FindAsync(surveyId) ?? throw new SurveyNotFoundException(surveyId);
-            var result = _mapper.Map<UserSurvey>(survey);
+            var survey = await Surveys.FindAsync(cancellationToken, surveyId) ?? throw new SurveyNotFoundException(surveyId);
+            var result = _mapper.Map<UserSurvey>(survey, Opt(userId));
             return result;
         }
     }
