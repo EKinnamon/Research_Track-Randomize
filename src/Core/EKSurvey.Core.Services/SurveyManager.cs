@@ -146,18 +146,18 @@ namespace EKSurvey.Core.Services
             return new HashSet<UserSurvey>(results);
         }
 
-        public ICollection<UserSection> GetUserSections(string userId, int surveyId)
+        public ICollection<IUserSection> GetUserSections(string userId, int surveyId)
         {
             var survey = Surveys.Find(surveyId) ?? throw new SurveyNotFoundException(surveyId);
-            var results = _mapper.Map<ICollection<UserSection>>(survey.Sections, Opt(userId));
-            return new HashSet<UserSection>(results.OrderBy(i => i.Order));
+            var results = _mapper.Map<ICollection<IUserSection>>(survey.Sections, Opt(userId));
+            return new HashSet<IUserSection>(results.OrderBy(i => i.Order));
         }
 
-        public async Task<ICollection<UserSection>> GetUserSectionsAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ICollection<IUserSection>> GetUserSectionsAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
             var survey = await Surveys.FindAsync(cancellationToken, surveyId) ?? throw new SurveyNotFoundException(surveyId);
-            var results = _mapper.Map<ICollection<UserSection>>(survey.Sections, Opt(userId));
-            return new HashSet<UserSection>(results.OrderBy(i => i.Order));
+            var results = _mapper.Map<ICollection<IUserSection>>(survey.Sections.Cast<Section>(), Opt(userId));
+            return new HashSet<IUserSection>(results.OrderBy(i => i.Order));
         }
 
         private void ThrowIfSurveyDoesNotExist(int surveyId)
@@ -166,7 +166,7 @@ namespace EKSurvey.Core.Services
                 throw new SurveyNotFoundException(surveyId);
         }
 
-        public UserSection GetCurrentUserSection(string userId, int surveyId)
+        public IUserSection GetCurrentUserSection(string userId, int surveyId)
         {
             ThrowIfSurveyDoesNotExist(surveyId);
 
@@ -175,37 +175,37 @@ namespace EKSurvey.Core.Services
 
             if (activeSection != null)
                 return activeSection;
-            
+
             // create a new active section
-            var availableSections =
-                from s in sections
-                where !s.Started.HasValue
-                orderby s.Order
-                select s;
+            //var availableSections =
+            //    from s in sections
+            //    where !s.Started.HasValue
+            //    orderby s.Order
+            //    select s;
 
-            var sectionStacks =
-                from s in availableSections
-                group s by s.Order
-                into st
-                select new { Order = st.Key, Stack = st.ToList() };
+            //var sectionStacks =
+            //    from s in availableSections
+            //    group s by s.Order
+            //    into st
+            //    select new { Order = st.Key, Stack = st.ToList() };
 
-            var stack = sectionStacks
-                .OrderBy(st => st.Order)
-                .FirstOrDefault()?.Stack ?? new List<UserSection>();
+            //var stack = sectionStacks
+            //    .OrderBy(st => st.Order)
+            //    .FirstOrDefault()?.Stack ?? new List<UserSection>();
 
-            if (!stack.Any())
-                return null;
+            //if (!stack.Any())
+            //    return null;
 
-            activeSection = stack.Count == 1 
-                ? stack.First() 
-                : SelectSection(stack, stack.First().SelectorType.GetValueOrDefault());
+            //activeSection = stack.Count == 1 
+            //    ? stack.First() 
+            //    : SelectSection(stack, stack.First().SelectorType.GetValueOrDefault());
 
-            MakeActiveSection(activeSection);
+            //MakeActiveSection(activeSection);
 
             return activeSection;
         }
 
-        public async Task<UserSection> GetCurrentUserSectionAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IUserSection> GetCurrentUserSectionAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
             ThrowIfSurveyDoesNotExist(surveyId);
             var sections = await GetUserSectionsAsync(userId, surveyId, cancellationToken);
@@ -215,30 +215,30 @@ namespace EKSurvey.Core.Services
                 return activeSection;
 
             // create a new active section;
-            var availableSections = 
-                from s in sections
-                where !s.Started.HasValue
-                orderby s.Order
-                select s;
+            //var availableSections = 
+            //    from s in sections
+            //    where !s.Started.HasValue
+            //    orderby s.Order
+            //    select s;
 
-            var sectionStacks =
-                from s in availableSections
-                group s by s.Order
-                into st
-                select new { Order = st.Key, Stack = st.ToList() };
+            //var sectionStacks =
+            //    from s in availableSections
+            //    group s by s.Order
+            //    into st
+            //    select new { Order = st.Key, Stack = st.ToList() };
 
-            var stack = sectionStacks
-                .OrderBy(st => st.Order)
-                .FirstOrDefault()?.Stack ?? new List<UserSection>();
+            //var stack = sectionStacks
+            //    .OrderBy(st => st.Order)
+            //    .FirstOrDefault()?.Stack ?? new List<UserSection>();
 
-            if (!stack.Any())
-                return null;
+            //if (!stack.Any())
+            //    return null;
 
-            activeSection = stack.Count == 1
-                ? stack.First()
-                : SelectSection(stack, stack.First().SelectorType.GetValueOrDefault());
+            //activeSection = stack.Count == 1
+            //    ? stack.First()
+            //    : SelectSection(stack, stack.First().SelectorType.GetValueOrDefault());
 
-            await MakeActiveSectionAsync(activeSection);
+            //await MakeActiveSectionAsync(activeSection);
 
             return activeSection;
         }

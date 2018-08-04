@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using AutoMapper;
@@ -52,9 +53,35 @@ namespace EKSurvey.UI.Profiles
                             .Max();
                     }
 
-
                     dest.Completed = src.TestSectionMarkers
                         .SingleOrDefault(tsm => tsm.TestId == userTest.Id && tsm.SectionId == src.Id)?.Completed;
+                });
+
+            CreateMap<IEnumerable<Section>, UserSectionGroup>()
+                .AfterMap((src, dest, ctx) =>
+                {
+                    var group = new UserSectionGroup(ctx.Mapper.Map<IEnumerable<UserSection>>(src))
+                    {
+                        SelectorType = src.First().SelectorType
+                    };
+                });
+
+            CreateMap<ICollection<Section>, ICollection<IUserSection>>()
+                .AfterMap((src, dest, ctx) =>
+                {
+                    var sectionGroups =
+                        from s in src
+                        group s by s.Order
+                        into st
+                        select new { Order = st.Key, Stack = st.ToList() };
+
+                    var userSections = sectionGroups
+                        .OrderBy(g => g.Order)
+                        .Select(g => g.Stack.Count == 1
+                            ? (IUserSection) ctx.Mapper.Map<UserSection>(g.Stack.First())
+                            : ctx.Mapper.Map<UserSectionGroup>(g.Stack));
+
+                    dest = new HashSet<IUserSection>(userSections);
                 });
 
             CreateMap<IPage, UserPage>()

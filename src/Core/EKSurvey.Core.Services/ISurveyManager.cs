@@ -15,11 +15,11 @@ namespace EKSurvey.Core.Services
         ICollection<UserSurvey> GetUserSurveys(string userId, bool includeCompleted = false);
         Task<ICollection<UserSurvey>> GetUserSurveysAsync(string userId, bool includeCompleted = false, CancellationToken cancellationToken = default(CancellationToken));
 
-        ICollection<UserSection> GetUserSections(string userId, int surveyId);
-        Task<ICollection<UserSection>> GetUserSectionsAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken));
+        ICollection<IUserSection> GetUserSections(string userId, int surveyId);
+        Task<ICollection<IUserSection>> GetUserSectionsAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken));
 
-        UserSection GetCurrentUserSection(string userId, int surveyId);
-        Task<UserSection> GetCurrentUserSectionAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken));
+        IUserSection GetCurrentUserSection(string userId, int surveyId);
+        Task<IUserSection> GetCurrentUserSectionAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken));
 
         ICollection<UserPage> GetUserPages(string userId, int sectionId);
         Task<ICollection<UserPage>> GetUserPagesAsync(string userId, int sectionId, CancellationToken cancellationToken = default(CancellationToken));
