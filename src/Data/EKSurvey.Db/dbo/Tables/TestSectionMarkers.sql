@@ -2,7 +2,6 @@
 (
 	[TestId] UNIQUEIDENTIFIER NOT NULL,
 	[SectionId] INT NOT NULL,
-	[IsSelected] BIT NULL,
 	[Started] DATETIME NOT NULL,
 	[Completed] DATETIME NULL
 

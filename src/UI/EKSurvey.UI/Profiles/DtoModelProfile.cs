@@ -45,6 +45,8 @@ namespace EKSurvey.UI.Profiles
                     dest.Started = src.TestSectionMarkers
                         .SingleOrDefault(tsm => tsm.TestId == userTest.Id && tsm.SectionId == src.Id)?.Started;
 
+                    dest.IsSelected = dest.Started.HasValue;
+
                     if (sectionResponses.Any())
                     {
                         dest.Modified = sectionResponses
@@ -58,31 +60,22 @@ namespace EKSurvey.UI.Profiles
                 });
 
             CreateMap<IEnumerable<Section>, UserSectionGroup>()
+
                 .AfterMap((src, dest, ctx) =>
                 {
-                    var group = new UserSectionGroup(ctx.Mapper.Map<IEnumerable<UserSection>>(src))
+                    var dbContext = ctx.Items["dbContext"] as DbContext ?? throw new AutoMapperMappingException("DbContext must be supplied for this mapping.");
+                    var userId = ctx.Items["userId"].ToString();
+
+                    var userSections = ctx.Mapper.Map<IEnumerable<UserSection>>(src, opt =>
                     {
-                        SelectorType = src.First().SelectorType
-                    };
+                        opt.Items.Add("dbContext", dbContext);
+                        opt.Items.Add("userId", userId);
+                    });
+
+                    dest.SelectorType = src.First().SelectorType;
+                    dest.AddRange(userSections);
                 });
 
-            CreateMap<ICollection<Section>, ICollection<IUserSection>>()
-                .AfterMap((src, dest, ctx) =>
-                {
-                    var sectionGroups =
-                        from s in src
-                        group s by s.Order
-                        into st
-                        select new { Order = st.Key, Stack = st.ToList() };
-
-                    var userSections = sectionGroups
-                        .OrderBy(g => g.Order)
-                        .Select(g => g.Stack.Count == 1
-                            ? (IUserSection) ctx.Mapper.Map<UserSection>(g.Stack.First())
-                            : ctx.Mapper.Map<UserSectionGroup>(g.Stack));
-
-                    dest = new HashSet<IUserSection>(userSections);
-                });
 
             CreateMap<IPage, UserPage>()
                 .ForMember(dest => dest.Page, opt => opt.MapFrom(src => src))

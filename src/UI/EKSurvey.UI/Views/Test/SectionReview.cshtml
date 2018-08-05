@@ -7,29 +7,38 @@
 }
 
 <h2>Section Review</h2>
-<p class="lead">Before @surveyClosing, please review and confirm that the following is correct.</p>
-<table class="table">
-    <thead>
-    <tr>
-        <th>Question</th>
-        <th>Response</th>
-        <th>&nbsp;</th>
-    </tr>
-    </thead>
-    <tfoot></tfoot>
-    <tbody>
-    @foreach (var item in Model.Responses.Where(r => r.IsQuestion))
-    {
+@if (Model.Responses.Any(r => r.IsQuestion))
+{
+    <p class="lead">Before @surveyClosing, please review and confirm that the following is correct.</p>
+    <table class="table">
+        <thead>
         <tr>
-            <td>@item.Text</td>
-            <td><em>@item.Response</em></td>
-            <td class="text-right">
-                @Html.ActionLink("Change", "Respond", "Test", new { id = Model.SurveyId, pageId = item.PageId }, new { @class="btn btn-success" })
-            </td>
+            <th>Question</th>
+            <th>Response</th>
+            <th>&nbsp;</th>
         </tr>
-    }
-    </tbody>
-</table>
+        </thead>
+        <tfoot></tfoot>
+        <tbody>
+        @foreach (var item in Model.Responses.Where(r => r.IsQuestion))
+        {
+            <tr>
+                <td>@item.Text</td>
+                <td><em>@item.Response</em></td>
+                <td class="text-right">
+                    @Html.ActionLink("Change", "Respond", "Test", new { id = Model.SurveyId, pageId = item.PageId }, new { @class="btn btn-success" })
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="lead">Please continue to the next section.</p>
+}
+
+
 @using (Html.BeginForm("SectionComplete", "Test", FormMethod.Post, new {@class = "mt-5"}))
 {
     @Html.Hidden("Id", Model.SurveyId)

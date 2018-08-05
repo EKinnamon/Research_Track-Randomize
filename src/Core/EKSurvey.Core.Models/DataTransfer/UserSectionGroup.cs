@@ -2,19 +2,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+
 using EKSurvey.Core.Extensions;
 using EKSurvey.Core.Models.Enums;
 using EKSurvey.Core.Models.Exceptions;
 
 namespace EKSurvey.Core.Models.DataTransfer
 {
-    public class UserSectionGroup : IEnumerable<UserSection>, IUserSection
+    public class UserSectionGroup : IList<UserSection>, IUserSection
     {
-        private readonly UserSection[] _collection;
+        private readonly List<UserSection> _collection = new List<UserSection>();
+
+        public UserSectionGroup() { }
 
         public UserSectionGroup(IEnumerable<UserSection> collection)
         {
-            _collection = (collection ?? throw new ArgumentNullException(nameof(collection))).ToArray();
+            _collection = (collection ?? throw new ArgumentNullException(nameof(collection))).ToList();
             ThrowIfInvalid();
         }
         private void ThrowIfInvalid()
@@ -43,12 +46,21 @@ namespace EKSurvey.Core.Models.DataTransfer
         public DateTime? Started => _collection.FirstOrDefault()?.Started;
         public DateTime? Modified => _collection.FirstOrDefault()?.Modified;
         public DateTime? Completed => _collection.FirstOrDefault()?.Completed;
+        public UserSection this[int index]
+        {
+            get => _collection[index];
+            set => _collection[index] = value;
+        }
+        public int Count => _collection.Count;
+        public bool IsReadOnly => false;
+
+        public UserSection SelectedSection => _collection.SingleOrDefault(us => us.IsSelected.GetValueOrDefault(false));
 
         public SelectorType? SelectorType { get; set; }
 
         public IEnumerator<UserSection> GetEnumerator()
         {
-            return (IEnumerator<UserSection>) _collection.GetEnumerator();
+            return _collection.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -56,11 +68,49 @@ namespace EKSurvey.Core.Models.DataTransfer
             return GetEnumerator();
         }
 
+        public void Add(UserSection item)
+        {
+            _collection.Add(item);
+        }
+
+        public void Clear()
+        {
+            _collection.Clear();
+        }
+
         public bool Contains(UserSection item)
         {
             return _collection.Contains(item);
         }
 
-        public int Count => _collection.Length;
+        public void CopyTo(UserSection[] array, int arrayIndex)
+        {
+            _collection.CopyTo(array, arrayIndex);
+        }
+
+        public bool Remove(UserSection item)
+        {
+            return _collection.Remove(item);
+        }
+
+        public int IndexOf(UserSection item)
+        {
+            return _collection.IndexOf(item);
+        }
+
+        public void Insert(int index, UserSection item)
+        {
+            _collection.Insert(index, item);
+        }
+
+        public void RemoveAt(int index)
+        {
+            _collection.RemoveAt(index);
+        }
+
+        public void AddRange(IEnumerable<UserSection> collection)
+        {
+            _collection.AddRange(collection);
+        }
     }
 }

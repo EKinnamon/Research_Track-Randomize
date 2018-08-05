@@ -30,7 +30,7 @@ namespace EKSurvey.UI.Profiles
                 .ForMember(dest => dest.TestId, opt => opt.Ignore())
                 .ForMember(dest => dest.PageId, opt => opt.MapFrom(src => src.Page.Id));
 
-            CreateMap<UserSection, SectionReviewViewModel>()
+            CreateMap<IUserSection, SectionReviewViewModel>()
                 // SurveyId mapped
                 .ForMember(dest => dest.SectionId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Responses, opt => opt.Ignore())
