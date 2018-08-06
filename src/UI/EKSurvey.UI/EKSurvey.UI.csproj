@@ -339,6 +339,7 @@
     <Content Include="Views\Test\FreeTextQuestion.cshtml" />
     <Content Include="Views\Test\SectionReview.cshtml" />
     <Content Include="Views\Test\SurveyComplete.cshtml" />
+    <Content Include="Views\Test\RangeQuestion.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
