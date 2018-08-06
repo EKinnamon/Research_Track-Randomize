@@ -45,8 +45,6 @@ namespace EKSurvey.UI.Profiles
                     dest.Started = src.TestSectionMarkers
                         .SingleOrDefault(tsm => tsm.TestId == userTest.Id && tsm.SectionId == src.Id)?.Started;
 
-                    dest.IsSelected = dest.Started.HasValue;
-
                     if (sectionResponses.Any())
                     {
                         dest.Modified = sectionResponses
@@ -60,7 +58,6 @@ namespace EKSurvey.UI.Profiles
                 });
 
             CreateMap<IEnumerable<Section>, UserSectionGroup>()
-
                 .AfterMap((src, dest, ctx) =>
                 {
                     var dbContext = ctx.Items["dbContext"] as DbContext ?? throw new AutoMapperMappingException("DbContext must be supplied for this mapping.");

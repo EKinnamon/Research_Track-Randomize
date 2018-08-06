@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.Web;
 using Autofac;
 using AutoMapper;
@@ -13,6 +14,10 @@ namespace EKSurvey.UI.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<Random>()
+                .AsSelf()
+                .SingleInstance();
+
             builder.Register(context => HttpContext.Current.GetOwinContext())
                 .As<IOwinContext>()
                 .InstancePerRequest();
@@ -29,7 +34,7 @@ namespace EKSurvey.UI.Modules
                 .AsSelf()
                 .InstancePerRequest();
 
-            builder.Register(c => new SurveyManager(c.ResolveNamed<DbContext>("surveyDbContext"), c.Resolve<IMapper>()))
+            builder.Register(c => new SurveyManager(c.ResolveNamed<DbContext>("surveyDbContext"), c.Resolve<Random>(), c.Resolve<IMapper>()))
                 .As<ISurveyManager>()
                 .InstancePerRequest();
 

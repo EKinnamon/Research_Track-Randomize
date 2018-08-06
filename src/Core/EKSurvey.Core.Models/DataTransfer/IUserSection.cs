@@ -10,7 +10,7 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         Guid TestId { get; }
 
-        int Id { get; }
+        int? Id { get; }
 
         int Order { get; }
 

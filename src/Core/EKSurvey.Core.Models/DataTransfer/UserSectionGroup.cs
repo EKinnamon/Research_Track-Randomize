@@ -30,22 +30,18 @@ namespace EKSurvey.Core.Models.DataTransfer
                 throw new InvalidSectionGroupConfigurationException("Sections are not associated to a single test id.");
             if (!_collection.Select(i => i.Order).IsUnanimous())
                 throw new InvalidSectionGroupConfigurationException("Sections must all belong to the same order.");
-            if (!_collection.Select(i => i.Started).IsUnanimous())
-                throw new InvalidSectionGroupConfigurationException("Sections must all have the same started date and time.");
-            if (!_collection.Select(i => i.Modified).IsUnanimous())
-                throw new InvalidSectionGroupConfigurationException("Sections must all have the same modified date and time.");
-            if (!_collection.Select(i => i.Completed).IsUnanimous())
-                throw new InvalidSectionGroupConfigurationException("Sections must all have the same modified date and time.");
         }
 
         public string UserId => _collection.FirstOrDefault()?.UserId;
         public int SurveyId => (_collection.FirstOrDefault()?.SurveyId).GetValueOrDefault();
         public Guid TestId => (_collection.FirstOrDefault()?.TestId).GetValueOrDefault();
-        public int Id => (_collection.FirstOrDefault()?.Id).GetValueOrDefault();
         public int Order => (_collection.FirstOrDefault()?.Order).GetValueOrDefault();
-        public DateTime? Started => _collection.FirstOrDefault()?.Started;
-        public DateTime? Modified => _collection.FirstOrDefault()?.Modified;
-        public DateTime? Completed => _collection.FirstOrDefault()?.Completed;
+
+        public int? Id => SelectedSection?.Id;
+
+        public DateTime? Started => _collection.FirstOrDefault(i => i.Started.HasValue)?.Started;
+        public DateTime? Modified => _collection.FirstOrDefault(i => i.Modified.HasValue)?.Modified;
+        public DateTime? Completed => _collection.FirstOrDefault(i => i.Completed.HasValue)?.Completed;
         public UserSection this[int index]
         {
             get => _collection[index];
@@ -54,7 +50,7 @@ namespace EKSurvey.Core.Models.DataTransfer
         public int Count => _collection.Count;
         public bool IsReadOnly => false;
 
-        public UserSection SelectedSection => _collection.SingleOrDefault(us => us.IsSelected.GetValueOrDefault(false));
+        public UserSection SelectedSection => _collection.SingleOrDefault(us => us.Started.HasValue && !us.Completed.HasValue);
 
         public SelectorType? SelectorType { get; set; }
 
@@ -71,6 +67,7 @@ namespace EKSurvey.Core.Models.DataTransfer
         public void Add(UserSection item)
         {
             _collection.Add(item);
+            ThrowIfInvalid();
         }
 
         public void Clear()
@@ -101,6 +98,7 @@ namespace EKSurvey.Core.Models.DataTransfer
         public void Insert(int index, UserSection item)
         {
             _collection.Insert(index, item);
+            ThrowIfInvalid();
         }
 
         public void RemoveAt(int index)
@@ -111,6 +109,7 @@ namespace EKSurvey.Core.Models.DataTransfer
         public void AddRange(IEnumerable<UserSection> collection)
         {
             _collection.AddRange(collection);
+            ThrowIfInvalid();
         }
     }
 }

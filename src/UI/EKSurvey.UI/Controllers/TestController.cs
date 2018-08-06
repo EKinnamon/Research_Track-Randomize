@@ -53,7 +53,7 @@ namespace EKSurvey.UI.Controllers
         public async Task<ActionResult> Respond(int id, int? pageId)
         {
             var userSection = await _surveyManager.GetCurrentUserSectionAsync(User.Identity.GetUserId(), id);
-            var userPages = (await _surveyManager.GetUserPagesAsync(User.Identity.GetUserId(), userSection.Id)).ToList();
+            var userPages = (await _surveyManager.GetUserPagesAsync(User.Identity.GetUserId(), userSection.Id.GetValueOrDefault())).ToList();
             var userTest = await _testManager.GetAsync(User.Identity.GetUserId(), id);
             var userPage = pageId.HasValue
                 ? userPages.Single(p => p.Page.Id == pageId.Value)
@@ -80,7 +80,7 @@ namespace EKSurvey.UI.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var userSection = await _surveyManager.GetCurrentUserSectionAsync(User.Identity.GetUserId(), viewModel.SurveyId);
+                var userSection = _surveyManager.GetCurrentUserSectionAsync(User.Identity.GetUserId(), viewModel.SurveyId);
                 var userPages = (await _surveyManager.GetUserPagesAsync(User.Identity.GetUserId(), userSection.Id)).ToList();
                 var userPage = userPages.Single(p => p.Page.Id == viewModel.PageId);
 
@@ -106,7 +106,7 @@ namespace EKSurvey.UI.Controllers
         {
             var sections = await _surveyManager.GetUserSectionsAsync(User.Identity.GetUserId(), id);
             var userSection = await _surveyManager.GetCurrentUserSectionAsync(User.Identity.GetUserId(), id);
-            var sectionResponses = await _surveyManager.GetSectionResponsesAsync(User.Identity.GetUserId(), userSection.Id);
+            var sectionResponses = await _surveyManager.GetSectionResponsesAsync(User.Identity.GetUserId(), userSection.Id.GetValueOrDefault());
             var viewModel = _mapper.Map<SectionReviewViewModel>(userSection);
             _mapper.Map(sectionResponses, viewModel);
             viewModel.IsLastSection = sections.Last().Id == userSection.Id;
