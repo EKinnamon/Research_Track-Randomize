@@ -4,6 +4,7 @@
     [Order] INT NOT NULL,
     [Range] INT NULL,
     [IsHtml] BIT NOT NULL CONSTRAINT [DF_Pages_IsHtml] DEFAULT 0,
+	[IsLickert] BIT NULL,
 	[Text] NVARCHAR(MAX) NULL,
     [True] NVARCHAR(MAX) NULL,
     [False] NVARCHAR(MAX) NULL,
