@@ -338,6 +338,7 @@
     <Content Include="Views\Test\StaticTextPage.cshtml" />
     <Content Include="Views\Test\FreeTextQuestion.cshtml" />
     <Content Include="Views\Test\SectionReview.cshtml" />
+    <Content Include="Views\Test\SurveyComplete.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

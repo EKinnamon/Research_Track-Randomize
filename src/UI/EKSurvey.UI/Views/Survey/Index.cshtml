@@ -53,9 +53,42 @@
                 </tbody>
             </table>
         }
-        
+        else
+        {
+            <h6>Available Surveys</h6>
+            <p class="lead">There are no available surveys.</p>
+            if (!Model.CompletedSurveys.Any())
+             {
+                 <hr />
+             }
+        }
+
         @if (Model.CompletedSurveys.Any())
         {
+            <table class="table">
+                <thead>
+                <tr>
+                    <th colspan="2">Completed Surveys</th>
+                </tr>
+                </thead>
+                <tfoot></tfoot>
+                <tbody>
+                @foreach (var survey in Model.CompletedSurveys)
+                {
+                    <tr>
+                        <th>@survey.Name</th>
+                        <td class="text-right">
+                            @survey.Completed.GetValueOrDefault().ToString("d")
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <h6>Completed Surveys</h6>
+            <p class="lead">You have no completed surveys.</p>
         }
     </div>
 </div>

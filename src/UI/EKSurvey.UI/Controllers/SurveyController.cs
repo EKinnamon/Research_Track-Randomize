@@ -31,7 +31,7 @@ namespace EKSurvey.UI.Controllers
                 ViewBag.Errors = TempData["Errors"];
             }
 
-            var surveys = await _surveyManager.GetUserSurveysAsync(User.Identity.GetUserId());
+            var surveys = await _surveyManager.GetUserSurveysAsync(User.Identity.GetUserId(), includeCompleted: true);
             var viewModel = _mapper.Map<IndexViewModel>(surveys);
 
             return View(viewModel);

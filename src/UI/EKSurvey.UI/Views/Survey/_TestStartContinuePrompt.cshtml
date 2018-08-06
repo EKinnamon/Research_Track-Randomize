@@ -4,7 +4,8 @@
 
 @{
     var formContext = ViewBag.FormContext ?? string.Empty;
-    var buttonClass = formContext.Equals("table", StringComparison.OrdinalIgnoreCase)
+    var isTable = formContext.Equals("table", StringComparison.OrdinalIgnoreCase);
+    var buttonClass = isTable
         ? "btn-primary"
         : "btn-success btn-block";
 }
@@ -17,7 +18,15 @@
 else
 {
 <a class="btn @buttonClass" href="@Url.Action("Respond", "Test", new { id = Model.Id })">
-    Continue @Model.Name
+    @if (isTable)
+    {
+        <text>Continue</text>
+    }
+    else
+    {
+        <text>Continue </text> @Model.Name
+    }
+
     <i class="fa fa-arrow-right"></i>
 </a>
 }

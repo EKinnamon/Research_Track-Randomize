@@ -8,12 +8,20 @@
 
     var formContext = ViewBag.FormContext ?? string.Empty;
 
-    var buttonClass = formContext.Equals("table", StringComparison.OrdinalIgnoreCase)
+    var isTable = formContext.Equals("table", StringComparison.OrdinalIgnoreCase);
+    var buttonClass = isTable
         ? "btn-primary"
         : "btn-success btn-block";
 
-    <button class="btn @buttonClass" type="submit">
-        <i class="fa fa-check-square-o"></i>
-        Begin @Model.SurveyName
-    </button>
+<button class="btn @buttonClass" type="submit">
+    <i class="fa fa-check-square-o"></i>
+    @if (isTable)
+    {
+        <text>Begin</text>
+    }
+    else
+    {
+        <text>Begin </text> @Model.SurveyName
+    }
+</button>
 }

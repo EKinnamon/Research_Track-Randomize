@@ -138,9 +138,9 @@ namespace EKSurvey.UI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> SurveyComplete()
+        public ActionResult SurveyComplete()
         {
-            throw new NotImplementedException();
+            return View();
         }
     }
 }
