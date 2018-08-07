@@ -1,4 +1,5 @@
-﻿@model EKSurvey.Core.Models.ViewModels.Test.SectionReviewViewModel
+﻿@using EKSurvey.UI.Extensions
+@model EKSurvey.Core.Models.ViewModels.Test.SectionReviewViewModel
 
 @{
     var surveyClosing = Model.IsLastSection
@@ -24,7 +25,11 @@
         {
             <tr>
                 <td>@item.Text</td>
-                <td><em>@item.Response</em></td>
+                <td>
+                    <em>@item.PageUserResponse()</em>
+                    
+                    @*<em>@item.Response</em>*@
+                </td>
                 <td class="text-right">
                     @Html.ActionLink("Change", "Respond", "Test", new { id = Model.SurveyId, pageId = item.PageId }, new { @class="btn btn-success" })
                 </td>

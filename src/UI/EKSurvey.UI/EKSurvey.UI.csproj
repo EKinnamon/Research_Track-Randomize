@@ -215,6 +215,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\SurveyController.cs" />
     <Compile Include="Controllers\TestController.cs" />
+    <Compile Include="Extensions\PageExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -360,6 +361,10 @@
     <ProjectReference Include="..\..\Core\EKSurvey.Core.Services\EKSurvey.Core.Services.csproj">
       <Project>{A7A45A15-20C9-400A-9FDE-DCCB127D3496}</Project>
       <Name>EKSurvey.Core.Services</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\EKSurvey.Core\EKSurvey.Core.csproj">
+      <Project>{75f4e76a-22cb-426d-8f98-aeff14595b3d}</Project>
+      <Name>EKSurvey.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Data\EKSurvey.Data\EKSurvey.Data.csproj">
       <Project>{E2767444-DFAA-42B2-BB7F-10844F47D413}</Project>

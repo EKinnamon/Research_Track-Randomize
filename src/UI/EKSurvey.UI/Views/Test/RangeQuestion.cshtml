@@ -1,10 +1,10 @@
-﻿@using EKSurvey.Core.Models.Entities
+﻿@using EKSurvey.Core
+@using EKSurvey.Core.Models.Entities
 @model EKSurvey.Core.Models.ViewModels.Test.ResponseViewModel
 
 @{
     var rangeQuestion = (RangeQuestion)Model.Page;
-    var lickertScaleValues = new List<string> { "strongly disagree, disagree, neutral, agree, strongly agree" };
-    var lickertScale = (rangeQuestion.Range - 5) >> 1;
+    //var lickertScaleValues = new List<string> { "strongly disagree", "disagree", "neutral", "agree", "strongly agree" };
 }
 
 @if (rangeQuestion.IsHtml)
@@ -24,28 +24,52 @@ else
     @Html.HiddenFor(m => m.PageId)
     @Html.HiddenFor(m => m.PageTypeName)
 
-    <div class="form-group">
-        @if (rangeQuestion.IsLickert)
+    <div class="form-group row">
+        @if (rangeQuestion.IsLikert)
         {
             var rangeItems = Enumerable.Range(-1 * (rangeQuestion.Range >> 1), rangeQuestion.Range);
-            <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                @foreach (var i in rangeItems)
-                {
-                    <label class="btn btn-primary">
-                    @Html.RadioButtonFor(m => m.Response, i, new { autocomplete="off" })
-                        @{
-                            var shink = Math.Abs(i) % lickertScale;
-                            var showLabel = shink == 0;
-                            if (showLabel)
-                            {
-                                var labelIndex = 0;
-                                @Html.Raw(lickertScaleValues[labelIndex])
-                            }
-                        }
-                    </label>
-                }
+            <div class="col-md-3 text-right py-2">
+                @Constants.LikertScaleValues.First()
             </div>
+            <div class="col-md-6">
+                <div class="btn-group d-flex justify-content-between btn-group-toggle" data-toggle="buttons">
+                    @foreach (var i in rangeItems)
+                    {
+                        var btnClass = string.Empty;
+                        if (i == rangeItems.First())
+                        {
+                            btnClass = "btn-danger";
+                        }
+                        if (i < 0 && i > rangeItems.First())
+                        {
+                            btnClass = "btn-warning";
+                        }
 
+                        if (i == 0)
+                        {
+                            btnClass = "btn-dark text-light";
+                        }
+                        if (i > 0 && i < rangeItems.Last())
+                        {
+                            btnClass = "btn-secondary";
+                        }
+
+                        if (i == rangeItems.Last())
+                        {
+                            btnClass = "btn-success";
+                        }
+
+                        <label class="btn @btnClass flex-fill py-3">
+                            @Html.RadioButtonFor(m => m.Response, i, new { autocomplete = "off", @class = "" })
+                            <i class="fa fa-circle-o show-inactive"></i>
+                            <i class="fa fa-circle show-active"></i>
+                        </label>
+                    }
+                </div>
+            </div>
+            <div class="col-md-3 text-left py-2">
+                @Constants.LikertScaleValues.Last()
+            </div>
         }
         else
         {

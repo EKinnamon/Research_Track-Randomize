@@ -12,9 +12,15 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public bool IsQuestion { get; set; }
 
+        public Type QuestionType { get; set; }
+
         public int PageId { get; set; }
 
         public bool IsHtml { get; set; }
+
+        public bool IsLikert { get; set; }
+
+        public int? Range { get; set; }
 
         public string Text { get; set; }
 

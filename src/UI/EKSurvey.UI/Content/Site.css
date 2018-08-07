@@ -23,7 +23,11 @@ textarea {
     max-width: 280px;
 }*/
 
-
 .bg-application-nav {
     background: #aaaaaa;
 }
+
+label.active > .show-active { display: inherit; }
+label.active > .show-inactive { display: none;}
+label > .show-inactive { display: inherit;}
+label > .show-active { display: none;}

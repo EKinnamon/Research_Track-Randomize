@@ -3,6 +3,6 @@
     public class RangeQuestion : Page, IQuestion
     {
         public int Range { get; set; }
-        public bool IsLickert { get; set; }
+        public bool IsLikert { get; set; }
     }
 }

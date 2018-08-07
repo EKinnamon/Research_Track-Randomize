@@ -102,11 +102,20 @@ namespace EKSurvey.UI.Profiles
                 .ForMember(dest => dest.SectionId, opt => opt.MapFrom(src => src.Page.SectionId))
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Page.Order))
                 .ForMember(dest => dest.IsQuestion, opt => opt.MapFrom(src => src.Page is IQuestion))
+                .ForMember(dest => dest.QuestionType, opt => opt.MapFrom(src => src.Page is IQuestion ? src.Page.GetType() : null))
+                .ForMember(dest => dest.IsLikert, opt => opt.Ignore())
+                .ForMember(dest => dest.Range, opt => opt.MapFrom(src => src.Page is RangeQuestion ? ((RangeQuestion) src.Page).Range : (int?) null))
                 .ForMember(dest => dest.IsHtml, opt => opt.MapFrom(src => src.Page.IsHtml))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Page.Text))
                 .AfterMap((src, dest, ctx) =>
                 {
                     dest.UserId = ctx.Items["userId"].ToString();
+
+                    if (!(src.Page is RangeQuestion question))
+                        return;
+
+                    dest.IsLikert = question.IsLikert;
+                    dest.Range = question.Range;
                 });
         }
     }
