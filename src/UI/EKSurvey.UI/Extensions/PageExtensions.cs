@@ -21,7 +21,7 @@ namespace EKSurvey.UI.Extensions
 
             var index = convertedValue + (int) Math.Floor(likertBaseCount / 2.0);
 
-            var responseString = $"{response.Response} ( {Core.Constants.LikertScaleValues[index]} )";
+            var responseString = $"{Core.Constants.LikertScaleValues[index]}";
 
             return new MvcHtmlString(responseString);
 

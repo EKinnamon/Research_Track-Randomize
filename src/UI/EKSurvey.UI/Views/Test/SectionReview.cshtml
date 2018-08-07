@@ -25,11 +25,7 @@
         {
             <tr>
                 <td>@item.Text</td>
-                <td>
-                    <em>@item.PageUserResponse()</em>
-                    
-                    @*<em>@item.Response</em>*@
-                </td>
+                <td><em>@item.PageUserResponse()</em></td>
                 <td class="text-right">
                     @Html.ActionLink("Change", "Respond", "Test", new { id = Model.SurveyId, pageId = item.PageId }, new { @class="btn btn-success" })
                 </td>

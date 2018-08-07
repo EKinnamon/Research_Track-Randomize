@@ -9,26 +9,31 @@
 @Html.Partial("_Notification")
 
 <div class="row">
-    <div class="col-md-6 bg-light py-4">
-        <h3>Your surveys</h3>
-        <hr class="mb-4"/>
-        @if (Model.NextSurvey == null)
-        {
-            <p class="lead">There are no available surveys at this time. Thank you for your participation.</p>
-        }
-        else
-        {
-            <h2 class="display-4">@Model.NextSurvey.Name</h2>
-            <p class="lead">
-                You may start and stop the survey at any time.
-            </p>
-            <div class="row mt-5">
-                <div class="offset-md-4 col-md-8">
-                    @Html.Partial("_TestStartContinuePrompt", Model.NextSurvey)
+    <div class="col-md-6">
+        <div class="jumbotron jumbotron-fluid px-5">
+            @if (Model.NextSurvey == null)
+            {
+                <p class="lead">There are no available surveys at this time. Thank you for your participation.</p>
+            }
+            else
+            {
+                <h2 class="display-4">@Model.NextSurvey.Name</h2>
+                if (!string.IsNullOrWhiteSpace(Model.NextSurvey.Description))
+                {
+                    <p class="lead">@Model.NextSurvey.Description</p>
+                }
+                <p class="small mt-5">
+                    <i class="fa fa-2x fa-info-circle align-middle text-primary"></i> You may start and stop the survey at any time.
+                </p>
+                <div class="row mt-5">
+                    <div class="offset-md-6 col-md-6">
+                        @Html.Partial("_TestStartContinuePrompt", Model.NextSurvey)
+                    </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
+
     <div class="col-md-6">
         @if (Model.AvailableSurveys.Any())
         {
@@ -57,10 +62,7 @@
         {
             <h6>Available Surveys</h6>
             <p class="lead">There are no available surveys.</p>
-            if (!Model.CompletedSurveys.Any())
-             {
-                 <hr />
-             }
+            if (!Model.CompletedSurveys.Any()) { <hr /> }
         }
 
         @if (Model.CompletedSurveys.Any())

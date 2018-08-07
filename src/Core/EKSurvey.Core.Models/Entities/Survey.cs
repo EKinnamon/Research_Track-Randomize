@@ -15,6 +15,8 @@ namespace EKSurvey.Core.Models.Entities
         [StringLength(256)]
         public string Name { get; set; }
 
+        public string Description { get; set; }
+
         [Required]
         [StringLength(64)]
         public string Version { get; set; }

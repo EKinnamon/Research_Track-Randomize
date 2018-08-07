@@ -3,8 +3,7 @@
 @model EKSurvey.Core.Models.ViewModels.Test.ResponseViewModel
 
 @{
-    var rangeQuestion = (RangeQuestion)Model.Page;
-    //var lickertScaleValues = new List<string> { "strongly disagree", "disagree", "neutral", "agree", "strongly agree" };
+    var rangeQuestion = (RangeQuestion) Model.Page;
 }
 
 @if (rangeQuestion.IsHtml)
@@ -27,7 +26,7 @@ else
     <div class="form-group row">
         @if (rangeQuestion.IsLikert)
         {
-            var rangeItems = Enumerable.Range(-1 * (rangeQuestion.Range >> 1), rangeQuestion.Range);
+            var rangeItems = Enumerable.Range(-1 * (rangeQuestion.Range >> 1), rangeQuestion.Range).ToList();
             <div class="col-md-3 text-right py-2">
                 @Constants.LikertScaleValues.First()
             </div>
@@ -59,7 +58,7 @@ else
                             btnClass = "btn-success";
                         }
 
-                        <label class="btn @btnClass flex-fill py-3">
+                        <label class="btn @btnClass flex-fill py-3 @((Model.Response?.Equals(i.ToString(), StringComparison.OrdinalIgnoreCase)).GetValueOrDefault(false) ? "active" : string.Empty)">
                             @Html.RadioButtonFor(m => m.Response, i, new { autocomplete = "off", @class = "" })
                             <i class="fa fa-circle-o show-inactive"></i>
                             <i class="fa fa-circle show-active"></i>
