@@ -7,7 +7,7 @@ using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
 using Page = EKSurvey.Core.Models.Entities.Page;
 
-namespace EKSurvey.UI.Profiles
+namespace EKSurvey.Core.Models.Profiles
 {
     public class DtoModelProfile : Profile
     {

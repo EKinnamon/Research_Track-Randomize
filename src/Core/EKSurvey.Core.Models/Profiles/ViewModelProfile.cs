@@ -8,7 +8,7 @@ using EKSurvey.Core.Models.ViewModels.Account;
 using EKSurvey.Core.Models.ViewModels.Survey;
 using EKSurvey.Core.Models.ViewModels.Test;
 
-namespace EKSurvey.UI.Profiles
+namespace EKSurvey.Core.Models.Profiles
 {
     public class ViewModelProfile : Profile
     {

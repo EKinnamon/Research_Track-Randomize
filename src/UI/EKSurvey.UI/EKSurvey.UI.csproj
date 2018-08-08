@@ -221,8 +221,6 @@
     </Compile>
     <Compile Include="Modules\ApplicationModule.cs" />
     <Compile Include="Modules\ServicesModule.cs" />
-    <Compile Include="Profiles\DtoModelProfile.cs" />
-    <Compile Include="Profiles\ViewModelProfile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -374,6 +372,7 @@
   <ItemGroup>
     <Folder Include="Models\Account\" />
     <Folder Include="Models\Manager\" />
+    <Folder Include="Profiles\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

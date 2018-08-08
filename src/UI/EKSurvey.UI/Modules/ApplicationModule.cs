@@ -4,8 +4,8 @@ using Autofac;
 
 using AutoMapper;
 using EKSurvey.Core.Models.Identity;
+using EKSurvey.Core.Models.Profiles;
 using EKSurvey.Data;
-using EKSurvey.UI.Profiles;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
