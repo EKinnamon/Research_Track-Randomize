@@ -372,7 +372,6 @@
   <ItemGroup>
     <Folder Include="Models\Account\" />
     <Folder Include="Models\Manager\" />
-    <Folder Include="Profiles\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

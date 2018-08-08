@@ -25,7 +25,8 @@ namespace EKSurvey.Core.Models.Profiles
                     dest.Started = userTest?.Started;
 
                     dest.Completed = userTest?.Completed;
-                });
+                })
+                .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<Section, UserSection>()
                 // Id, SurveyId, Name, Order mapped.
@@ -55,7 +56,8 @@ namespace EKSurvey.Core.Models.Profiles
 
                     dest.Completed = src.TestSectionMarkers
                         .SingleOrDefault(tsm => tsm.TestId == userTest.Id && tsm.SectionId == src.Id)?.Completed;
-                });
+                })
+                .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<IEnumerable<Section>, UserSectionGroup>()
                 .AfterMap((src, dest, ctx) =>
@@ -71,7 +73,8 @@ namespace EKSurvey.Core.Models.Profiles
 
                     dest.SelectorType = src.First().SelectorType;
                     dest.AddRange(userSections);
-                });
+                })
+                .ForAllOtherMembers(opt => opt.Ignore());
 
 
             CreateMap<IPage, UserPage>()
@@ -94,7 +97,8 @@ namespace EKSurvey.Core.Models.Profiles
                     dest.Response = userResponse?.Response;
                     dest.Responded = userResponse?.Responded;
                     dest.Modified = userResponse?.Modified;
-                });
+                })
+                .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<TestResponse, UserResponse>()
                 // PageId, TestId, Response mapped
@@ -103,7 +107,6 @@ namespace EKSurvey.Core.Models.Profiles
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Page.Order))
                 .ForMember(dest => dest.IsQuestion, opt => opt.MapFrom(src => src.Page is IQuestion))
                 .ForMember(dest => dest.QuestionType, opt => opt.MapFrom(src => src.Page is IQuestion ? src.Page.GetType() : null))
-                .ForMember(dest => dest.IsLikert, opt => opt.Ignore())
                 .ForMember(dest => dest.Range, opt => opt.MapFrom(src => src.Page is RangeQuestion ? ((RangeQuestion) src.Page).Range : (int?) null))
                 .ForMember(dest => dest.IsHtml, opt => opt.MapFrom(src => src.Page.IsHtml))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Page.Text))
@@ -116,7 +119,8 @@ namespace EKSurvey.Core.Models.Profiles
 
                     dest.IsLikert = question.IsLikert;
                     dest.Range = question.Range;
-                });
+                })
+                .ForAllOtherMembers(opt => opt.Ignore());
         }
     }
 }
