@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
@@ -24,9 +23,10 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             Fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         }
 
-        public Fake<DbContext> DbContext { get; set; }
-        public Fake<Random> Rng { get; set; }
-        public Fake<DbSet<Survey>> SurveySet { get; set; }
+        public DbContext DbContext { get; set; }
+        public Random Rng { get; set; }
+        public DbSet<Survey> SurveySet { get; set; }
+        public DbSet<Test> TestSet { get; set; }
 
         private static void GenerateTestConfiguration(IMapperConfigurationExpression config)
         {
@@ -35,24 +35,19 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
         public void PrepareServiceConfiguration()
         {
-            DbContext = Fixture.Freeze<Fake<DbContext>>();
-            Rng = Fixture.Freeze<Fake<Random>>();
-            SurveySet = A.Fake<DbSet<Survey>>(o =>
-                o.Implements(typeof(IQueryable<Survey>)).Implements(typeof(IDbAsyncEnumerable<Survey>)));
-
-
+            DbContext = Fixture.Freeze<Fake<DbContext>>().FakedObject;
+            Rng = Fixture.Freeze<Fake<Random>>().FakedObject;
+            SurveySet = A.Fake<DbSet<Survey>>(o => o.Implements(typeof(IQueryable<Survey>)).Implements(typeof(IDbAsyncEnumerable<Survey>)));
+            TestSet = Fixture.Freeze<Fake<DbSet<Test>>>().FakedObject;
         }
 
-        public IQueryable<Survey> Surveys { get; set; } = new FixtureData<Survey>("TestData/surveys.json").AsQueryable();
+        public IList<Survey> Surveys { get; set; } = new FixtureData<Survey>("TestData/surveys.json").ToList();
+        public IList<Test> Tests => Surveys.SelectMany(s => s.Tests).ToList();
 
         public void PrepareServiceHelperCalls()
         {
-            A.CallTo(() => ((IQueryable<Survey>) SurveySet.FakedObject).GetEnumerator()).Returns(Surveys.GetEnumerator());
-            A.CallTo(() => ((IQueryable<Survey>) SurveySet.FakedObject).Provider).Returns(Surveys.Provider);
-            A.CallTo(() => ((IQueryable<Survey>) SurveySet.FakedObject).Expression).Returns(Surveys.Expression);
-            A.CallTo(() => ((IQueryable<Survey>) SurveySet.FakedObject).ElementType).Returns(Surveys.ElementType);
-
-            A.CallTo(() => DbContext.FakedObject.Set<Survey>()).Returns(SurveySet.FakedObject);
+            SurveySet.SetupData(Surveys);
+            A.CallTo(() => DbContext.Set<Survey>()).Returns(SurveySet);
         }
     }
 }

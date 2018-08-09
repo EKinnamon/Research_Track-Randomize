@@ -111,7 +111,7 @@ namespace EKSurvey.Core.Services
         public IQueryable<Survey> GetActiveSurveys()
         {
             var surveys =
-                from s in Surveys.Include(s => s.Tests)
+                from s in Surveys.Include(t => t.Tests)
                 where s.IsActive &&
                       !s.Deleted.HasValue
                 select s;
@@ -124,7 +124,7 @@ namespace EKSurvey.Core.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             var surveys =
-                from s in Surveys.Include(s => s.Tests)
+                from s in Surveys.Include(t => t.Tests)
                 where s.IsActive &&
                       !s.Deleted.HasValue
                 select s;

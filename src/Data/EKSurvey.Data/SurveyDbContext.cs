@@ -12,6 +12,8 @@ namespace EKSurvey.Data
 
         public SurveyDbContext() : base("name=EKSurveyConnection") { }
 
+        public SurveyDbContext(string connectionString) : base(connectionString) { }
+
         public virtual DbSet<Survey> Surveys { get; set; }
 
         public virtual DbSet<Section> Sections { get; set; }

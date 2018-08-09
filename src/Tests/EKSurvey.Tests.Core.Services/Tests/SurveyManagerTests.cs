@@ -20,9 +20,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
         public void Constructor_with_valid_arguments_instantiates_service()
         {
             _context.PrepareServiceConfiguration();
-            var service = new SurveyManager(_context.DbContext.FakedObject, 
-                _context.Rng.FakedObject, 
-                _context.Mapper);
+            var service = new SurveyManager(_context.DbContext, _context.Rng, _context.Mapper);
 
             service.Should().NotBeNull();
             service.Should().BeOfType<SurveyManager>();
@@ -35,7 +33,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
 
             var exception = Assert.Throws<ArgumentNullException>(() =>
                 new SurveyManager(null, 
-                    _context.Rng.FakedObject, 
+                    _context.Rng, 
                     _context.Mapper));
 
             exception.Should().NotBeNull();
@@ -47,7 +45,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
         {
             _context.PrepareServiceConfiguration();
             var exception = Assert.Throws<ArgumentNullException>(() =>
-                new SurveyManager(_context.DbContext.FakedObject, 
+                new SurveyManager(_context.DbContext, 
                     null, 
                     _context.Mapper));
 
@@ -60,8 +58,8 @@ namespace EKSurvey.Tests.Core.Services.Tests
         {
             _context.PrepareServiceConfiguration();
             var exception = Assert.Throws<ArgumentNullException>(() =>
-                new SurveyManager(_context.DbContext.FakedObject,
-                    _context.Rng.FakedObject,
+                new SurveyManager(_context.DbContext,
+                    _context.Rng,
                     null));
 
             exception.Should().NotBeNull();
