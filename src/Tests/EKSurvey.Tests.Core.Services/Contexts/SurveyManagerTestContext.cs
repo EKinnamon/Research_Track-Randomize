@@ -45,7 +45,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
         public void PrepareServiceHelperCalls()
         {
-            SurveySet.SetupData(Surveys);
+            SurveySet.FakedObject.SetupData(Surveys);
             DbContext.CallsTo(ctx => ctx.Set<Survey>()).Returns(SurveySet.FakedObject);
         }
     }
