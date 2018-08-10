@@ -9,7 +9,10 @@ using AutoMapper;
 using EKSurvey.Core.Models.Entities;
 using EKSurvey.Core.Models.Profiles;
 using EKSurvey.Core.Services;
+using EKSurvey.Data;
 using FakeItEasy;
+using LazyEntityGraph.AutoFixture;
+using LazyEntityGraph.EntityFramework;
 
 namespace EKSurvey.Tests.Core.Services.Contexts
 {
@@ -21,6 +24,10 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
             Fixture.Register(() => Mapper);
             Fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+            var lazyEntityGraphCustomization =
+                new LazyEntityGraphCustomization(ModelMetadataGenerator.LoadFromCodeFirstContext(str => new SurveyDbContext(), true));
+            Fixture.Customize(lazyEntityGraphCustomization);
         }
 
         public DbContext DbContext { get; set; }

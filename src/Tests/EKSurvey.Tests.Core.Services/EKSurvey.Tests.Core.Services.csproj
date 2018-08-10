@@ -71,6 +71,15 @@
     <Reference Include="FluentAssertions, Version=5.4.1.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\FluentAssertions.5.4.1\lib\net47\FluentAssertions.dll</HintPath>
     </Reference>
+    <Reference Include="LazyEntityGraph.AutoFixture, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\LazyEntityGraph.AutoFixture.2.1.0\lib\net452\LazyEntityGraph.AutoFixture.dll</HintPath>
+    </Reference>
+    <Reference Include="LazyEntityGraph.Core, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\LazyEntityGraph.2.1.0\lib\net452\LazyEntityGraph.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="LazyEntityGraph.EntityFramework, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\LazyEntityGraph.EntityFramework.2.1.0\lib\net452\LazyEntityGraph.EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
