@@ -6,7 +6,15 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="7.0.1" />
+    <PackageReference Include="EntityFramework" Version="6.2.0" />
+    <PackageReference Include="LazyEntityGraph" Version="2.1.0" />
+    <PackageReference Include="LazyEntityGraph.AutoFixture" Version="2.1.0" />
+    <PackageReference Include="LazyEntityGraph.EntityFramework" Version="2.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Data\EKSurvey.Data\EKSurvey.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,6 +26,12 @@
     </Reference>
     <Reference Include="AutoMapper">
       <HintPath>..\..\packages\AutoMapper.7.0.1\lib\net45\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="LazyEntityGraph.AutoFixture">
+      <HintPath>..\..\packages\LazyEntityGraph.AutoFixture.2.1.0\lib\net452\LazyEntityGraph.AutoFixture.dll</HintPath>
+    </Reference>
+    <Reference Include="LazyEntityGraph.EntityFramework">
+      <HintPath>..\..\packages\LazyEntityGraph.EntityFramework.2.1.0\lib\net452\LazyEntityGraph.EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>

@@ -15,6 +15,9 @@ namespace EKSurvey.Core.Models.Profiles
         {
             CreateMap<Survey, UserSurvey>()
                 // Id, Name, Version, IsActive, Created, Modified mapped
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.Started, opt => opt.Ignore())
+                .ForMember(dest => dest.Completed, opt => opt.Ignore())
                 .AfterMap((src, dest, ctx) =>
                 {
                     var userId = ctx.Items["userId"].ToString();
@@ -25,11 +28,15 @@ namespace EKSurvey.Core.Models.Profiles
                     dest.Started = userTest?.Started;
 
                     dest.Completed = userTest?.Completed;
-                })
-                .ForAllOtherMembers(opt => opt.Ignore());
+                });
 
             CreateMap<Section, UserSection>()
                 // Id, SurveyId, Name, Order mapped.
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.TestId, opt => opt.Ignore())
+                .ForMember(dest => dest.Started, opt => opt.Ignore())
+                .ForMember(dest => dest.Modified, opt => opt.Ignore())
+                .ForMember(dest => dest.Completed, opt => opt.Ignore())
                 .AfterMap((src, dest, ctx) =>
                 {
                     var dbContext = ctx.Items["dbContext"] as DbContext ?? throw new AutoMapperMappingException("DbContext must be supplied for this mapping."); 
@@ -56,10 +63,10 @@ namespace EKSurvey.Core.Models.Profiles
 
                     dest.Completed = src.TestSectionMarkers
                         .SingleOrDefault(tsm => tsm.TestId == userTest.Id && tsm.SectionId == src.Id)?.Completed;
-                })
-                .ForAllOtherMembers(opt => opt.Ignore());
+                });
 
             CreateMap<IEnumerable<Section>, UserSectionGroup>()
+                .ForMember(dest => dest.SelectorType, opt => opt.Ignore())
                 .AfterMap((src, dest, ctx) =>
                 {
                     var dbContext = ctx.Items["dbContext"] as DbContext ?? throw new AutoMapperMappingException("DbContext must be supplied for this mapping.");
@@ -73,12 +80,16 @@ namespace EKSurvey.Core.Models.Profiles
 
                     dest.SelectorType = src.First().SelectorType;
                     dest.AddRange(userSections);
-                })
-                .ForAllOtherMembers(opt => opt.Ignore());
+                });
 
 
             CreateMap<IPage, UserPage>()
                 .ForMember(dest => dest.Page, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.SurveyId, opt => opt.Ignore())
+                .ForMember(dest => dest.Response, opt => opt.Ignore())
+                .ForMember(dest => dest.Responded, opt => opt.Ignore())
+                .ForMember(dest => dest.Modified, opt => opt.Ignore())
                 .AfterMap((src, dest, ctx) =>
                 {
                     var dbContext = ctx.Items["dbContext"] as DbContext ?? throw new AutoMapperMappingException("DbContext must be supplied for this mapping.");
@@ -97,8 +108,7 @@ namespace EKSurvey.Core.Models.Profiles
                     dest.Response = userResponse?.Response;
                     dest.Responded = userResponse?.Responded;
                     dest.Modified = userResponse?.Modified;
-                })
-                .ForAllOtherMembers(opt => opt.Ignore());
+                });
 
             CreateMap<TestResponse, UserResponse>()
                 // PageId, TestId, Response mapped
@@ -110,6 +120,8 @@ namespace EKSurvey.Core.Models.Profiles
                 .ForMember(dest => dest.Range, opt => opt.MapFrom(src => src.Page is RangeQuestion ? ((RangeQuestion) src.Page).Range : (int?) null))
                 .ForMember(dest => dest.IsHtml, opt => opt.MapFrom(src => src.Page.IsHtml))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Page.Text))
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.IsLikert, opt => opt.Ignore())
                 .AfterMap((src, dest, ctx) =>
                 {
                     dest.UserId = ctx.Items["userId"].ToString();
@@ -119,8 +131,7 @@ namespace EKSurvey.Core.Models.Profiles
 
                     dest.IsLikert = question.IsLikert;
                     dest.Range = question.Range;
-                })
-                .ForAllOtherMembers(opt => opt.Ignore());
+                });
         }
     }
 }
