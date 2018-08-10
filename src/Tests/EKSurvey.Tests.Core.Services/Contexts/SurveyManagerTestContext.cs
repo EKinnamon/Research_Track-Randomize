@@ -24,7 +24,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
         public Fake<DbContext> DbContext { get; set; }
         public Fake<Random> Rng { get; set; }
-        public Fake<DbSet<Survey>> SurveySet { get; set; }
+        public Fake<IDbSet<Survey>> SurveySet { get; set; }
         //public Fake<DbSet<Test>> TestSet { get; set; }
 
         private static void GenerateTestConfiguration(IMapperConfigurationExpression config)
@@ -36,7 +36,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         {
             DbContext = Fixture.Freeze<Fake<DbContext>>();
             Rng = Fixture.Freeze<Fake<Random>>();
-            SurveySet = Fixture.Freeze<Fake<DbSet<Survey>>>();
+            SurveySet = Fixture.Freeze<Fake<IDbSet<Survey>>>();
             //TestSet = Fixture.Freeze<Fake<DbSet<Test>>>().FakedObject;
         }
 
