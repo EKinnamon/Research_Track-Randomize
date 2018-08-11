@@ -70,8 +70,8 @@ namespace EKSurvey.Tests.Core.Services.Tests
         public void GetActiveSurveys_will_return_all_active_surveys()
         {
             _context.PrepareServiceConfiguration();
-            _context.PrepareService();
             _context.PrepareServiceHelperCalls();
+            _context.PrepareService();
 
             var surveys = _context.Service.GetActiveSurveys();
 

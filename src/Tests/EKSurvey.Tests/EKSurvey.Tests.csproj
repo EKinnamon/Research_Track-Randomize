@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D6988B23-829A-41AF-9B03-AF6A7134211A}</ProjectGuid>
+    <ProjectGuid>{4B22A4C9-01B7-4DDC-9129-FDC3D302228F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EKSurvey.Tests</RootNamespace>
@@ -48,20 +48,26 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework.Testing, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EntityFrameworkTesting.1.2.2\lib\net45\EntityFramework.Testing.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.Testing.FakeItEasy, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EntityFrameworkTesting.FakeItEasy.1.2.2\lib\net45\EntityFramework.Testing.FakeItEasy.dll</HintPath>
+    </Reference>
     <Reference Include="FakeItEasy, Version=4.0.0.0, Culture=neutral, PublicKeyToken=eff28e2146d5fd2c, processorArchitecture=MSIL">
       <HintPath>..\..\packages\FakeItEasy.4.8.0\lib\net45\FakeItEasy.dll</HintPath>
     </Reference>
     <Reference Include="Fare, Version=2.1.0.0, Culture=neutral, PublicKeyToken=ea68d375bf33a7c8, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Fare.2.1.1\lib\net35\Fare.dll</HintPath>
     </Reference>
-    <Reference Include="LazyEntityGraph.AutoFixture">
+    <Reference Include="LazyEntityGraph.AutoFixture, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\LazyEntityGraph.AutoFixture.2.1.0\lib\net452\LazyEntityGraph.AutoFixture.dll</HintPath>
     </Reference>
     <Reference Include="LazyEntityGraph.Core, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\LazyEntityGraph.2.1.0\lib\net452\LazyEntityGraph.Core.dll</HintPath>
     </Reference>
-    <Reference Include="LazyEntityGraph.EntityFramework">
-      <HintPath>C:\Users\agemoets\.nuget\packages\lazyentitygraph.entityframework\2.1.0\lib\net452\LazyEntityGraph.EntityFramework.dll</HintPath>
+    <Reference Include="LazyEntityGraph.EntityFramework, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\LazyEntityGraph.EntityFramework.2.1.0\lib\net452\LazyEntityGraph.EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -92,10 +98,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\EKSurvey.Core.Models\EKSurvey.Core.Models.csproj">
+      <Project>{E2F4918F-BA62-4D90-93A5-18FC1B33BC3D}</Project>
+      <Name>EKSurvey.Core.Models</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Data\EKSurvey.Data\EKSurvey.Data.csproj">
       <Project>{E2767444-DFAA-42B2-BB7F-10844F47D413}</Project>
       <Name>EKSurvey.Data</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SpecimenBuilders\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

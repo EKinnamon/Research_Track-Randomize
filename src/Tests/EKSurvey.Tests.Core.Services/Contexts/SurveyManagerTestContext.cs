@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+
 using AutoFixture;
 
 using AutoMapper;
+
 using EKSurvey.Core.Models.Entities;
 using EKSurvey.Core.Models.Profiles;
 using EKSurvey.Core.Services;
+
 using FakeItEasy;
 
 namespace EKSurvey.Tests.Core.Services.Contexts
@@ -25,7 +28,6 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         public Fake<DbContext> DbContext { get; set; }
         public Fake<Random> Rng { get; set; }
         public Fake<IDbSet<Survey>> SurveySet { get; set; }
-        //public Fake<DbSet<Test>> TestSet { get; set; }
 
         private static void GenerateTestConfiguration(IMapperConfigurationExpression config)
         {
@@ -37,7 +39,9 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             DbContext = Fixture.Freeze<Fake<DbContext>>();
             Rng = Fixture.Freeze<Fake<Random>>();
             SurveySet = Fixture.Freeze<Fake<IDbSet<Survey>>>();
-            //TestSet = Fixture.Freeze<Fake<DbSet<Test>>>().FakedObject;
+
+            Fixture.Inject(DbContext.FakedObject);
+            Fixture.Inject(Rng.FakedObject);
         }
 
         public IList<Survey> Surveys { get; set; } = new FixtureData<Survey>("TestData/surveys.json").ToList();
@@ -45,8 +49,14 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
         public void PrepareServiceHelperCalls()
         {
-            SurveySet.FakedObject.SetupData(Surveys);
-            DbContext.CallsTo(ctx => ctx.Set<Survey>()).Returns(SurveySet.FakedObject);
+            var surveysQueryable = Surveys.AsQueryable();
+            var set = SurveySet.FakedObject as DbSet<Survey>;
+            A.CallTo(() => SurveySet.FakedObject.GetEnumerator()).Returns(surveysQueryable.GetEnumerator());
+            A.CallTo(() => SurveySet.FakedObject.Provider).Returns(surveysQueryable.Provider);
+            A.CallTo(() => SurveySet.FakedObject.Expression).Returns(surveysQueryable.Expression);
+            A.CallTo(() => SurveySet.FakedObject.ElementType).Returns(surveysQueryable.ElementType);
+
+            A.CallTo(() => DbContext.FakedObject.Set<Survey>()).Returns(set);
         }
     }
 }
