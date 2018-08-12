@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
 using EKSurvey.Core.Services;
 using EKSurvey.Tests.Core.Services.Contexts;
@@ -100,5 +102,55 @@ namespace EKSurvey.Tests.Core.Services.Tests
             surveys.Select(i => i.Deleted.HasValue).Should().AllBeEquivalentTo(false);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void GetUserSurveys_will_return_all_surveys_for_user(bool includeCompleted)
+        {
+            _context.PrepareServiceConfiguration(includeCompleted);
+            _context.PrepareServiceHelperCalls();
+            _context.PrepareService();
+
+            var userSurveys = _context.Service.GetUserSurveys(_context.UserId, includeCompleted);
+
+            userSurveys.Should().NotBeNull();
+            userSurveys.Should().NotContainNulls();
+            userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
+            userSurveys.Select(i => i.UserId).Distinct().First().Should().BeEquivalentTo(_context.UserId);
+
+            if (!includeCompleted)
+            {
+                userSurveys.Select(s => s.Completed.HasValue).Should().AllBeEquivalentTo(false);
+            }
+
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task GetUserSurveysAsync_will_return_all_surveys_for_user(bool includeCompleted)
+        {
+            _context.PrepareServiceConfiguration(includeCompleted);
+            _context.PrepareServiceHelperCalls();
+            _context.PrepareService();
+
+            var userSurveys = await _context.Service.GetUserSurveysAsync(_context.UserId, includeCompleted);
+
+            userSurveys.Should().NotBeNull();
+            userSurveys.Should().NotContainNulls();
+            userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
+            userSurveys.Select(i => i.UserId).Distinct().First().Should().BeEquivalentTo(_context.UserId);
+
+            if (!includeCompleted)
+            {
+                userSurveys.Select(s => s.Completed.HasValue).Should().AllBeEquivalentTo(false);
+            }
+
+        }
+
+        public void GetUserSections_will_return_all_sections_for_survey_and_user()
+        {
+
+        }
     }
 }

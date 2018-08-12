@@ -32,9 +32,10 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         private static void GenerateTestConfiguration(IMapperConfigurationExpression config)
         {
             config.AddProfile<DtoModelProfile>();
+
         }
 
-        public void PrepareServiceConfiguration()
+        public void PrepareServiceConfiguration(bool includeCompleted = false)
         {
             DbContext = Fixture.Freeze<Fake<DbContext>>();
             Rng = Fixture.Freeze<Fake<Random>>();
@@ -43,10 +44,24 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
             Fixture.Inject(DbContext.FakedObject);
             Fixture.Inject(Rng.FakedObject);
+
+            if (!includeCompleted)
+            {
+                var completedSurveys = Surveys.Where(s => s.Tests.Any(t => t.Completed.HasValue));
+                var completedTests = completedSurveys.SelectMany(s => s.Tests).Where(t => t.Completed.HasValue);
+                var userIds = completedTests.Select(t => t.UserId).ToList();
+                UserId = UserIds[Fixture.Create<int>() & userIds.Count];
+            }
+            else
+            {
+                UserId = UserIds[Fixture.Create<int>() % UserIds.Count];
+            }
         }
 
         public IList<Survey> Surveys { get; set; } = new FixtureData<Survey>("TestData/surveys.json").ToList();
         public IList<Test> Tests => Surveys.SelectMany(s => s.Tests).ToList();
+        public IList<string> UserIds => Tests.Select(t => t.UserId).ToList();
+        public string UserId { get; set; } 
 
         public void PrepareServiceHelperCalls()
         {
