@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseTestContext.cs" />
+    <Compile Include="FakeOptionsBuilders\DbSetSurveyFakeOptionsBuilder.cs" />
     <Compile Include="FixtureData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBaseTestContext.cs" />
@@ -107,8 +108,6 @@
       <Name>EKSurvey.Data</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="SpecimenBuilders\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

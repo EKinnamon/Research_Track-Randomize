@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
+using EKSurvey.Core.Models.Entities;
 using EKSurvey.Core.Services;
 using EKSurvey.Tests.Core.Services.Contexts;
 using FluentAssertions;
@@ -77,7 +79,25 @@ namespace EKSurvey.Tests.Core.Services.Tests
 
             surveys.Should().NotBeNull();
             surveys.Should().NotContainNulls();
+            surveys.Should().BeAssignableTo<IQueryable<Survey>>();
             surveys.Select(i => i.IsActive).Should().AllBeEquivalentTo(true);
+            surveys.Select(i => i.Deleted.HasValue).Should().AllBeEquivalentTo(false);
+        }
+
+        [Fact]
+        public async Task GetActiveSurveysAsync_will_return_all_active_surveys()
+        {
+            _context.PrepareServiceConfiguration();
+            _context.PrepareServiceHelperCalls();
+            _context.PrepareService();
+
+            var surveys = await _context.Service.GetActiveSurveysAsync();
+
+            surveys.Should().NotBeNull();
+            surveys.Should().NotContainNulls();
+            surveys.Should().BeAssignableTo<IQueryable<Survey>>();
+            surveys.Select(i => i.IsActive).Should().AllBeEquivalentTo(true);
+            surveys.Select(i => i.Deleted.HasValue).Should().AllBeEquivalentTo(false);
         }
 
     }
