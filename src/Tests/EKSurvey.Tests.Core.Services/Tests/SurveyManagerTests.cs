@@ -148,9 +148,14 @@ namespace EKSurvey.Tests.Core.Services.Tests
 
         }
 
+        [Fact]
         public void GetUserSections_will_return_all_sections_for_survey_and_user()
         {
+            _context.PrepareServiceConfiguration();
+            _context.PrepareServiceHelperCalls();
+            _context.PrepareService();
 
+            var userSections = _context.Service.GetUserSections(_context.UserId, _context.SurveyId);
         }
     }
 }
