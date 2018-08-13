@@ -7,6 +7,7 @@ using FakeItEasy.Creation;
 
 namespace EKSurvey.Tests.FakeOptionsBuilders
 {
+    // ReSharper disable once UnusedMember.Global 
     public class DbSetSurveyFakeOptionsBuilder : IFakeOptionsBuilder
     {
         public bool CanBuildOptionsForFakeOfType(Type type)

@@ -62,6 +62,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         }
 
         public IList<Survey> Surveys { get; set; } = new FixtureData<Survey>("TestData/surveys.json").ToList();
+        public IList<Page> Pages { get; set; } = new FixtureData<Page>("TestData/pages.json").ToList();
         public IList<Test> Tests => Surveys.SelectMany(s => s.Tests).ToList();
         public IList<string> UserIds => Tests.Select(t => t.UserId).ToList();
         public IList<Section> Sections => Surveys.SelectMany(s => s.Sections).ToList();
@@ -72,21 +73,22 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         public void PrepareServiceHelperCalls()
         {
             var surveysQueryable = Surveys.AsQueryable();
-            A.CallTo(() => ((IQueryable<Survey>)SurveySet.FakedObject).GetEnumerator()).Returns(surveysQueryable.GetEnumerator());
-            A.CallTo(() => ((IQueryable<Survey>)SurveySet.FakedObject).Provider).Returns(surveysQueryable.Provider);
-            A.CallTo(() => ((IQueryable<Survey>)SurveySet.FakedObject).Expression).Returns(surveysQueryable.Expression);
-            A.CallTo(() => ((IQueryable<Survey>)SurveySet.FakedObject).ElementType).Returns(surveysQueryable.ElementType);
+            SetupDbSetCalls(SurveySet.FakedObject, surveysQueryable);
             A.CallTo(() => SurveySet.FakedObject.Include(A<string>._)).Returns(SurveySet.FakedObject);
-
             A.CallTo(() => DbContext.FakedObject.Set<Survey>()).Returns(SurveySet.FakedObject);
 
             var sectionsQueryable = Sections.AsQueryable();
-            A.CallTo(() => ((IQueryable<Section>)SectionSet.FakedObject).GetEnumerator()).Returns(sectionsQueryable.GetEnumerator());
-            A.CallTo(() => ((IQueryable<Section>)SectionSet.FakedObject).Provider).Returns(sectionsQueryable.Provider);
-            A.CallTo(() => ((IQueryable<Section>)SectionSet.FakedObject).Expression).Returns(sectionsQueryable.Expression);
-            A.CallTo(() => ((IQueryable<Section>)SectionSet.FakedObject).ElementType).Returns(sectionsQueryable.ElementType);
-
+            SetupDbSetCalls(SectionSet.FakedObject, sectionsQueryable);
             A.CallTo(() => DbContext.FakedObject.Set<Section>()).Returns(SectionSet.FakedObject);
         }
+
+        private static void SetupDbSetCalls<T>(IQueryable<T> fake, IQueryable<T> fakeData) where T : class
+        {
+            A.CallTo(() => fake.GetEnumerator()).Returns(fakeData.GetEnumerator());
+            A.CallTo(() => fake.Provider).Returns(fakeData.Provider);
+            A.CallTo(() => fake.Expression).Returns(fakeData.Expression);
+            A.CallTo(() => fake.ElementType).Returns(fakeData.ElementType);
+        }
+
     }
 }
