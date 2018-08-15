@@ -2,12 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
 using EKSurvey.Core.Services;
 using EKSurvey.Tests.Core.Services.Contexts;
+
 using FluentAssertions;
+
 using Xunit;
+
+using JoinNeeds = EKSurvey.Tests.Core.Services.Contexts.SurveyManagerTestContext.JoinNeeds;
 
 namespace EKSurvey.Tests.Core.Services.Tests
 {
@@ -89,7 +94,8 @@ namespace EKSurvey.Tests.Core.Services.Tests
         [Fact]
         public async Task GetActiveSurveysAsync_will_return_all_active_surveys()
         {
-            _context.PrepareServiceConfiguration();
+            _context.PrepareDataHeirarchy(JoinNeeds.SurveyTests);
+            _context.PrepareServiceConfiguration(needsHeirarchy: true);
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
 
@@ -139,7 +145,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
             userSurveys.Should().NotBeNull();
             userSurveys.Should().NotContainNulls();
             userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
-            userSurveys.Select(i => i.UserId).Distinct().First().Should().BeEquivalentTo(_context.UserId);
+            userSurveys.Select(i => i.UserId).Distinct().Single().Should().BeEquivalentTo(_context.UserId);
 
             if (!includeCompleted)
             {

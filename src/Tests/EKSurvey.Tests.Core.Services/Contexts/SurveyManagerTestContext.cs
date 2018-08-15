@@ -17,6 +17,12 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 {
     public class SurveyManagerTestContext : ServiceBaseTestContext<SurveyManager>
     {
+        [Flags]
+        public enum JoinNeeds
+        {
+            SurveyTests,
+            TestResponses
+        }
         public SurveyManagerTestContext()
         {
             Mapper = new MapperConfiguration(GenerateTestConfiguration).CreateMapper();
@@ -51,6 +57,11 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             {
                 if (test.Completed.HasValue)
                 {
+
+                }
+
+                if (test.Completed.HasValue)
+                {
                     var pages = test.Survey.Sections.SelectMany(s => s.Pages);
                     foreach (var page in pages)
                     {
@@ -78,9 +89,8 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 }
             }
 
-
             TestResponses = responses;
-
+            TestSectionMarkers = sectionMarkers;
         }
 
 
@@ -96,7 +106,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             config.AddProfile<DtoModelProfile>();
         }
 
-        public void PrepareServiceConfiguration(bool includeCompleted = false)
+        public void PrepareServiceConfiguration(bool needsHeirarchy = false, bool includeCompleted = false)
         {
             DbContext = Fixture.Freeze<Fake<DbContext>>();
             Rng = Fixture.Freeze<Fake<Random>>();
@@ -107,12 +117,15 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             Fixture.Inject(DbContext.FakedObject);
             Fixture.Inject(Rng.FakedObject);
 
+            if (!needsHeirarchy)
+                return;
+
             if (!includeCompleted)
             {
                 var completedSurveys = Surveys.Where(s => s.Tests.Any(t => t.Completed.HasValue)).ToList();
                 var completedTests = completedSurveys.SelectMany(s => s.Tests).Where(t => t.Completed.HasValue).ToList();
                 var userIds = completedTests.Select(t => t.UserId).ToList();
-                UserId = Fixture.Create<Guid>().ToString();
+                UserId = userIds.Shuffle().First();
                 var surveyIds = completedSurveys.Select(s => s.Id).ToList();
                 SurveyId = surveyIds[Fixture.Create<int>() % surveyIds.Count];
             }
@@ -157,5 +170,17 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             A.CallTo(() => fake.ElementType).Returns(fakeData.ElementType);
         }
 
+        public void PrepareDataHeirarchy(JoinNeeds joinNeeds)
+        {
+            if (joinNeeds.HasFlag(JoinNeeds.SurveyTests))
+            {
+                JoinSurveyTests();
+            }
+
+            if (joinNeeds.HasFlag(JoinNeeds.TestResponses))
+            {
+                JoinTestResponses();
+            }
+        }
     }
 }
