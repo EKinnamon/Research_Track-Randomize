@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -19,7 +19,7 @@ namespace EKSurvey.Tests
             return GetEnumerator();
         }
 
-        public FixtureData(string dataPath) : base(dataPath)
+        public FixtureData(string dataPath, params JsonConverter[] jsonConverters) : base(dataPath, jsonConverters)
         {
             _collection = new Lazy<IList<T>>(() => Load(JsonArray));
         }
@@ -37,18 +37,20 @@ namespace EKSurvey.Tests
 
         public JArray JsonArray => _array.Value;
 
-        public FixtureData(string dataPath)
+        public FixtureData(string dataPath, params JsonConverter[] jsonConverters)
         {
-            _array = new Lazy<JArray>(() => LoadJson(_fileDataRaw));
+            _array = new Lazy<JArray>(() => LoadJson(_fileDataRaw, jsonConverters));
             using (var reader = new StreamReader(dataPath))
             {
                 _fileDataRaw = reader.ReadToEnd();
             }
         }
 
-        private static JArray LoadJson(string jsonData)
+        private static JArray LoadJson(string jsonData, params JsonConverter[] jsonConverters)
         {
-            return JsonConvert.DeserializeObject<JArray>(jsonData);
+            return jsonConverters != null && jsonConverters.Any()
+                ? JsonConvert.DeserializeObject<JArray>(jsonData, jsonConverters) 
+                : JsonConvert.DeserializeObject<JArray>(jsonData);
         }
     }
 }
