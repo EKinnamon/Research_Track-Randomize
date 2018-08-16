@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using AutoFixture;
 
@@ -12,17 +13,16 @@ using EKSurvey.Core.Services;
 using EKSurvey.Tests.Extensions;
 using EKSurvey.Tests.JsonConverters;
 using FakeItEasy;
+using Newtonsoft.Json;
 
 namespace EKSurvey.Tests.Core.Services.Contexts
 {
     public class SurveyManagerTestContext : ServiceBaseTestContext<SurveyManager>
     {
-        [Flags]
-        public enum JoinNeeds
-        {
-            SurveyTests,
-            TestResponses
-        }
+        private const string TestsFakeDataPath = "TestData/Tests.json";
+        private const string TestResponsesFakeDataPath = "TestData/TestResponses.json";
+        private const string TestSectionMarkersFakeDataPath = "TestData/TestSectionMarkers.json";
+
         public SurveyManagerTestContext()
         {
             Mapper = new MapperConfiguration(GenerateTestConfiguration).CreateMapper();
@@ -30,8 +30,6 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             Fixture.Register(() => Mapper);
             Fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
-            JoinSurveyTests();
-            JoinTestResponses();
         }
 
         private void JoinSurveyTests()
@@ -47,6 +45,8 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
                 survey.Tests = tests;
             }
+
+            Write(Surveys.SelectMany(s => s.Tests), TestsFakeDataPath);
         }
 
         private void JoinTestResponses()
@@ -55,44 +55,69 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             var sectionMarkers = new List<TestSectionMarker>();
             foreach (var test in Tests)
             {
+                IList<Section> sections;
+                IList<Page> pages;
                 if (test.Completed.HasValue)
                 {
-
-                }
-
-                if (test.Completed.HasValue)
-                {
-                    var pages = test.Survey.Sections.SelectMany(s => s.Pages);
-                    foreach (var page in pages)
-                    {
-                        var response = Fixture.Create<TestResponse>();
-                        response.TestId = test.Id;
-                        response.PageId = page.Id;
-                        response.Page = page;
-                        responses.Add(response);
-                    }
-
-                    foreach (var section in test.Survey.Sections)
-                    {
-                        var sectionMarker = Fixture.Create<TestSectionMarker>();
-                        sectionMarker.TestId = test.Id;
-                        sectionMarker.SectionId = section.Id;
-                        sectionMarker.Section = section;
-                        sectionMarkers.Add(sectionMarker);
-                    }
+                    sections = test.Survey.Sections.ToList();
+                    pages = test.Survey.Sections.SelectMany(s => s.Pages).ToList();
                 }
                 else
                 {
                     var page = test.Survey.Sections.SelectMany(s => s.Pages).Shuffle().Last();
-                    var section = page.SectionId;
-                    var finishedSections = test.Survey.Sections.OrderBy(s => s.Order).TakeWhile(s => s.Id != section);
+                    var section = page.Section;
+                    sections = test.Survey.Sections.OrderBy(s => s.Order).TakeWhile(s => s.Id != section.Id).ToList();
+                    pages = sections.SelectMany(p => p.Pages).ToList();
+                    // skip last page
+                    pages = pages.Take(pages.Count).ToList();
                 }
+
+                var testSectionMarkers = sections.Select(s =>
+                {
+                    var sectionMarker = Fixture.Create<TestSectionMarker>();
+                    sectionMarker.TestId = test.Id;
+                    sectionMarker.SectionId = s.Id;
+                    sectionMarker.Section = s;
+                    sectionMarker.Completed = Fixture.Create<DateTime>();
+
+                    return sectionMarker;
+                }).ToList();
+
+                testSectionMarkers[sections.Count - 1].Completed = test.Completed;
+
+                var testResponses = pages.Select(p =>
+                {
+                    var testResponse = Fixture.Create<TestResponse>();
+                    testResponse.TestId = test.Id;
+                    testResponse.PageId = p.Id;
+                    testResponse.Page = p;
+                    testResponse.Responded = Fixture.Create<DateTime>();
+
+                    return testResponse;
+                }).ToList();
+
+                testResponses[pages.Count - 1].Responded = test.Completed;
+
+                responses.AddRange(testResponses);
+                sectionMarkers.AddRange(testSectionMarkers);
             }
 
             TestResponses = responses;
             TestSectionMarkers = sectionMarkers;
+
+            Write(TestResponses, TestResponsesFakeDataPath);
+            Write(TestSectionMarkers, TestSectionMarkersFakeDataPath);
         }
 
+        private static void Write<T>(IEnumerable<T> data, string jsonDataPath)
+        {
+            var settings = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+            using (var file = File.CreateText(jsonDataPath))
+            {
+                var json = JsonConvert.SerializeObject(data, Formatting.None, settings);
+                file.Write(json);
+            }
+        }
 
         public Fake<DbContext> DbContext { get; set; }
         public Fake<Random> Rng { get; set; }
@@ -136,12 +161,34 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         }
 
         public IList<Survey> Surveys { get; set; } = new FixtureData<Survey>("TestData/Surveys.json", new PageConverter()).ToList();
-        public IList<Test> Tests => Surveys.SelectMany(s => s.Tests).ToList();
         public IList<string> UserIds => Tests.Select(t => t.UserId).ToList();
         public IList<Section> Sections => Surveys.SelectMany(s => s.Sections).ToList();
         public IList<Page> Pages => Sections.SelectMany(s => s.Pages).ToList();
-        public IList<TestResponse> TestResponses { get; set; }
-        public IList<TestSectionMarker> TestSectionMarkers { get; set; }
+
+        private IList<Test> _tests;
+
+        public IList<Test> Tests
+        {
+            get => _tests ??
+                   LoadFixtureData(TestsFakeDataPath, _tests, JoinSurveyTests).ToList();
+            set => _tests = value;
+        }
+
+        private IList<TestResponse> _testResponses;
+        public IList<TestResponse> TestResponses
+        {
+            get => _testResponses ??
+                   LoadFixtureData(TestResponsesFakeDataPath, _testResponses, JoinTestResponses).ToList();
+            set => _testResponses = value;
+        }
+
+        private IList<TestSectionMarker> _testSectionMarkers;
+        public IList<TestSectionMarker> TestSectionMarkers
+        {
+            get => _testSectionMarkers ??
+                    LoadFixtureData(TestSectionMarkersFakeDataPath, _testSectionMarkers, JoinTestResponses).ToList();
+            set => _testSectionMarkers = value;
+        }
 
         public string UserId { get; set; }
         public int SurveyId { get; set; }
@@ -169,18 +216,9 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             A.CallTo(() => fake.Expression).Returns(fakeData.Expression);
             A.CallTo(() => fake.ElementType).Returns(fakeData.ElementType);
         }
-
-        public void PrepareDataHeirarchy(JoinNeeds joinNeeds)
+        private IList<T> LoadFixtureData<T>(string fixtureDataPath, IList<T> data, Action generator)
         {
-            if (joinNeeds.HasFlag(JoinNeeds.SurveyTests))
-            {
-                JoinSurveyTests();
-            }
-
-            if (joinNeeds.HasFlag(JoinNeeds.TestResponses))
-            {
-                JoinTestResponses();
-            }
+            throw new NotImplementedException();
         }
     }
 }

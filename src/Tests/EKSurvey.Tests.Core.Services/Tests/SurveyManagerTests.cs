@@ -12,8 +12,6 @@ using FluentAssertions;
 
 using Xunit;
 
-using JoinNeeds = EKSurvey.Tests.Core.Services.Contexts.SurveyManagerTestContext.JoinNeeds;
-
 namespace EKSurvey.Tests.Core.Services.Tests
 {
     public class SurveyManagerTests
@@ -94,7 +92,6 @@ namespace EKSurvey.Tests.Core.Services.Tests
         [Fact]
         public async Task GetActiveSurveysAsync_will_return_all_active_surveys()
         {
-            _context.PrepareDataHeirarchy(JoinNeeds.SurveyTests);
             _context.PrepareServiceConfiguration(needsHeirarchy: true);
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
