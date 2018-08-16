@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace EKSurvey.Tests.Extensions
 {
@@ -29,6 +31,28 @@ namespace EKSurvey.Tests.Extensions
                 }
             }
             return result;
+        }
+
+        public static IEnumerable<T> CacheAs<T>(this IEnumerable<T> collection, string cacheFilePath)
+        {
+            var settings = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+            using (var file = File.CreateText(cacheFilePath))
+            {
+                var json = JsonConvert.SerializeObject(collection, Formatting.None, settings);
+                file.Write(json);
+            }
+
+            return collection;
+        }
+
+        public static IEnumerable<T> FixtureCallback<T>(this IEnumerable<T> collection, Action<IEnumerable<T>> callback)
+        {
+            if (callback == null)
+                throw new ArgumentNullException(nameof(callback));
+
+            callback(collection);
+
+            return collection;
         }
     }
 }

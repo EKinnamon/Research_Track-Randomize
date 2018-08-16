@@ -19,15 +19,31 @@ namespace EKSurvey.Tests
             return GetEnumerator();
         }
 
-        public FixtureData(string dataPath, params JsonConverter[] jsonConverters) : base(dataPath, jsonConverters)
+        protected FixtureData(string dataPath, params JsonConverter[] jsonConverters) : base(dataPath, jsonConverters)
         {
             _collection = new Lazy<IList<T>>(() => Load(JsonArray));
         }
 
+        public FixtureData<T> Callback(Action<IEnumerable<T>> callback)
+        {
+            callback.Invoke(_collection.Value);
+            return this;
+        }
+
         private static IList<T> Load(JToken jsonObject)
         {
-            return jsonObject.ToObject<IList<T>>();
+            return jsonObject?.ToObject<IList<T>>();
         }
+
+        public static FixtureData<T> Load(string dataPath, params JsonConverter[] jsonConverters)
+        {
+            var fixtureData = File.Exists(dataPath)
+                ? new FixtureData<T>(dataPath, jsonConverters)
+                : null;
+           
+            return fixtureData;
+        }
+
     }
 
     public class FixtureData

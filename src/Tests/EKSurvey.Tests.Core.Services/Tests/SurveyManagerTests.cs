@@ -92,7 +92,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
         [Fact]
         public async Task GetActiveSurveysAsync_will_return_all_active_surveys()
         {
-            _context.PrepareServiceConfiguration(needsHeirarchy: true);
+            _context.PrepareServiceConfiguration();
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
 
@@ -110,7 +110,8 @@ namespace EKSurvey.Tests.Core.Services.Tests
         [InlineData(true)]
         public void GetUserSurveys_will_return_all_surveys_for_user(bool includeCompleted)
         {
-            _context.PrepareServiceConfiguration(includeCompleted);
+            _context.PrepareServiceConfiguration();
+            _context.PrepareTestEntities(includeCompleted);
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
 
@@ -133,7 +134,8 @@ namespace EKSurvey.Tests.Core.Services.Tests
         [InlineData(true)]
         public async Task GetUserSurveysAsync_will_return_all_surveys_for_user(bool includeCompleted)
         {
-            _context.PrepareServiceConfiguration(includeCompleted);
+            _context.PrepareServiceConfiguration();
+            _context.PrepareTestEntities(includeCompleted);
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
 
@@ -148,7 +150,6 @@ namespace EKSurvey.Tests.Core.Services.Tests
             {
                 userSurveys.Select(s => s.Completed.HasValue).Should().AllBeEquivalentTo(false);
             }
-
         }
 
         [Fact]

@@ -10,10 +10,10 @@ namespace EKSurvey.Tests
 {
     public abstract class BaseTestContext : IDisposable
     {
-        protected IFixture Fixture { get; set; }
+        protected static IFixture Fixture { get; set; }
         public IMapper Mapper { get; set; }
 
-        protected BaseTestContext()
+        static BaseTestContext()
         {
             Fixture = new Fixture().Customize(new AutoFakeItEasyCustomization());
             var lazyEntityGraphCustomization =
