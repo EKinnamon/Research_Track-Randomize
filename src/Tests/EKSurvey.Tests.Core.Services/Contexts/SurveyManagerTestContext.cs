@@ -34,19 +34,21 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
         private void JoinSurveyTests()
         {
+            var tests = new List<Test>();
             foreach (var survey in Surveys)
             {
-                var tests = Fixture.Create<List<Test>>();
-                tests.ForEach(t =>
+                var surveyTests = Fixture.Create<List<Test>>();
+                surveyTests.ForEach(t =>
                 {
                     t.SurveyId = survey.Id;
                     t.Survey = survey;
+                    t.Modified = Fixture.Create<int>() % 100 == 0 ? t.Modified : null;
+                    t.Completed = Fixture.Create<int>() % 5 >= 1 ? t.Completed : null;
                 });
-
-                survey.Tests = tests;
+                tests.AddRange(surveyTests);
             }
 
-            Write(Surveys.SelectMany(s => s.Tests), TestsFakeDataPath);
+            Write(tests, TestsFakeDataPath);
         }
 
         private void JoinTestResponses()
@@ -107,6 +109,24 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
             Write(TestResponses, TestResponsesFakeDataPath);
             Write(TestSectionMarkers, TestSectionMarkersFakeDataPath);
+        }
+
+        private void JoinSurveyData()
+        {
+            var sections = Surveys.SelectMany(s => s.Sections).ToList();
+            var index = 0;
+            sections.ForEach(s => { s.Id = ++index; });
+
+
+            foreach (var section in sections)
+            {
+                section.Survey = Surveys.Single(s => s.Id == section.SurveyId);
+            }
+
+            foreach (var page in Surveys.SelectMany(s => s.Sections.SelectMany(ss => ss.Pages)))
+            {
+                page.Section = sections.Single(s => s.Id == page.SectionId);
+            }
         }
 
         private static void Write<T>(IEnumerable<T> data, string jsonDataPath)
@@ -170,7 +190,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         public IList<Test> Tests
         {
             get => _tests ??
-                   LoadFixtureData<Test>(TestsFakeDataPath, JoinSurveyTests).ToList();
+                   LoadFixtureData<Test>(TestsFakeDataPath, JoinSurveyTests, JoinSurveyData).ToList();
             set => _tests = value;
         }
 
@@ -178,7 +198,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         public IList<TestResponse> TestResponses
         {
             get => _testResponses ??
-                   LoadFixtureData<TestResponse>(TestResponsesFakeDataPath, JoinTestResponses).ToList();
+                   LoadFixtureData<TestResponse>(TestResponsesFakeDataPath, JoinTestResponses, null).ToList();
             set => _testResponses = value;
         }
 
@@ -186,7 +206,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         public IList<TestSectionMarker> TestSectionMarkers
         {
             get => _testSectionMarkers ??
-                    LoadFixtureData<TestSectionMarker>(TestSectionMarkersFakeDataPath, JoinTestResponses).ToList();
+                    LoadFixtureData<TestSectionMarker>(TestSectionMarkersFakeDataPath, JoinTestResponses, null).ToList();
             set => _testSectionMarkers = value;
         }
 
@@ -216,7 +236,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             A.CallTo(() => fake.Expression).Returns(fakeData.Expression);
             A.CallTo(() => fake.ElementType).Returns(fakeData.ElementType);
         }
-        private static IEnumerable<T> LoadFixtureData<T>(string fixtureDataPath, Action generator)
+        private static IEnumerable<T> LoadFixtureData<T>(string fixtureDataPath, Action generator, Action joiner)
         {
             if (!File.Exists(fixtureDataPath))
             {
@@ -224,6 +244,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             }
 
             var fixtureData = new FixtureData<T>(fixtureDataPath);
+            joiner?.Invoke();
             return fixtureData;
         }
     }
