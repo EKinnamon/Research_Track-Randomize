@@ -170,7 +170,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         public IList<Test> Tests
         {
             get => _tests ??
-                   LoadFixtureData(TestsFakeDataPath, _tests, JoinSurveyTests).ToList();
+                   LoadFixtureData<Test>(TestsFakeDataPath, JoinSurveyTests).ToList();
             set => _tests = value;
         }
 
@@ -178,7 +178,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         public IList<TestResponse> TestResponses
         {
             get => _testResponses ??
-                   LoadFixtureData(TestResponsesFakeDataPath, _testResponses, JoinTestResponses).ToList();
+                   LoadFixtureData<TestResponse>(TestResponsesFakeDataPath, JoinTestResponses).ToList();
             set => _testResponses = value;
         }
 
@@ -186,7 +186,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         public IList<TestSectionMarker> TestSectionMarkers
         {
             get => _testSectionMarkers ??
-                    LoadFixtureData(TestSectionMarkersFakeDataPath, _testSectionMarkers, JoinTestResponses).ToList();
+                    LoadFixtureData<TestSectionMarker>(TestSectionMarkersFakeDataPath, JoinTestResponses).ToList();
             set => _testSectionMarkers = value;
         }
 
@@ -216,9 +216,15 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             A.CallTo(() => fake.Expression).Returns(fakeData.Expression);
             A.CallTo(() => fake.ElementType).Returns(fakeData.ElementType);
         }
-        private IList<T> LoadFixtureData<T>(string fixtureDataPath, IList<T> data, Action generator)
+        private static IEnumerable<T> LoadFixtureData<T>(string fixtureDataPath, Action generator)
         {
-            throw new NotImplementedException();
+            if (!File.Exists(fixtureDataPath))
+            {
+                generator.Invoke();
+            }
+
+            var fixtureData = new FixtureData<T>(fixtureDataPath);
+            return fixtureData;
         }
     }
 }
