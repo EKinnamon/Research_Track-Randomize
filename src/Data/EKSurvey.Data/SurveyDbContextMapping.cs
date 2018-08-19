@@ -33,7 +33,7 @@ namespace EKSurvey.Data
     {
         public SurveyMap()
         {
-            this.HasMany(e => e.Tests)
+            this.HasMany(s => s.Tests)
                 .WithRequired(t => t.Survey)
                 .WillCascadeOnDelete(false);
         }

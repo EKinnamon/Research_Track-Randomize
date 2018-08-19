@@ -300,10 +300,10 @@ namespace EKSurvey.Core.Services
             return pages.OrderBy(p => p.Page.Order).FirstOrDefault(p => !p.Responded.HasValue);
         }
 
-        public ICollection<UserResponse> GetSectionResponses(string userId, int id)
+        public ICollection<UserResponse> GetSectionResponses(string userId, int sectionId)
         {
-            var section = Sections.Find(id) ?? throw new SectionNotFoundException(id);
-            var test = Tests.Find(userId, section.SurveyId) ?? throw new TestNotFoundException(userId, id);
+            var section = Sections.Find(sectionId) ?? throw new SectionNotFoundException(sectionId);
+            var test = Tests.SingleOrDefault(t => t.UserId.Equals(userId,StringComparison.OrdinalIgnoreCase) && t.SurveyId == section.SurveyId) ?? throw new TestNotFoundException(userId, sectionId);
 
             var sectionResponses =
                 from p in section.Pages
@@ -317,10 +317,10 @@ namespace EKSurvey.Core.Services
             return responses;
         }
 
-        public async Task<ICollection<UserResponse>> GetSectionResponsesAsync(string userId, int id, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ICollection<UserResponse>> GetSectionResponsesAsync(string userId, int sectionId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var section = await Sections.FindAsync(cancellationToken, id) ?? throw new SectionNotFoundException(id);
-            var test = await Tests.FindAsync(cancellationToken, userId, section.SurveyId) ?? throw new TestNotFoundException(userId, id);
+            var section = await Sections.FindAsync(cancellationToken, sectionId) ?? throw new SectionNotFoundException(sectionId);
+            var test = await Tests.SingleOrDefaultAsync(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && t.SurveyId == section.SurveyId, cancellationToken) ?? throw new TestNotFoundException(userId, sectionId);
 
             var sectionResponses =
                 from p in section.Pages

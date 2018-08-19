@@ -26,8 +26,6 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
             Fixture.Register(() => Mapper);
             Fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-
-            //LoadTestResponseData();
         }
 
         public Fake<DbContext> DbContext { get; set; }
@@ -69,7 +67,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             }
         }
 
-        public IList<Survey> Surveys { get; set; } = (FixtureData<Survey>.Load(SurveyFakeDataPath) ?? Fixture.CreateMany<Survey>(20).FixtureCallback(TestsGenerate).CacheAs(SurveyFakeDataPath)).ToList();
+        public IList<Survey> Surveys { get; set; } = (FixtureData<Survey>.Load(SurveyFakeDataPath) ?? Fixture.CreateMany<Survey>(20)).ToList();
 
         private static void TestsGenerate(IEnumerable<Survey> surveys)
         {
@@ -117,23 +115,5 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             A.CallTo(() => fake.Expression).Returns(fakeData.Expression);
             A.CallTo(() => fake.ElementType).Returns(fakeData.ElementType);
         }
-
-        //private void LoadTestResponseData()
-        //{
-        //    var testResponses = FixtureData<TestResponse>.Load(TestResponsesFakeDataPath);
-        //    var testSectionMarkers = FixtureData<TestSectionMarker>.Load(TestSectionMarkersFakeDataPath);
-
-        //    if (testResponses == null || testSectionMarkers == null)
-        //    {
-        //        if (testResponses == null)
-        //        {
-
-        //        }
-        //    }
-
-        //    TestResponses = testResponses.ToList();
-        //    TestSectionMarkers = testSectionMarkers.ToList();
-        //}
-
     }
 }

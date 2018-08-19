@@ -5,11 +5,11 @@
     [Started] DATETIME NOT NULL CONSTRAINT [DF_Tests_Started] DEFAULT GETUTCDATE(),
     [Modified] DATETIME,
     [Completed] DATETIME,
-    CONSTRAINT [UK_Tests_Id] UNIQUE ([Id]),
-	CONSTRAINT [PK_Tests_UserId_SurveyId] PRIMARY KEY ([UserId], SurveyId),
-    CONSTRAINT [FK_Tests_SurveyId] FOREIGN KEY ([SurveyId]) REFERENCES [dbo].[Surveys] ([Id])
+	CONSTRAINT [PK_Tests_Id] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_Tests_SurveyId] FOREIGN KEY ([SurveyId]) REFERENCES [dbo].[Surveys] ([Id]),
+    CONSTRAINT [UK_Tests_UserId_SurveyId] UNIQUE ([UserId], [SurveyId])
 )
 GO
-CREATE INDEX [IX_Tests_Id] ON [dbo].[Tests]([Id])
+CREATE INDEX [IX_Tests_UserId] ON [dbo].[Tests]([UserId])
 GO
 CREATE INDEX [IX_Tests_SurveyId] ON [dbo].[Tests]([SurveyId])
