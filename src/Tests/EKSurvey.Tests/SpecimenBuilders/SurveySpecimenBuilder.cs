@@ -20,12 +20,10 @@ namespace EKSurvey.Tests.SpecimenBuilders
 
         public object Create(object request, ISpecimenContext context)
         {
-            var seededRequest = request as SeededRequest;
-            if (seededRequest == null)
+            if (!(request is SeededRequest seededRequest))
                 return new NoSpecimen();
 
-            var surveyType = seededRequest.Request as Type;
-            if (surveyType == null || surveyType != typeof(Survey))
+            if(!(seededRequest.Request is Type surveyType) || surveyType != typeof(Survey))
                 return new NoSpecimen();
 
             var survey = new Survey
@@ -37,9 +35,11 @@ namespace EKSurvey.Tests.SpecimenBuilders
             var sectionOrder = 0;
             foreach (var section in survey.Sections)
             {
+                section.Survey = survey;
+                section.SurveyId = survey.Id;
                 section.Order = ++sectionOrder;
                 section.Pages = GeneratePages(section, context, context.Create<int>() % 20 + 1);
-                section.TestSectionMarkers = null;
+                section.TestSectionMarkers = survey.Tests.SelectMany(t => t.TestSectionMarkers).Where(tsm => tsm.SectionId == section.Id).ToList();
             }
 
             return survey;

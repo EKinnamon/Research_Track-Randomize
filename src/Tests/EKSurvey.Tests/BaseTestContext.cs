@@ -3,6 +3,7 @@ using AutoFixture;
 using AutoFixture.AutoFakeItEasy;
 using AutoMapper;
 using EKSurvey.Data;
+using EKSurvey.Tests.SpecimenBuilders;
 using LazyEntityGraph.AutoFixture;
 using LazyEntityGraph.EntityFramework;
 
@@ -20,7 +21,7 @@ namespace EKSurvey.Tests
                 new LazyEntityGraphCustomization(ModelMetadataGenerator.LoadFromCodeFirstContext(str => new SurveyDbContext(), true));
             Fixture.Customize(lazyEntityGraphCustomization);
 
-            //Fixture.Customizations.Add(new SurveySpecimenBuilder());
+            Fixture.Customizations.Add(new SurveySpecimenBuilder());
         }
 
         protected virtual void Dispose(bool disposing)
