@@ -27,7 +27,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             Fixture.Register(() => Mapper);
             Fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
-            LoadTestResponseData();
+            //LoadTestResponseData();
         }
 
         public Fake<DbContext> DbContext { get; set; }
@@ -69,20 +69,19 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             }
         }
 
-        public IList<Survey> Surveys { get; set; } = (FixtureData<Survey>.Load(SurveyFakeDataPath) ?? Fixture.CreateMany<Survey>(20).FixtureCallback(SurveyGenerate).CacheAs(SurveyFakeDataPath)).ToList();
+        public IList<Survey> Surveys { get; set; } = (FixtureData<Survey>.Load(SurveyFakeDataPath) ?? Fixture.CreateMany<Survey>(20).FixtureCallback(TestsGenerate).CacheAs(SurveyFakeDataPath)).ToList();
 
-        private static void SurveyGenerate(IEnumerable<Survey> surveys)
+        private static void TestsGenerate(IEnumerable<Survey> surveys)
         {
-            foreach (var survey in surveys)
-            {
-                foreach (var test in survey.Tests)
-                {
-                    test.Modified = Fixture.Create<int>() % 100 == 0 ? test.Modified : null;
-                    test.Completed = Fixture.Create<int>() % 5 >= 1 ? test.Completed : null;
-                }
-            }
+            //foreach (var survey in surveys)
+            //{
+            //    foreach (var test in survey.Tests)
+            //    {
+            //        test.Modified = Fixture.Create<int>() % 100 == 0 ? test.Modified : null;
+            //        test.Completed = Fixture.Create<int>() % 5 >= 1 ? test.Completed : null;
+            //    }
+            //}
         }
-
 
         public IList<string> UserIds => Tests.Select(t => t.UserId).ToList();
         public IList<Section> Sections => Surveys.SelectMany(s => s.Sections).ToList();
@@ -119,22 +118,22 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             A.CallTo(() => fake.ElementType).Returns(fakeData.ElementType);
         }
 
-        private void LoadTestResponseData()
-        {
-            var testResponses = FixtureData<TestResponse>.Load(TestResponsesFakeDataPath);
-            var testSectionMarkers = FixtureData<TestSectionMarker>.Load(TestSectionMarkersFakeDataPath);
+        //private void LoadTestResponseData()
+        //{
+        //    var testResponses = FixtureData<TestResponse>.Load(TestResponsesFakeDataPath);
+        //    var testSectionMarkers = FixtureData<TestSectionMarker>.Load(TestSectionMarkersFakeDataPath);
 
-            if (testResponses == null || testSectionMarkers == null)
-            {
-                if (testResponses == null)
-                {
+        //    if (testResponses == null || testSectionMarkers == null)
+        //    {
+        //        if (testResponses == null)
+        //        {
 
-                }
-            }
+        //        }
+        //    }
 
-            TestResponses = testResponses.ToList();
-            TestSectionMarkers = testSectionMarkers.ToList();
-        }
+        //    TestResponses = testResponses.ToList();
+        //    TestSectionMarkers = testSectionMarkers.ToList();
+        //}
 
     }
 }

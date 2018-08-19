@@ -95,6 +95,7 @@
     <Compile Include="JsonConverters\PageConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBaseTestContext.cs" />
+    <Compile Include="SpecimenBuilders\SurveySpecimenBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

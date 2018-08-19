@@ -43,7 +43,6 @@ namespace EKSurvey.Tests
            
             return fixtureData;
         }
-
     }
 
     public class FixtureData
