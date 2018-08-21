@@ -28,19 +28,27 @@ namespace EKSurvey.Tests.SpecimenBuilders
 
             var survey = new Survey
             {
+                Id = context.Create<int>(),
+                Name = context.Create<string>(),
+                Description = context.Create<string>(),
+                Version = context.Create<string>(),
+                IsActive = context.Create<bool>(),
+                Created = context.Create<DateTime>(),
+                Modified = context.Create<int>() % 50 == 0 ? context.Create<DateTime>() : (DateTime?)null,
+                Deleted = context.Create<int>() % 100 == 0 ? context.Create<DateTime>() : (DateTime?)null,
                 Sections = context.CreateMany<Section>(context.Create<int>() % 9 + 2).ToList(),
                 Tests = context.CreateMany<Test>(context.Create<int>() % 1001).ToList()
             };
 
-            var sectionOrder = 0;
-            foreach (var section in survey.Sections)
-            {
-                section.Survey = survey;
-                section.SurveyId = survey.Id;
-                section.Order = ++sectionOrder;
-                section.Pages = GeneratePages(section, context, context.Create<int>() % 20 + 1);
-                section.TestSectionMarkers = survey.Tests.SelectMany(t => t.TestSectionMarkers).Where(tsm => tsm.SectionId == section.Id).ToList();
-            }
+            //var sectionOrder = 0;
+            //foreach (var section in survey.Sections)
+            //{
+            //    section.Survey = survey;
+            //    section.SurveyId = survey.Id;
+            //    section.Order = ++sectionOrder;
+            //    section.Pages = GeneratePages(section, context, context.Create<int>() % 20 + 1);
+            //    section.TestSectionMarkers = survey.Tests.SelectMany(t => t.TestSectionMarkers).Where(tsm => tsm.SectionId == section.Id).ToList();
+            //}
 
             return survey;
         }
