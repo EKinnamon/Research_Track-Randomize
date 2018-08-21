@@ -35,12 +35,17 @@ namespace EKSurvey.Tests.Extensions
 
         public static IEnumerable<T> CacheAs<T>(this IEnumerable<T> collection, string cacheFilePath)
         {
-            var settings = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
-            using (var file = File.CreateText(cacheFilePath))
+            var cacheFileDirectoryName = Path.GetDirectoryName(cacheFilePath);
+            Directory.CreateDirectory(cacheFileDirectoryName);
+
+            var serializer = new JsonSerializer
             {
-                var json = JsonConvert.SerializeObject(collection, Formatting.None, settings);
-                file.Write(json);
-            }
+                Formatting = Formatting.None,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            using (var file = File.CreateText(cacheFilePath))
+                serializer.Serialize(file, collection);
 
             return collection;
         }
