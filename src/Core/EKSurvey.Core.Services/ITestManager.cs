@@ -16,7 +16,6 @@ namespace EKSurvey.Core.Services
         TestResponse Respond(string userId, int surveyId, string response, int pageId);
         Task<TestResponse> RespondAsync(string userId, int surveyId, string response, int pageId, CancellationToken cancellationToken = default(CancellationToken));
         UserSurvey CompleteCurrentSection(string userId, int surveyId);
-        Task<UserSurvey> CompleteCurrentSectionAsync(string userId, int surveyId,
-            CancellationToken cancellationToken = default(CancellationToken));
+        Task<UserSurvey> CompleteCurrentSectionAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

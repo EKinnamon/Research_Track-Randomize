@@ -216,7 +216,9 @@ namespace EKSurvey.Core.Services
 
         private void ThrowIfSurveyDoesNotExist(int surveyId)
         {
-            if (Surveys.Find(surveyId) == null)
+            var surveyExists = Surveys.Find(surveyId) != null;
+
+            if (!surveyExists)
                 throw new SurveyNotFoundException(surveyId);
         }
 

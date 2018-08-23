@@ -97,8 +97,8 @@
     <Compile Include="FixtureData.cs" />
     <Compile Include="JsonConverters\PageConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestAsync.classes.cs" />
     <Compile Include="ServiceBaseTestContext.cs" />
-    <Compile Include="SpecimenBuilders\SurveySpecimenBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -114,6 +114,8 @@
       <Name>EKSurvey.Data</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="SpecimenBuilders\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

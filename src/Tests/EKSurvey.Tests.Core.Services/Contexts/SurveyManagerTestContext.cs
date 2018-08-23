@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using AutoFixture;
 
@@ -13,6 +14,7 @@ using EKSurvey.Core.Services;
 using EKSurvey.Tests.Extensions;
 
 using FakeItEasy;
+
 using MoreLinq;
 
 namespace EKSurvey.Tests.Core.Services.Contexts
@@ -20,8 +22,6 @@ namespace EKSurvey.Tests.Core.Services.Contexts
     public class SurveyManagerTestContext : ServiceBaseTestContext<SurveyManager>
     {
         private const string SurveyFakeDataPath = "TestData/Surveys.json";
-        private const string TestResponsesFakeDataPath = "TestData/TestResponses.json";
-        private const string TestSectionMarkersFakeDataPath = "TestData/TestSectionMarkers.json";
 
         public SurveyManagerTestContext()
         {
@@ -35,6 +35,8 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         public Fake<Random> Rng { get; set; }
         public Fake<DbSet<Survey>> SurveySet { get; set; }
         public Fake<DbSet<Section>> SectionSet { get; set; }
+        public Fake<DbSet<Page>> PageSet { get; set; }
+        public Fake<DbSet<Test>> TestSet { get; set; }
         public Fake<DbSet<TestResponse>> TestResponseSet { get; set; }
         public Fake<DbSet<TestSectionMarker>> TestSectionMarkerSet { get; set; }
 
@@ -49,60 +51,91 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             Rng = Fixture.Freeze<Fake<Random>>();
             SurveySet = Fixture.Freeze<Fake<DbSet<Survey>>>();
             SectionSet = Fixture.Freeze<Fake<DbSet<Section>>>();
+            PageSet = Fixture.Freeze<Fake<DbSet<Page>>>();
+            TestSet = Fixture.Freeze<Fake<DbSet<Test>>>();
             TestResponseSet = Fixture.Freeze<Fake<DbSet<TestResponse>>>();
 
             Fixture.Inject(DbContext.FakedObject);
             Fixture.Inject(Rng.FakedObject);
         }
 
-        public void PrepareTestEntities(bool includeCompleted = false)
+        public void PrepareTestEntities(bool includeCompleted = false, bool invalidSurvey = false)
         {
             if (includeCompleted)
             {
                 UserId = UserIds.Shuffle().First();
+                var test = Tests.Where(t => t.UserId.Equals(UserId, StringComparison.OrdinalIgnoreCase)).Shuffle().First();
+                TestId = test.Id;
+                SurveyId = test.SurveyId;
                 SurveyId = Surveys.Shuffle().First().Id;
             }
             else
             {
                 var completedTest = Tests.Where(t => !t.Completed.HasValue).Shuffle().First();
+                TestId = completedTest.Id;
                 UserId = completedTest.UserId;
                 SurveyId = completedTest.SurveyId;
             }
+
+            if (invalidSurvey)
+            {
+                SurveyId = Surveys.Max(s => s.Id) + 1;
+            }
+
         }
 
         public IList<Survey> Surveys { get; set; } = (FixtureData<Survey>.Load(SurveyFakeDataPath) ?? GenerateSurveyFixtureData(4).CacheAs(SurveyFakeDataPath)).Apply(SurveyJoiner).ToList();
-
         public IList<string> UserIds => Tests.Select(t => t.UserId).ToList();
         public IList<Section> Sections => Surveys.SelectMany(s => s.Sections).ToList();
         public IList<Page> Pages => Sections.SelectMany(s => s.Pages).ToList();
         public IList<Test> Tests => Surveys.SelectMany(s => s.Tests).ToList();
-
         public IList<TestResponse> TestResponses => Tests.SelectMany(t => t.TestResponses).ToList();
         public IList<TestSectionMarker> TestSectionMarkers => Tests.SelectMany(t => t.TestSectionMarkers).ToList();
 
         public string UserId { get; set; }
         public int SurveyId { get; set; }
+        public Guid TestId { get; set; }
 
         public void PrepareServiceHelperCalls()
         {
             var surveysQueryable = Surveys.AsQueryable();
             SetupDbSetCalls(SurveySet.FakedObject, surveysQueryable);
+            SetupDbSetAsyncCalls(SurveySet.FakedObject, surveysQueryable);
             A.CallTo(() => SurveySet.FakedObject.Include(A<string>._)).Returns(SurveySet.FakedObject);
             A.CallTo(() => DbContext.FakedObject.Set<Survey>()).Returns(SurveySet.FakedObject);
+            A.CallTo(() => DbContext.FakedObject.Set<Survey>().Find(A<object>._)).Returns(Surveys.SingleOrDefault(s => s.Id == SurveyId));
+            A.CallTo(() => DbContext.FakedObject.Set<Survey>().FindAsync(A<object>._)).Returns(Surveys.SingleOrDefault(s => s.Id == SurveyId));
 
             var sectionsQueryable = Sections.AsQueryable();
             SetupDbSetCalls(SectionSet.FakedObject, sectionsQueryable);
+            SetupDbSetAsyncCalls(SectionSet.FakedObject, sectionsQueryable);
             A.CallTo(() => DbContext.FakedObject.Set<Section>()).Returns(SectionSet.FakedObject);
+
+            var testsQueryable = Tests.AsQueryable();
+            SetupDbSetCalls(TestSet.FakedObject, testsQueryable);
+            SetupDbSetAsyncCalls(TestSet.FakedObject, testsQueryable);
+            A.CallTo(() => DbContext.FakedObject.Set<Test>()).Returns(TestSet.FakedObject);
 
             var testResponseQueryable = TestResponses.AsQueryable();
             SetupDbSetCalls(TestResponseSet.FakedObject, testResponseQueryable);
+            SetupDbSetAsyncCalls(TestResponseSet.FakedObject, testResponseQueryable);
             A.CallTo(() => DbContext.FakedObject.Set<TestResponse>()).Returns(TestResponseSet.FakedObject);
+
+            var pageQueryable = Pages.AsQueryable();
+            SetupDbSetCalls(PageSet.FakedObject, pageQueryable);
+            SetupDbSetAsyncCalls(PageSet.FakedObject, pageQueryable);
+            A.CallTo(() => DbContext.FakedObject.Set<Page>()).Returns(PageSet.FakedObject);
+        }
+
+        private static void SetupDbSetAsyncCalls<T>(IDbAsyncEnumerable<T> fake, IEnumerable<T> fakeData) where T : class
+        {
+            A.CallTo(() => fake.GetAsyncEnumerator()).Returns(new TestAsyncEnumerator<T>(fakeData.GetEnumerator()));
         }
 
         private static void SetupDbSetCalls<T>(IQueryable<T> fake, IQueryable<T> fakeData) where T : class
         {
             A.CallTo(() => fake.GetEnumerator()).Returns(fakeData.GetEnumerator());
-            A.CallTo(() => fake.Provider).Returns(fakeData.Provider);
+            A.CallTo(() => fake.Provider).Returns(new TestAsyncQueryProvider<T>(fakeData.Provider));
             A.CallTo(() => fake.Expression).Returns(fakeData.Expression);
             A.CallTo(() => fake.ElementType).Returns(fakeData.ElementType);
         }

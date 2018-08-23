@@ -42,7 +42,7 @@ namespace EKSurvey.Core.Models.Profiles
                     var dbContext = ctx.Items["dbContext"] as DbContext ?? throw new AutoMapperMappingException("DbContext must be supplied for this mapping."); 
                     var userId = ctx.Items["userId"].ToString();
                     dest.UserId = userId;
-                    var userTest = dbContext.Set<Test>().Find(userId, src.SurveyId);
+                    var userTest = dbContext.Set<Test>().SingleOrDefault(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && t.SurveyId == src.SurveyId);
                     var sectionResponses = dbContext.Set<TestResponse>().Where(tr => tr.Page.SectionId == src.Id);
 
                     if (userTest == null)
@@ -100,7 +100,7 @@ namespace EKSurvey.Core.Models.Profiles
 
                     dest.SurveyId = page.Section.SurveyId;
 
-                    var test = dbContext.Set<Test>().Find(userId, page.Section.SurveyId);
+                    var test = dbContext.Set<Test>().SingleOrDefault(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && t.SurveyId == page.Section.SurveyId);
                     if (test == null)
                         return;
 
@@ -117,6 +117,7 @@ namespace EKSurvey.Core.Models.Profiles
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Page.Order))
                 .ForMember(dest => dest.IsQuestion, opt => opt.MapFrom(src => src.Page is IQuestion))
                 .ForMember(dest => dest.QuestionType, opt => opt.MapFrom(src => src.Page is IQuestion ? src.Page.GetType() : null))
+                // ReSharper disable once MergeCastWithTypeCheck -- won't work in a lambda expression in this scenario.
                 .ForMember(dest => dest.Range, opt => opt.MapFrom(src => src.Page is RangeQuestion ? ((RangeQuestion) src.Page).Range : (int?) null))
                 .ForMember(dest => dest.IsHtml, opt => opt.MapFrom(src => src.Page.IsHtml))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Page.Text))
