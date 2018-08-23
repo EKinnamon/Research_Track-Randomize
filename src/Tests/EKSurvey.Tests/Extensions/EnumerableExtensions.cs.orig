@@ -54,11 +54,14 @@ namespace EKSurvey.Tests.Extensions
 
             return collection;
         }
+<<<<<<< HEAD
+=======
 
         public static IEnumerable<T> Apply<T>(this IEnumerable<T> collection, Action<IEnumerable<T>> action)
         {
             action.Invoke(collection);
             return collection;
         }
+>>>>>>> 8b19ed7453a99e82f96579b32cac22d2ed7815d2
     }
 }

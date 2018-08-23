@@ -70,7 +70,11 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             }
         }
 
+<<<<<<< HEAD
+        public IList<Survey> Surveys { get; set; } = (FixtureData<Survey>.Load(SurveyFakeDataPath).Callback(SurveyJoiner) ?? GenerateSurveyFixtureData(4).CacheAs(SurveyFakeDataPath)).ToList();
+=======
         public IList<Survey> Surveys { get; set; } = (FixtureData<Survey>.Load(SurveyFakeDataPath) ?? GenerateSurveyFixtureData(4).CacheAs(SurveyFakeDataPath)).Apply(SurveyJoiner).ToList();
+>>>>>>> 8b19ed7453a99e82f96579b32cac22d2ed7815d2
 
         public IList<string> UserIds => Tests.Select(t => t.UserId).ToList();
         public IList<Section> Sections => Surveys.SelectMany(s => s.Sections).ToList();
@@ -113,6 +117,25 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             {
                 () => Fixture
                     .Build<FreeTextQuestion>()
+<<<<<<< HEAD
+                    .Without(p => p.Section)
+                    .Without(p => p.TestResponses)
+                    .Create(),
+                () => Fixture
+                    .Build<RangeQuestion>()
+                    .Without(p => p.Section)
+                    .Without(p => p.TestResponses)
+                    .Create(),
+                () => Fixture
+                    .Build<StaticTextPage>()
+                    .Without(p => p.Section)
+                    .Without(p => p.TestResponses)
+                    .Create(),
+                () => Fixture
+                    .Build<TrueFalseQuestion>()
+                    .Without(p => p.Section)
+                    .Without(p => p.TestResponses)
+=======
                     .Without(q => q.Section)
                     .Without(q => q.TestResponses)
                     .Create(),
@@ -130,6 +153,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                     .Build<TrueFalseQuestion>()
                     .Without(q => q.Section)
                     .Without(q => q.TestResponses)
+>>>>>>> 8b19ed7453a99e82f96579b32cac22d2ed7815d2
                     .Create()
             };
 
@@ -189,8 +213,13 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                         .With(t => t.SectionId, section.Id)
                         .With(t => t.TestId, test.Id)
                         .With(t => t.Completed, section.Id == sectionId ? (DateTime?) null : Fixture.Create<DateTime>())
+<<<<<<< HEAD
+                        .Without(t => t.Test)
+                        .Without(t => t.Section)
+=======
                         .Without(t => t.Section)
                         .Without(t => t.Test)
+>>>>>>> 8b19ed7453a99e82f96579b32cac22d2ed7815d2
                         .Create();
                 }
             }
@@ -214,9 +243,15 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                     var sections = test.Survey
                         .Sections
                         .OrderBy(s => s.Order)
+<<<<<<< HEAD
                         .TakeUntil(s => s.Id != sectionId);
 
                     var section = test.Survey.Sections.Single(s => s.Id == sectionId);
+=======
+                        .TakeWhile(s => s.Id != sectionId);
+
+                    var section = sections.Single(s => s.Id == sectionId);
+>>>>>>> 8b19ed7453a99e82f96579b32cac22d2ed7815d2
 
                     pageId = section.Pages.Shuffle()
                         .First()
@@ -235,7 +270,10 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                         .With(r => r.PageId, page.Id)
                         .With(r => r.Modified, Fixture.Create<bool>() ? Fixture.Create<DateTime>() : (DateTime?) null)
                         .With(r => r.Responded, pageId == page.Id ? Fixture.Create<DateTime>() : (DateTime?) null)
+<<<<<<< HEAD
                         .Without(r => r.Test)
+=======
+>>>>>>> 8b19ed7453a99e82f96579b32cac22d2ed7815d2
                         .Without(r => r.Page)
                         .Create();
 
@@ -277,16 +315,60 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 ((HashSet<Section>)survey.Sections).UnionWith(SectionBuilder(survey));
                 ((HashSet<Test>)survey.Tests).UnionWith(TestBuilder(survey));
 
+<<<<<<< HEAD
+                //survey.Sections = new HashSet<Section>(survey.Sections.Select(s =>
+                //{
+                //    s.TestSectionMarkers =
+                //        new HashSet<TestSectionMarker>
+                //        (from t in survey.Tests
+                //            from tsm in t.TestSectionMarkers
+                //            where tsm.SectionId == s.Id
+                //            select tsm);
+
+
+                //    s.Pages = new HashSet<Page>(s.Pages.Select(p =>
+                //    {
+                //        p.TestResponses =
+                //            new HashSet<TestResponse>
+                //            (from t in survey.Tests
+                //                from tr in t.TestResponses
+                //                where tr.PageId == p.Id
+                //                select tr);
+
+                //        return p; 
+                //    }));
+
+                //    return s;
+                //}));
+
                 return survey;
             }).ToList();
 
             return surveys;
         }
 
+=======
+                return survey;
+            }).ToList();
+
+            return surveys;
+        }
+
+>>>>>>> 8b19ed7453a99e82f96579b32cac22d2ed7815d2
         private static void SurveyJoiner(IEnumerable<Survey> surveys)
         {
             foreach (var survey in surveys)
             {
+<<<<<<< HEAD
+                survey.Sections = new HashSet<Section>(survey.Sections.Select(s =>
+                {
+                    s.TestSectionMarkers =
+                        new HashSet<TestSectionMarker>
+                        (from t in survey.Tests
+                         from tsm in t.TestSectionMarkers
+                         where tsm.SectionId == s.Id
+                         select tsm);
+=======
                 survey.Sections =
                     new HashSet<Section>(survey.Sections.Select(s =>
                     {
@@ -308,9 +390,10 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                         s.TestSectionMarkers =
                             new HashSet<TestSectionMarker>(
                             from t in survey.Tests
-                         from tsm in t.TestSectionMarkers
-                         where tsm.SectionId == s.Id
-                         select tsm);
+                            from tsm in t.TestSectionMarkers
+                            where tsm.SectionId == s.Id
+                            select tsm);
+>>>>>>> 8b19ed7453a99e82f96579b32cac22d2ed7815d2
 
                         return s;
                     }));
@@ -318,6 +401,21 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 survey.Tests =
                     new HashSet<Test>(survey.Tests.Select(t =>
                     {
+<<<<<<< HEAD
+                        p.TestResponses =
+                            new HashSet<TestResponse>
+                            (from t in survey.Tests
+                             from tr in t.TestResponses
+                             where tr.PageId == p.Id
+                             select tr);
+
+                        return p;
+                    }));
+
+                    return s;
+                }));
+
+=======
                         t.TestSectionMarkers =
                             new HashSet<TestSectionMarker>(t.TestSectionMarkers.Select(tsm =>
                                 {
@@ -338,6 +436,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                         return t; 
                     }));
 
+>>>>>>> 8b19ed7453a99e82f96579b32cac22d2ed7815d2
             }
         }
     }
