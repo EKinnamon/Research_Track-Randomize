@@ -35,7 +35,10 @@ namespace EKSurvey.Tests.Extensions
 
         public static IEnumerable<T> CacheAs<T>(this IEnumerable<T> collection, string cacheFilePath)
         {
-            var cacheFileDirectoryName = Path.GetDirectoryName(cacheFilePath);
+            if (string.IsNullOrWhiteSpace(cacheFilePath))
+                throw new ArgumentNullException(nameof(cacheFilePath));
+
+            string cacheFileDirectoryName = Path.GetDirectoryName(cacheFilePath) ?? throw new ArgumentNullException(nameof(cacheFileDirectoryName));
             Directory.CreateDirectory(cacheFileDirectoryName);
 
             var serializer = new JsonSerializer
@@ -50,13 +53,9 @@ namespace EKSurvey.Tests.Extensions
             return collection;
         }
 
-        public static IEnumerable<T> FixtureCallback<T>(this IEnumerable<T> collection, Action<IEnumerable<T>> callback)
+        public static IEnumerable<T> Apply<T>(this IEnumerable<T> collection, Action<IEnumerable<T>> action)
         {
-            if (callback == null)
-                throw new ArgumentNullException(nameof(callback));
-
-            callback(collection);
-
+            action.Invoke(collection);
             return collection;
         }
     }
