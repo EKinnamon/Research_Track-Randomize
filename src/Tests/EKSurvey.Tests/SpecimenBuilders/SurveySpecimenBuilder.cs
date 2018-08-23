@@ -5,6 +5,7 @@ using AutoFixture;
 using AutoFixture.Kernel;
 using EKSurvey.Core.Models.Entities;
 using EKSurvey.Tests.Extensions;
+using MoreLinq;
 
 namespace EKSurvey.Tests.SpecimenBuilders
 {

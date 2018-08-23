@@ -13,6 +13,7 @@ using EKSurvey.Core.Services;
 using EKSurvey.Tests.Extensions;
 
 using FakeItEasy;
+using MoreLinq;
 
 namespace EKSurvey.Tests.Core.Services.Contexts
 {
@@ -69,7 +70,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             }
         }
 
-        public IList<Survey> Surveys { get; set; } = (FixtureData<Survey>.Load(SurveyFakeDataPath) ?? GenerateSurveyFixtureData(20)).CacheAs(SurveyFakeDataPath).ToList();
+        public IList<Survey> Surveys { get; set; } = (FixtureData<Survey>.Load(SurveyFakeDataPath).Callback(SurveyJoiner) ?? GenerateSurveyFixtureData(4).CacheAs(SurveyFakeDataPath)).ToList();
 
         public IList<string> UserIds => Tests.Select(t => t.UserId).ToList();
         public IList<Section> Sections => Surveys.SelectMany(s => s.Sections).ToList();
@@ -110,14 +111,30 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         {
             var pageTypes = new List<Func<Page>>
             {
-                () => Fixture.Create<FreeTextQuestion>(),
-                () => Fixture.Create<RangeQuestion>(),
-                () => Fixture.Create<StaticTextPage>(),
-                () => Fixture.Create<TrueFalseQuestion>()
+                () => Fixture
+                    .Build<FreeTextQuestion>()
+                    .Without(p => p.Section)
+                    .Without(p => p.TestResponses)
+                    .Create(),
+                () => Fixture
+                    .Build<RangeQuestion>()
+                    .Without(p => p.Section)
+                    .Without(p => p.TestResponses)
+                    .Create(),
+                () => Fixture
+                    .Build<StaticTextPage>()
+                    .Without(p => p.Section)
+                    .Without(p => p.TestResponses)
+                    .Create(),
+                () => Fixture
+                    .Build<TrueFalseQuestion>()
+                    .Without(p => p.Section)
+                    .Without(p => p.TestResponses)
+                    .Create()
             };
 
             IEnumerable<Page> PageBuilder(Section section) => Enumerable
-                .Range(0, Fixture.Create<int>() % 5 + 1)
+                .Range(0, Fixture.Create<int>() % 6 + 1)
                 .Select(pi =>
                 {
                     var page = pageTypes[Fixture.Create<int>() % pageTypes.Count].Invoke();
@@ -128,14 +145,14 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 });
 
             IEnumerable<Section> SectionBuilder(Survey survey) => Enumerable
-                .Range(0, Fixture.Create<int>() % 9 + 2)
+                .Range(0, Fixture.Create<int>() % 5 + 2)
                 .Select(i =>
                 {
                     var section = Fixture.Build<Section>()
-                        .With(s => s.Survey, survey)
                         .With(s => s.SurveyId, survey.Id)
                         .With(s => s.SelectorType, SelectorType.Random)
                         .With(s => s.Order, i)
+                        .Without(s => s.Survey)
                         .Without(s => s.Pages)
                         .Without(s => s.TestSectionMarkers)
                         .Create();
@@ -170,11 +187,11 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 {
                     yield return Fixture
                         .Build<TestSectionMarker>()
-                        .With(t => t.Section, section)
                         .With(t => t.SectionId, section.Id)
-                        .With(t => t.Test, test)
                         .With(t => t.TestId, test.Id)
                         .With(t => t.Completed, section.Id == sectionId ? (DateTime?) null : Fixture.Create<DateTime>())
+                        .Without(t => t.Test)
+                        .Without(t => t.Section)
                         .Create();
                 }
             }
@@ -191,15 +208,16 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 }
                 else
                 {
-                    var section = test.TestSectionMarkers
-                        .OrderBy(tsm => tsm.Section.Order)
+                    var sectionId = test.TestSectionMarkers
                         .First(tsm => !tsm.Completed.HasValue)
-                        .Section;
+                        .SectionId;
 
                     var sections = test.Survey
                         .Sections
                         .OrderBy(s => s.Order)
-                        .TakeWhile(s => s.Id != section.Id);
+                        .TakeUntil(s => s.Id != sectionId);
+
+                    var section = test.Survey.Sections.Single(s => s.Id == sectionId);
 
                     pageId = section.Pages.Shuffle()
                         .First()
@@ -215,10 +233,11 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 {
                     var response = Fixture
                         .Build<TestResponse>()
-                        .With(r => r.Page, page)
                         .With(r => r.PageId, page.Id)
                         .With(r => r.Modified, Fixture.Create<bool>() ? Fixture.Create<DateTime>() : (DateTime?) null)
                         .With(r => r.Responded, pageId == page.Id ? Fixture.Create<DateTime>() : (DateTime?) null)
+                        .Without(r => r.Test)
+                        .Without(r => r.Page)
                         .Create();
 
                     yield return response;
@@ -250,8 +269,8 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 var survey = Fixture
                     .Build<Survey>()
                     .With(s => s.Id, i)
-                    .With(s => s.Deleted, i % 10 == 0 ? Fixture.Create<DateTime>() : (DateTime?) null)
-                    .With(s => s.Modified, i % 5 == 0 ? Fixture.Create<DateTime>() : (DateTime?) null)
+                    .With(s => s.Deleted, i % 4 == 0 ? Fixture.Create<DateTime>() : (DateTime?) null)
+                    .With(s => s.Modified, i % 2 == 0 ? Fixture.Create<DateTime>() : (DateTime?) null)
                     .Without(s => s.Sections)
                     .Without(s => s.Tests)
                     .Create();
@@ -259,15 +278,49 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 ((HashSet<Section>)survey.Sections).UnionWith(SectionBuilder(survey));
                 ((HashSet<Test>)survey.Tests).UnionWith(TestBuilder(survey));
 
+                //survey.Sections = new HashSet<Section>(survey.Sections.Select(s =>
+                //{
+                //    s.TestSectionMarkers =
+                //        new HashSet<TestSectionMarker>
+                //        (from t in survey.Tests
+                //            from tsm in t.TestSectionMarkers
+                //            where tsm.SectionId == s.Id
+                //            select tsm);
 
+
+                //    s.Pages = new HashSet<Page>(s.Pages.Select(p =>
+                //    {
+                //        p.TestResponses =
+                //            new HashSet<TestResponse>
+                //            (from t in survey.Tests
+                //                from tr in t.TestResponses
+                //                where tr.PageId == p.Id
+                //                select tr);
+
+                //        return p; 
+                //    }));
+
+                //    return s;
+                //}));
+
+                return survey;
+            }).ToList();
+
+            return surveys;
+        }
+
+        private static void SurveyJoiner(IEnumerable<Survey> surveys)
+        {
+            foreach (var survey in surveys)
+            {
                 survey.Sections = new HashSet<Section>(survey.Sections.Select(s =>
                 {
                     s.TestSectionMarkers =
                         new HashSet<TestSectionMarker>
                         (from t in survey.Tests
-                            from tsm in t.TestSectionMarkers
-                            where tsm.SectionId == s.Id
-                            select tsm);
+                         from tsm in t.TestSectionMarkers
+                         where tsm.SectionId == s.Id
+                         select tsm);
 
 
                     s.Pages = new HashSet<Page>(s.Pages.Select(p =>
@@ -275,20 +328,17 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                         p.TestResponses =
                             new HashSet<TestResponse>
                             (from t in survey.Tests
-                                from tr in t.TestResponses
-                                where tr.PageId == p.Id
-                                select tr);
+                             from tr in t.TestResponses
+                             where tr.PageId == p.Id
+                             select tr);
 
-                        return p; 
+                        return p;
                     }));
 
                     return s;
                 }));
 
-                return survey;
-            }).ToList();
-
-            return surveys;
+            }
         }
     }
 }
