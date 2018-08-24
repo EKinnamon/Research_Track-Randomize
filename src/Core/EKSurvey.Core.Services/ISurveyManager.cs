@@ -33,4 +33,4 @@ namespace EKSurvey.Core.Services
         UserSurvey GetUserSurvey(string userId, int surveyId);
         Task<UserSurvey> GetUserSurveyAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken));
     }
-}
+} 

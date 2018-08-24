@@ -19,8 +19,6 @@ namespace EKSurvey.Tests
             var lazyEntityGraphCustomization =
                 new LazyEntityGraphCustomization(ModelMetadataGenerator.LoadFromCodeFirstContext(str => new SurveyDbContext(), true));
             Fixture.Customize(lazyEntityGraphCustomization);
-
-            //Fixture.Customizations.Add(new SurveySpecimenBuilder());
         }
 
         protected virtual void Dispose(bool disposing)

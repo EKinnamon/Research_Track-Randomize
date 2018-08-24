@@ -40,8 +40,8 @@ namespace EKSurvey.Tests.Core.Services.Tests
             _context.PrepareServiceConfiguration();
 
             var exception = Assert.Throws<ArgumentNullException>(() =>
-                new SurveyManager(null, 
-                    _context.Rng.FakedObject, 
+                new SurveyManager(null,
+                    _context.Rng.FakedObject,
                     _context.Mapper));
 
             exception.Should().NotBeNull();
@@ -53,8 +53,8 @@ namespace EKSurvey.Tests.Core.Services.Tests
         {
             _context.PrepareServiceConfiguration();
             var exception = Assert.Throws<ArgumentNullException>(() =>
-                new SurveyManager(_context.DbContext.FakedObject, 
-                    null, 
+                new SurveyManager(_context.DbContext.FakedObject,
+                    null,
                     _context.Mapper));
 
             exception.Should().NotBeNull();
