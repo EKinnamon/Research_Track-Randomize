@@ -247,5 +247,37 @@ namespace EKSurvey.Tests.Core.Services.Tests
             userSection.Started.Should().NotBeNull();
             userSection.Completed.Should().BeNull();
         }
+
+        [Fact]
+        public void GetCurrentUserPage_gets_current_acitve_page_for_user()
+        {
+            _context.PrepareServiceConfiguration();
+            _context.PrepareTestEntities();
+            _context.PrepareServiceHelperCalls();
+            _context.PrepareService();
+
+            var userPage = _context.Service.GetCurrentUserPage(_context.UserId, _context.SurveyId);
+
+            userPage.Should().NotBeNull();
+            userPage.UserId.Should().BeEquivalentTo(_context.UserId);
+            userPage.SurveyId.Should().Be(_context.SurveyId);
+            userPage.Page.Id.Should().Be(_context.PageId);
+        }
+
+        [Fact]
+        public async Task GetCurrentUserPageAsync_gets_current_acitve_page_for_user()
+        {
+            _context.PrepareServiceConfiguration();
+            _context.PrepareTestEntities();
+            _context.PrepareServiceHelperCalls();
+            _context.PrepareService();
+
+            var userPage = await _context.Service.GetCurrentUserPageAsync(_context.UserId, _context.SurveyId);
+
+            userPage.Should().NotBeNull();
+            userPage.UserId.Should().BeEquivalentTo(_context.UserId);
+            userPage.SurveyId.Should().Be(_context.SurveyId);
+            userPage.Page.Id.Should().Be(_context.PageId);
+        }
     }
 }

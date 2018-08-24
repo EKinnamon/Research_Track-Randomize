@@ -59,7 +59,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             Fixture.Inject(Rng.FakedObject);
         }
 
-        public void PrepareTestEntities(bool includeCompleted = false, bool invalidSurvey = false)
+        public void PrepareTestEntities(bool includeCompleted = false, bool invalidSurvey = false, bool invalidSection = false)
         {
             if (includeCompleted)
             {
@@ -71,15 +71,41 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             }
             else
             {
-                var completedTest = Tests.Where(t => !t.Completed.HasValue).Shuffle().First();
-                TestId = completedTest.Id;
-                UserId = completedTest.UserId;
-                SurveyId = completedTest.SurveyId;
+                var incompleteTest = Tests.Where(t => !t.Completed.HasValue).Shuffle().First();
+                TestId = incompleteTest.Id;
+                UserId = incompleteTest.UserId;
+                SurveyId = incompleteTest.SurveyId;
+                var testSections =
+                    from s in incompleteTest.Survey.Sections
+                    join tsm in incompleteTest.TestSectionMarkers on s.Id equals tsm.SectionId into stsm
+                    from tsm in stsm.DefaultIfEmpty()
+                    select new {Section = s, TestSectionMarker = tsm};
+
+                var incompleteSection = testSections
+                    .First(i => i.TestSectionMarker == default(TestSectionMarker))
+                    .Section;
+                SectionId = incompleteSection.Id;
+
+                var testPages =
+                    from p in incompleteSection.Pages
+                    join tr in incompleteTest.TestResponses on p.Id equals tr.PageId into ptr
+                    from tr in ptr.DefaultIfEmpty()
+                    select new {Page = p, TestResponse = tr};
+
+                var incompletePage = testPages
+                    .First(i => i.TestResponse == default(TestResponse))
+                    .Page;
+                PageId = incompletePage.Id;
             }
 
             if (invalidSurvey)
             {
                 SurveyId = Surveys.Max(s => s.Id) + 1;
+            }
+
+            if (invalidSection)
+            {
+                SectionId = Sections.Max(s => s.Id) + 1;
             }
 
         }
@@ -94,6 +120,8 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
         public string UserId { get; set; }
         public int SurveyId { get; set; }
+        public int SectionId { get; set; }
+        public int PageId { get; set; }
         public Guid TestId { get; set; }
 
         public void PrepareServiceHelperCalls()
@@ -110,21 +138,27 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             SetupDbSetCalls(SectionSet.FakedObject, sectionsQueryable);
             SetupDbSetAsyncCalls(SectionSet.FakedObject, sectionsQueryable);
             A.CallTo(() => DbContext.FakedObject.Set<Section>()).Returns(SectionSet.FakedObject);
-
-            var testsQueryable = Tests.AsQueryable();
-            SetupDbSetCalls(TestSet.FakedObject, testsQueryable);
-            SetupDbSetAsyncCalls(TestSet.FakedObject, testsQueryable);
-            A.CallTo(() => DbContext.FakedObject.Set<Test>()).Returns(TestSet.FakedObject);
-
-            var testResponseQueryable = TestResponses.AsQueryable();
-            SetupDbSetCalls(TestResponseSet.FakedObject, testResponseQueryable);
-            SetupDbSetAsyncCalls(TestResponseSet.FakedObject, testResponseQueryable);
-            A.CallTo(() => DbContext.FakedObject.Set<TestResponse>()).Returns(TestResponseSet.FakedObject);
+            A.CallTo(() => DbContext.FakedObject.Set<Section>().Find(A<object>._)).Returns(Sections.SingleOrDefault(s => s.Id == SectionId));
+            A.CallTo(() => DbContext.FakedObject.Set<Section>().FindAsync(A<object>._)).Returns(Sections.SingleOrDefault(s => s.Id == SectionId));
 
             var pageQueryable = Pages.AsQueryable();
             SetupDbSetCalls(PageSet.FakedObject, pageQueryable);
             SetupDbSetAsyncCalls(PageSet.FakedObject, pageQueryable);
             A.CallTo(() => DbContext.FakedObject.Set<Page>()).Returns(PageSet.FakedObject);
+            A.CallTo(() => DbContext.FakedObject.Set<Page>().Find(A<object>._)).Returns(Pages.SingleOrDefault(s => s.Id == PageId));
+            A.CallTo(() => DbContext.FakedObject.Set<Page>().FindAsync(A<object>._)).Returns(Pages.SingleOrDefault(s => s.Id == PageId));
+
+            var testsQueryable = Tests.AsQueryable();
+            SetupDbSetCalls(TestSet.FakedObject, testsQueryable);
+            SetupDbSetAsyncCalls(TestSet.FakedObject, testsQueryable);
+            A.CallTo(() => DbContext.FakedObject.Set<Test>()).Returns(TestSet.FakedObject);
+            A.CallTo(() => DbContext.FakedObject.Set<Test>().Find(A<object>._)).Returns(Tests.SingleOrDefault(t => t.Id == TestId));
+            A.CallTo(() => DbContext.FakedObject.Set<Test>().FindAsync(A<object>._)).Returns(Tests.SingleOrDefault(t => t.Id == TestId));
+
+            var testResponseQueryable = TestResponses.AsQueryable();
+            SetupDbSetCalls(TestResponseSet.FakedObject, testResponseQueryable);
+            SetupDbSetAsyncCalls(TestResponseSet.FakedObject, testResponseQueryable);
+            A.CallTo(() => DbContext.FakedObject.Set<TestResponse>()).Returns(TestResponseSet.FakedObject);
         }
 
         private static void SetupDbSetAsyncCalls<T>(IDbAsyncEnumerable<T> fake, IEnumerable<T> fakeData) where T : class
@@ -351,6 +385,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 survey.Tests =
                     new HashSet<Test>(survey.Tests.Select(t =>
                     {
+                        t.Survey = survey;
                         t.TestSectionMarkers =
                             new HashSet<TestSectionMarker>(t.TestSectionMarkers.Select(tsm =>
                                 {
