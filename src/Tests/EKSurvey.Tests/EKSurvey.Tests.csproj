@@ -95,7 +95,6 @@
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="FakeOptionsBuilders\DbSetSurveyFakeOptionsBuilder.cs" />
     <Compile Include="FixtureData.cs" />
-    <Compile Include="JsonConverters\PageConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestAsync.classes.cs" />
     <Compile Include="ServiceBaseTestContext.cs" />
@@ -114,8 +113,6 @@
       <Name>EKSurvey.Data</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="SpecimenBuilders\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

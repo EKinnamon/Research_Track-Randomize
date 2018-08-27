@@ -82,7 +82,7 @@ namespace EKSurvey.Core.Services
 
         public TestResponse Respond(string userId, int surveyId, string response, int pageId)
         {
-            var currentTest = Tests.Find(userId, surveyId) ?? throw new TestNotFoundException(userId, surveyId);
+            var currentTest = Tests.SingleOrDefault(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && surveyId == t.SurveyId) ?? throw new TestNotFoundException(userId, surveyId);
             var currentPage = Pages.Find(pageId) ?? throw new PageNotFoundException(pageId);
             var testResponse = TestResponses.Find(currentTest.Id, pageId);
 
@@ -115,7 +115,7 @@ namespace EKSurvey.Core.Services
 
         public async Task<TestResponse> RespondAsync(string userId, int surveyId, string response, int pageId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var currentTest = await Tests.FindAsync(cancellationToken, userId, surveyId) ?? throw new TestNotFoundException(userId, surveyId);
+            var currentTest = await Tests.SingleOrDefaultAsync(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && surveyId == t.SurveyId, cancellationToken) ?? throw new TestNotFoundException(userId, surveyId);
             var currentPage = await Pages.FindAsync(cancellationToken, pageId) ?? throw new PageNotFoundException(pageId);
             var testResponse = await TestResponses.FindAsync(cancellationToken, currentTest.Id, pageId);
 

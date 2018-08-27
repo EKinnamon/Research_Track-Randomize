@@ -54,6 +54,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             PageSet = Fixture.Freeze<Fake<DbSet<Page>>>();
             TestSet = Fixture.Freeze<Fake<DbSet<Test>>>();
             TestResponseSet = Fixture.Freeze<Fake<DbSet<TestResponse>>>();
+            TestSectionMarkerSet = Fixture.Freeze<Fake<DbSet<TestSectionMarker>>>();
 
             Fixture.Inject(DbContext.FakedObject);
             Fixture.Inject(Rng.FakedObject);
@@ -131,34 +132,43 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             SetupDbSetAsyncCalls(SurveySet.FakedObject, surveysQueryable);
             A.CallTo(() => SurveySet.FakedObject.Include(A<string>._)).Returns(SurveySet.FakedObject);
             A.CallTo(() => DbContext.FakedObject.Set<Survey>()).Returns(SurveySet.FakedObject);
-            A.CallTo(() => DbContext.FakedObject.Set<Survey>().Find(A<object>._)).Returns(Surveys.SingleOrDefault(s => s.Id == SurveyId));
-            A.CallTo(() => DbContext.FakedObject.Set<Survey>().FindAsync(A<object>._)).Returns(Surveys.SingleOrDefault(s => s.Id == SurveyId));
+            A.CallTo(() => DbContext.FakedObject.Set<Survey>().Find(A<object>._)).ReturnsLazily((object[] i) => Surveys.SingleOrDefault(s => i.Cast<int>().Any(ii => s.Id == ii)));
+            A.CallTo(() => DbContext.FakedObject.Set<Survey>().FindAsync(A<object>._)).ReturnsLazily((object[] i) => Surveys.SingleOrDefault(s => i.Cast<int>().Any(ii => s.Id == ii)));
 
             var sectionsQueryable = Sections.AsQueryable();
             SetupDbSetCalls(SectionSet.FakedObject, sectionsQueryable);
             SetupDbSetAsyncCalls(SectionSet.FakedObject, sectionsQueryable);
             A.CallTo(() => DbContext.FakedObject.Set<Section>()).Returns(SectionSet.FakedObject);
-            A.CallTo(() => DbContext.FakedObject.Set<Section>().Find(A<object>._)).Returns(Sections.SingleOrDefault(s => s.Id == SectionId));
-            A.CallTo(() => DbContext.FakedObject.Set<Section>().FindAsync(A<object>._)).Returns(Sections.SingleOrDefault(s => s.Id == SectionId));
+            A.CallTo(() => DbContext.FakedObject.Set<Section>().Find(A<object>._)).ReturnsLazily((object[] i) => Sections.SingleOrDefault(s => i.Cast<int>().Any(ii => s.Id == ii)));
+            A.CallTo(() => DbContext.FakedObject.Set<Section>().FindAsync(A<object>._)).ReturnsLazily((object[] i) => Sections.SingleOrDefault(s => i.Cast<int>().Any(ii => s.Id == ii)));
 
             var pageQueryable = Pages.AsQueryable();
             SetupDbSetCalls(PageSet.FakedObject, pageQueryable);
             SetupDbSetAsyncCalls(PageSet.FakedObject, pageQueryable);
             A.CallTo(() => DbContext.FakedObject.Set<Page>()).Returns(PageSet.FakedObject);
-            A.CallTo(() => DbContext.FakedObject.Set<Page>().Find(A<object>._)).Returns(Pages.SingleOrDefault(s => s.Id == PageId));
-            A.CallTo(() => DbContext.FakedObject.Set<Page>().FindAsync(A<object>._)).Returns(Pages.SingleOrDefault(s => s.Id == PageId));
+            A.CallTo(() => DbContext.FakedObject.Set<Page>().Find(A<object>._)).ReturnsLazily((object[] i) => Pages.SingleOrDefault(p => i.Cast<int>().Any(ii => p.Id == ii)));
+            A.CallTo(() => DbContext.FakedObject.Set<Page>().FindAsync(A<object>._)).ReturnsLazily((object[] i) => Pages.SingleOrDefault(p => i.Cast<int>().Any(ii => p.Id == ii)));
 
             var testsQueryable = Tests.AsQueryable();
             SetupDbSetCalls(TestSet.FakedObject, testsQueryable);
             SetupDbSetAsyncCalls(TestSet.FakedObject, testsQueryable);
             A.CallTo(() => DbContext.FakedObject.Set<Test>()).Returns(TestSet.FakedObject);
-            A.CallTo(() => DbContext.FakedObject.Set<Test>().Find(A<object>._)).Returns(Tests.SingleOrDefault(t => t.Id == TestId));
-            A.CallTo(() => DbContext.FakedObject.Set<Test>().FindAsync(A<object>._)).Returns(Tests.SingleOrDefault(t => t.Id == TestId));
+            //A.CallTo(() => DbContext.FakedObject.Set<Test>().Find(A<object>._)).ReturnsLazily((object[] i) => Tests.SingleOrDefault(t => i.Cast<Guid>().Any(ii => t.Id == ii)));
+            //A.CallTo(() => DbContext.FakedObject.Set<Test>().FindAsync(A<object>._)).ReturnsLazily((object[] i) => Tests.SingleOrDefault(t => i.Cast<Guid>().Any(ii => t.Id == ii)));
+
+            var testSectionMarkerQueryable = TestSectionMarkers.AsQueryable();
+            SetupDbSetCalls(TestSectionMarkerSet.FakedObject, testSectionMarkerQueryable);
+            SetupDbSetAsyncCalls(TestSectionMarkerSet.FakedObject, testSectionMarkerQueryable);
+            A.CallTo(() => DbContext.FakedObject.Set<TestSectionMarker>()).Returns(TestSectionMarkerSet.FakedObject);
+            //A.CallTo(() => DbContext.FakedObject.Set<TestSectionMarker>().Find(A<object>._)).ReturnsLazily((object[] i) => TestSectionMarkers.SingleOrDefault(t => i.Cast<Guid>().Any(ii => t.Id == ii)));
+            //A.CallTo(() => DbContext.FakedObject.Set<TestSectionMarker>().FindAsync(A<object>._)).ReturnsLazily((object[] i) => TestSectionMarkers.SingleOrDefault(t => i.Cast<Guid>().Any(ii => t.Id == ii)));
 
             var testResponseQueryable = TestResponses.AsQueryable();
             SetupDbSetCalls(TestResponseSet.FakedObject, testResponseQueryable);
             SetupDbSetAsyncCalls(TestResponseSet.FakedObject, testResponseQueryable);
             A.CallTo(() => DbContext.FakedObject.Set<TestResponse>()).Returns(TestResponseSet.FakedObject);
+            //A.CallTo(() => DbContext.FakedObject.Set<TestResponse>().Find(A<object>._)).ReturnsLazily((object[] i) => TestSectionMarkers.SingleOrDefault(t => i.Cast<Guid>().Any(ii => t.Id == ii)));
+            //A.CallTo(() => DbContext.FakedObject.Set<TestResponse>().FindAsync(A<object>._)).ReturnsLazily((object[] i) => TestSectionMarkers.SingleOrDefault(t => i.Cast<Guid>().Any(ii => t.Id == ii)));
         }
 
         private static void SetupDbSetAsyncCalls<T>(IDbAsyncEnumerable<T> fake, IEnumerable<T> fakeData) where T : class
