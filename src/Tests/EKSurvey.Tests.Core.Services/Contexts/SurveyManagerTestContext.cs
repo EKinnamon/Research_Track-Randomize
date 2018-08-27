@@ -127,10 +127,10 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
         public void PrepareServiceHelperCalls()
         {
-            SurveySet.FakedObject.SetupData(Surveys);
-            SectionSet.FakedObject.SetupData(Sections);
-            PageSet.FakedObject.SetupData(Pages);
-            TestSet.FakedObject.SetupData(Tests);
+            SurveySet.FakedObject.SetupData(Surveys, i => Surveys.SingleOrDefault(s => i.OfType<int>().Any(si => s.Id == si)));
+            SectionSet.FakedObject.SetupData(Sections, i => Sections.SingleOrDefault(s => i.OfType<int>().Any(si => s.Id == si)));
+            PageSet.FakedObject.SetupData(Pages, i => Pages.SingleOrDefault(p => i.OfType<int>().Any(pi => p.Id == pi)));
+            TestSet.FakedObject.SetupData(Tests, i => Tests.SingleOrDefault(t => i.OfType<Guid>().Any(ii => t.Id == ii)));
             TestSectionMarkerSet.FakedObject.SetupData(TestSectionMarkers);
             TestResponseSet.FakedObject.SetupData(TestResponses);
 
