@@ -193,7 +193,7 @@ namespace EKSurvey.Core.Services
 
         public async Task<ICollection<IUserSection>> GetUserSectionsAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            ThrowIfSurveyDoesNotExist(surveyId);
+            await ThrowIfSurveyDoesNotExistAsync(surveyId, cancellationToken);
 
             var sectionStacks =
                 await (from s in Sections
@@ -216,9 +216,17 @@ namespace EKSurvey.Core.Services
 
         private void ThrowIfSurveyDoesNotExist(int surveyId)
         {
-            var surveyExists = Surveys.Find(surveyId) != null;
+            var survey = Surveys.SingleOrDefault(s => s.Id == surveyId);
 
-            if (!surveyExists)
+            if (survey == null)
+                throw new SurveyNotFoundException(surveyId);
+        }
+
+        private async Task ThrowIfSurveyDoesNotExistAsync(int surveyId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var survey = await Surveys.SingleOrDefaultAsync(s => s.Id == surveyId, cancellationToken);
+
+            if (survey == null)
                 throw new SurveyNotFoundException(surveyId);
         }
 
@@ -249,7 +257,7 @@ namespace EKSurvey.Core.Services
 
         public async Task<IUserSection> GetCurrentUserSectionAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            ThrowIfSurveyDoesNotExist(surveyId);
+            await ThrowIfSurveyDoesNotExistAsync(surveyId, cancellationToken);
             var sections = await GetUserSectionsAsync(userId, surveyId, cancellationToken);
             var activeSection = sections.FirstOrDefault(s => s.Started.HasValue && !s.Completed.HasValue);
 

@@ -170,7 +170,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
         }
 
         [Fact]
-        public async Task GetUserAsyncSections_will_return_all_sections_for_survey_and_user()
+        public async Task GetUserSectionsAsync_will_return_all_sections_for_survey_and_user()
         {
             _context.PrepareServiceConfiguration();
             _context.PrepareTestEntities();
@@ -261,6 +261,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
             userPage.Should().NotBeNull();
             userPage.UserId.Should().BeEquivalentTo(_context.UserId);
             userPage.SurveyId.Should().Be(_context.SurveyId);
+            userPage.Page.SectionId.Should().Be(_context.SectionId);
             userPage.Page.Id.Should().Be(_context.PageId);
         }
 
@@ -277,6 +278,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
             userPage.Should().NotBeNull();
             userPage.UserId.Should().BeEquivalentTo(_context.UserId);
             userPage.SurveyId.Should().Be(_context.SurveyId);
+            userPage.Page.SectionId.Should().Be(_context.SectionId);
             userPage.Page.Id.Should().Be(_context.PageId);
         }
     }

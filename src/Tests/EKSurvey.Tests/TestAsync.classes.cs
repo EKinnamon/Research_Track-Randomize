@@ -68,12 +68,10 @@ namespace EKSurvey.Tests
         {
             _inner = inner;
         }
-
         public void Dispose()
         {
             _inner.Dispose();
         }
-
         public Task<bool> MoveNextAsync(CancellationToken cancellationToken) => Task.FromResult(_inner.MoveNext());
         public T Current => _inner.Current;
         object IDbAsyncEnumerator.Current => Current;
