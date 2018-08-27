@@ -130,9 +130,9 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             SurveySet.FakedObject.SetupData(Surveys, i => Surveys.SingleOrDefault(s => i.OfType<int>().Any(si => s.Id == si)));
             SectionSet.FakedObject.SetupData(Sections, i => Sections.SingleOrDefault(s => i.OfType<int>().Any(si => s.Id == si)));
             PageSet.FakedObject.SetupData(Pages, i => Pages.SingleOrDefault(p => i.OfType<int>().Any(pi => p.Id == pi)));
-            TestSet.FakedObject.SetupData(Tests, i => Tests.SingleOrDefault(t => i.OfType<Guid>().Any(ii => t.Id == ii)));
-            TestSectionMarkerSet.FakedObject.SetupData(TestSectionMarkers);
-            TestResponseSet.FakedObject.SetupData(TestResponses);
+            TestSet.FakedObject.SetupData(Tests, i => Tests.SingleOrDefault(t => i.OfType<Guid>().Any(ti => t.Id == ti)));
+            TestSectionMarkerSet.FakedObject.SetupData(TestSectionMarkers, i => TestSectionMarkers.SingleOrDefault(t => i.OfType<Guid>().Any(tsi => t.Id == tsi)));
+            TestResponseSet.FakedObject.SetupData(TestResponses, i => TestResponses.SingleOrDefault(t => i.OfType<Guid>().Any(tri => t.Id == tri)));
 
             A.CallTo(() => DbContext.FakedObject.Set<Survey>()).Returns(SurveySet.FakedObject);
             A.CallTo(() => DbContext.FakedObject.Set<Section>()).Returns(SectionSet.FakedObject);
@@ -140,56 +140,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             A.CallTo(() => DbContext.FakedObject.Set<Test>()).Returns(TestSet.FakedObject);
             A.CallTo(() => DbContext.FakedObject.Set<TestSectionMarker>()).Returns(TestSectionMarkerSet.FakedObject);
             A.CallTo(() => DbContext.FakedObject.Set<TestResponse>()).Returns(TestResponseSet.FakedObject);
-
-            #region dump
-            //A.CallTo(() => SurveySet.FakedObject.Include(A<string>._)).Returns(SurveySet.FakedObject);
-            //A.CallTo(() => DbContext.FakedObject.Set<Survey>().Find(A<object>._)).ReturnsLazily((object[] i) => Surveys.SingleOrDefault(s => i.Cast<int>().Any(si => s.Id == si)));
-            //A.CallTo(() => DbContext.FakedObject.Set<Survey>().FindAsync(A<object>._)).ReturnsLazily((object[] i) => Surveys.SingleOrDefault(s => i.Cast<int>().Any(si => s.Id == si)));
-
-            //var sectionsQueryable = Sections.AsQueryable();
-            //SetupDbSetCalls(SectionSet.FakedObject, sectionsQueryable);
-            //SetupDbSetAsyncCalls(SectionSet.FakedObject, sectionsQueryable);
-            //A.CallTo(() => DbContext.FakedObject.Set<Section>().Find(A<object>._)).ReturnsLazily((object[] i) => Sections.SingleOrDefault(s => i.Cast<int>().Any(si => s.Id == si)));
-            //A.CallTo(() => DbContext.FakedObject.Set<Section>().FindAsync(A<object>._)).ReturnsLazily((object[] i) => Sections.SingleOrDefault(s => i.Cast<int>().Any(si => s.Id == si)));
-
-            //var pageQueryable = Pages.AsQueryable();
-            //SetupDbSetCalls(PageSet.FakedObject, pageQueryable);
-            //SetupDbSetAsyncCalls(PageSet.FakedObject, pageQueryable);
-            //A.CallTo(() => DbContext.FakedObject.Set<Page>().Find(A<object>._)).ReturnsLazily((object[] i) => Pages.SingleOrDefault(p => i.Cast<int>().Any(pi => p.Id == pi)));
-            //A.CallTo(() => DbContext.FakedObject.Set<Page>().FindAsync(A<object>._)).ReturnsLazily((object[] i) => Pages.SingleOrDefault(p => i.Cast<int>().Any(pi => p.Id == pi)));
-
-            //var testsQueryable = Tests.AsQueryable();
-            //SetupDbSetCalls(TestSet.FakedObject, testsQueryable);
-            //SetupDbSetAsyncCalls(TestSet.FakedObject, testsQueryable);
-            //A.CallTo(() => DbContext.FakedObject.Set<Test>().Find(A<object>._)).ReturnsLazily((object[] i) => Tests.SingleOrDefault(t => i.Cast<Guid>().Any(ii => t.Id == ii)));
-            //A.CallTo(() => DbContext.FakedObject.Set<Test>().FindAsync(A<object>._)).ReturnsLazily((object[] i) => Tests.SingleOrDefault(t => i.Cast<Guid>().Any(ii => t.Id == ii)));
-
-            //var testSectionMarkerQueryable = TestSectionMarkers.AsQueryable();
-            //SetupDbSetCalls(TestSectionMarkerSet.FakedObject, testSectionMarkerQueryable);
-            //SetupDbSetAsyncCalls(TestSectionMarkerSet.FakedObject, testSectionMarkerQueryable);
-            //A.CallTo(() => DbContext.FakedObject.Set<TestSectionMarker>().Find(A<object>._)).ReturnsLazily((object[] i) => TestSectionMarkers.SingleOrDefault(t => i.Cast<Guid>().Any(ii => t.Id == ii)));
-            //A.CallTo(() => DbContext.FakedObject.Set<TestSectionMarker>().FindAsync(A<object>._)).ReturnsLazily((object[] i) => TestSectionMarkers.SingleOrDefault(t => i.Cast<Guid>().Any(ii => t.Id == ii)));
-
-            //var testResponseQueryable = TestResponses.AsQueryable();
-            //SetupDbSetCalls(TestResponseSet.FakedObject, testResponseQueryable);
-            //SetupDbSetAsyncCalls(TestResponseSet.FakedObject, testResponseQueryable);
-            //A.CallTo(() => DbContext.FakedObject.Set<TestResponse>().Find(A<object>._)).ReturnsLazily((object[] i) => TestSectionMarkers.SingleOrDefault(t => i.Cast<Guid>().Any(ii => t.Id == ii)));
-            //A.CallTo(() => DbContext.FakedObject.Set<TestResponse>().FindAsync(A<object>._)).ReturnsLazily((object[] i) => TestSectionMarkers.SingleOrDefault(t => i.Cast<Guid>().Any(ii => t.Id == ii)));
-            #endregion
         }
-
-        //private static void SetupDbSetAsyncCalls<T>(IDbAsyncEnumerable<T> fake, IEnumerable<T> fakeData) where T : class
-        //{
-        //    A.CallTo(() => fake.GetAsyncEnumerator()).Returns(new TestAsyncEnumerator<T>(fakeData.GetEnumerator()));
-        //}
-
-        //private static void SetupDbSetCalls<T>(IQueryable<T> fake, IQueryable<T> fakeData) where T : class
-        //{
-        //    A.CallTo(() => fake.GetEnumerator()).Returns(fakeData.GetEnumerator());
-        //    A.CallTo(() => fake.Provider).Returns(new TestAsyncQueryProvider<T>(fakeData.Provider));
-        //    A.CallTo(() => fake.Expression).Returns(fakeData.Expression);
-        //    A.CallTo(() => fake.ElementType).Returns(fakeData.ElementType);
-        //}
 
         private static IEnumerable<Survey> GenerateSurveyFixtureData(int count = 20)
         {
