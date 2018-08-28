@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Linq;
-using AutoFixture;
-
+﻿using AutoFixture;
 using AutoMapper;
-
 using EKSurvey.Core.Models.Entities;
 using EKSurvey.Core.Models.Enums;
 using EKSurvey.Core.Models.Profiles;
 using EKSurvey.Core.Services;
 using EKSurvey.Tests.Extensions;
-
 using FakeItEasy;
-
 using MoreLinq;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
 
 namespace EKSurvey.Tests.Core.Services.Contexts
 {
@@ -83,7 +78,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                     select new {Section = s, TestSectionMarker = tsm};
 
                 var incompleteSection = testSections
-                    .First(i => i.TestSectionMarker == default(TestSectionMarker))
+                    .First(i => !i.TestSectionMarker.Completed.HasValue || i.TestSectionMarker == default(TestSectionMarker))
                     .Section;
                 SectionId = incompleteSection.Id;
 
