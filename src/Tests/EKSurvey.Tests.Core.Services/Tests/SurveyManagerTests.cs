@@ -281,5 +281,26 @@ namespace EKSurvey.Tests.Core.Services.Tests
             userPage.Page.SectionId.Should().Be(_context.SectionId);
             userPage.Page.Id.Should().Be(_context.PageId);
         }
+
+        [Fact]
+        public void GetSectionResponses_gets_section_responses_for_user()
+        {
+            _context.PrepareServiceConfiguration();
+            _context.PrepareTestEntities();
+            _context.PrepareServiceHelperCalls();
+            _context.PrepareService();
+
+            var userResponses = _context.Service.GetSectionResponses(_context.UserId, _context.SectionId);
+
+            userResponses.Should().NotBeNull();
+            userResponses.Should().NotContainNulls();
+
+            if (!userResponses.Any())
+                return;
+
+            userResponses.Select(ur => ur.UserId).Distinct().Single().Should().Be(_context.UserId);
+            userResponses.Select(ur => ur.SurveyId).Distinct().Single().Should().Be(_context.SurveyId);
+            userResponses.Select(ur => ur.SectionId).Distinct().Single().Should().Be(_context.SectionId);
+        }
     }
 }

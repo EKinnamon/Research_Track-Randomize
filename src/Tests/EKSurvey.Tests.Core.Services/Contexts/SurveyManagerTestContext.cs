@@ -1,4 +1,8 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using AutoFixture;
 using AutoMapper;
 using EKSurvey.Core.Models.Entities;
 using EKSurvey.Core.Models.Enums;
@@ -7,10 +11,6 @@ using EKSurvey.Core.Services;
 using EKSurvey.Tests.Extensions;
 using FakeItEasy;
 using MoreLinq;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
 
 namespace EKSurvey.Tests.Core.Services.Contexts
 {
@@ -326,12 +326,12 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                             {
                                 p.Section = s;
                                 p.TestResponses =
-                                    new HashSet<TestResponse>(p.TestResponses.Select(tr =>
-                                    {
-                                        tr.Page = p;
-                                        tr.Test = survey.Tests.Single(t => t.Id == tr.TestId);
-                                        return tr;
-                                    }));
+                                    new HashSet<TestResponse>(
+                                        from t in survey.Tests
+                                        from tr in t.TestResponses
+                                        where tr.PageId == p.Id
+                                        select tr);
+                                
                                 return p;
                             }));
 
