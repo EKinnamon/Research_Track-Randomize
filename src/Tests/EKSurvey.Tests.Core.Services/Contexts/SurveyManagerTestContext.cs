@@ -55,43 +55,50 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             Fixture.Inject(Rng.FakedObject);
         }
 
-        public void PrepareTestEntities(bool includeCompleted = false, bool invalidSurvey = false, bool invalidSection = false)
+        public void PrepareTestEntities(bool includeCompleted = false, bool invalidSurvey = false, bool invalidSection = false, bool userHasResponses = false)
         {
             if (includeCompleted)
             {
                 UserId = UserIds.Shuffle().First();
-                var test = Tests.Where(t => t.UserId.Equals(UserId, StringComparison.OrdinalIgnoreCase)).Shuffle().First();
-                TestId = test.Id;
-                SurveyId = test.SurveyId;
-                SurveyId = Surveys.Shuffle().First().Id;
+                Test = Tests.Where(t => t.UserId.Equals(UserId, StringComparison.OrdinalIgnoreCase)).Shuffle().First();
+                SurveyId = Test.SurveyId;
+                Survey = Test.Survey;
             }
             else
             {
-                var incompleteTest = Tests.Where(t => !t.Completed.HasValue).Shuffle().First();
-                TestId = incompleteTest.Id;
-                UserId = incompleteTest.UserId;
-                SurveyId = incompleteTest.SurveyId;
-                var testSections =
-                    from s in incompleteTest.Survey.Sections
-                    join tsm in incompleteTest.TestSectionMarkers on s.Id equals tsm.SectionId into stsm
-                    from tsm in stsm.DefaultIfEmpty()
-                    select new {Section = s, TestSectionMarker = tsm};
+                Test = userHasResponses 
+                    ? Tests.Where(t => !t.Completed.HasValue && t.TestResponses.Any()).Shuffle().First() 
+                    : Tests.Where(t => !t.Completed.HasValue).Shuffle().First();
 
-                var incompleteSection = testSections
+                TestId = Test.Id;
+                UserId = Test.UserId;
+                Survey = Test.Survey;
+                SurveyId = Test.SurveyId;
+                var testSections =
+                    (from s in Test.Survey.Sections
+                    join tsm in Test.TestSectionMarkers on s.Id equals tsm.SectionId into stsm
+                    from tsm in stsm.DefaultIfEmpty()
+                    select new {Section = s, TestSectionMarker = tsm})
+                    .ToList();
+
+                Section = testSections
                     .First(i => !i.TestSectionMarker.Completed.HasValue || i.TestSectionMarker == default(TestSectionMarker))
                     .Section;
-                SectionId = incompleteSection.Id;
+                SectionId = Section.Id;
 
                 var testPages =
-                    from p in incompleteSection.Pages
-                    join tr in incompleteTest.TestResponses on p.Id equals tr.PageId into ptr
+                    from p in testSections
+                    .First(i => !i.TestSectionMarker.Completed.HasValue || i.TestSectionMarker == default(TestSectionMarker))
+                    .Section.Pages
+                    join tr in Test.TestResponses on p.Id equals tr.PageId into ptr
                     from tr in ptr.DefaultIfEmpty()
                     select new {Page = p, TestResponse = tr};
 
-                var incompletePage = testPages
+                Page = testPages
                     .First(i => i.TestResponse == default(TestResponse))
                     .Page;
-                PageId = incompletePage.Id;
+
+                PageId = Page.Id;
             }
 
             if (invalidSurvey)
@@ -115,10 +122,14 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         public IList<TestSectionMarker> TestSectionMarkers => Tests.SelectMany(t => t.TestSectionMarkers).ToList();
 
         public string UserId { get; set; }
+        public Survey Survey { get; set; }
         public int SurveyId { get; set; }
         public int SectionId { get; set; }
+        public Section Section { get; set; }
         public int PageId { get; set; }
+        public Page Page { get; set; }
         public Guid TestId { get; set; }
+        public Test Test { get; set; }
 
         public void PrepareServiceHelperCalls()
         {
@@ -139,25 +150,31 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
         private static IEnumerable<Survey> GenerateSurveyFixtureData(int count = 20)
         {
+            var sectionIdBuilder = 0;
+            var pageIdBuilder = 0;
             var pageTypes = new List<Func<Page>>
             {
                 () => Fixture
                     .Build<FreeTextQuestion>()
+                    .With(q => q.Id, ++pageIdBuilder)
                     .Without(q => q.Section)
                     .Without(q => q.TestResponses)
                     .Create(),
                 () => Fixture
                     .Build<RangeQuestion>()
+                    .With(q => q.Id, ++pageIdBuilder)
                     .Without(q => q.Section)
                     .Without(q => q.TestResponses)
                     .Create(),
                 () => Fixture
                     .Build<StaticTextPage>()
+                    .With(q => q.Id, ++pageIdBuilder)
                     .Without(q => q.Section)
                     .Without(q => q.TestResponses)
                     .Create(),
                 () => Fixture
                     .Build<TrueFalseQuestion>()
+                    .With(q => q.Id, ++pageIdBuilder)
                     .Without(q => q.Section)
                     .Without(q => q.TestResponses)
                     .Create()
@@ -178,6 +195,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 .Select(i =>
                 {
                     var section = Fixture.Build<Section>()
+                        .With(s => s.Id, ++sectionIdBuilder)
                         .With(s => s.SurveyId, survey.Id)
                         .With(s => s.SelectorType, SelectorType.Random)
                         .With(s => s.Order, i)
@@ -263,6 +281,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                     var response = Fixture
                         .Build<TestResponse>()
                         .With(r => r.PageId, page.Id)
+                        .With(r => r.TestId, test.Id)
                         .With(r => r.Modified, Fixture.Create<bool>() ? Fixture.Create<DateTime>() : (DateTime?) null)
                         .With(r => r.Responded, pageId == page.Id ? Fixture.Create<DateTime>() : (DateTime?) null)
                         .Without(r => r.Test)
@@ -331,16 +350,16 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                                         from tr in t.TestResponses
                                         where tr.PageId == p.Id
                                         select tr);
-                                
+
                                 return p;
                             }));
 
                         s.TestSectionMarkers =
                             new HashSet<TestSectionMarker>(
-                            from t in survey.Tests
-                         from tsm in t.TestSectionMarkers
-                         where tsm.SectionId == s.Id
-                         select tsm);
+                                from t in survey.Tests
+                                from tsm in t.TestSectionMarkers
+                                where tsm.SectionId == s.Id
+                                select tsm);
 
                         return s;
                     }));
@@ -371,5 +390,6 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
             }
         }
+
     }
 }
