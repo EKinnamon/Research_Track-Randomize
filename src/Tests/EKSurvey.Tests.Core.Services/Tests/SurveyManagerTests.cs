@@ -85,9 +85,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
 
             surveys.Should().NotBeNull();
             surveys.Should().NotContainNulls();
-            surveys.Should().BeAssignableTo<IQueryable<Survey>>();
-            surveys.Select(i => i.IsActive).Should().AllBeEquivalentTo(true);
-            surveys.Select(i => i.Deleted.HasValue).Should().AllBeEquivalentTo(false);
+            surveys.Should().BeEquivalentTo(_context.Surveys.Where(s => s.IsActive && !s.Deleted.HasValue));
         }
 
         [Fact]
@@ -102,263 +100,256 @@ namespace EKSurvey.Tests.Core.Services.Tests
             surveys.Should().NotBeNull();
             surveys.Should().NotContainNulls();
             surveys.Should().BeAssignableTo<IQueryable<Survey>>();
-            surveys.Select(i => i.IsActive).Should().AllBeEquivalentTo(true);
-            surveys.Select(i => i.Deleted.HasValue).Should().AllBeEquivalentTo(false);
+            surveys.Should().BeEquivalentTo(_context.Surveys.Where(s => s.IsActive && !s.Deleted.HasValue));
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void GetUserSurveys_will_return_all_surveys_for_user(bool includeCompleted)
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities(includeCompleted);
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
+        //[Theory]
+        //[InlineData(false)]
+        //[InlineData(true)]
+        //public void GetUserSurveys_will_return_all_surveys_for_user(bool includeCompleted)
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities(includeCompleted);
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-            var userSurveys = _context.Service.GetUserSurveys(_context.UserId, includeCompleted);
+        //    var userSurveys = _context.Service.GetUserSurveys(_context.UserId, includeCompleted);
 
-            userSurveys.Should().NotBeNull();
-            userSurveys.Should().NotContainNulls();
-            userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
-            userSurveys.Select(i => i.UserId).Distinct().First().Should().BeEquivalentTo(_context.UserId);
+        //    userSurveys.Should().NotBeNull();
+        //    userSurveys.Should().NotContainNulls();
+        //    userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
+        //    userSurveys.Should().BeEquivalentTo(_context.UserSurveys);
+        //}
 
-            if (!includeCompleted)
-            {
-                userSurveys.Select(s => s.Completed.HasValue).Should().AllBeEquivalentTo(false);
-            }
+        //[Theory]
+        //[InlineData(false)]
+        //[InlineData(true)]
+        //public async Task GetUserSurveysAsync_will_return_all_surveys_for_user(bool includeCompleted)
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities(includeCompleted);
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-        }
+        //    var userSurveys = await _context.Service.GetUserSurveysAsync(_context.UserId, includeCompleted);
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task GetUserSurveysAsync_will_return_all_surveys_for_user(bool includeCompleted)
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities(includeCompleted);
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
+        //    userSurveys.Should().NotBeNull();
+        //    userSurveys.Should().NotContainNulls();
+        //    userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
+        //    userSurveys.Select(i => i.UserId).Distinct().Single().Should().BeEquivalentTo(_context.UserId);
 
-            var userSurveys = await _context.Service.GetUserSurveysAsync(_context.UserId, includeCompleted);
+        //    if (!includeCompleted)
+        //    {
+        //        userSurveys.Select(s => s.Completed.HasValue).Should().AllBeEquivalentTo(false);
+        //    }
+        //}
 
-            userSurveys.Should().NotBeNull();
-            userSurveys.Should().NotContainNulls();
-            userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
-            userSurveys.Select(i => i.UserId).Distinct().Single().Should().BeEquivalentTo(_context.UserId);
+        //[Fact]
+        //public void GetUserSections_will_return_all_sections_for_survey_and_user()
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities();
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-            if (!includeCompleted)
-            {
-                userSurveys.Select(s => s.Completed.HasValue).Should().AllBeEquivalentTo(false);
-            }
-        }
+        //    var userSections = _context.Service.GetUserSections(_context.UserId, _context.SurveyId);
 
-        [Fact]
-        public void GetUserSections_will_return_all_sections_for_survey_and_user()
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities();
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
+        //    userSections.Should().NotBeNull();
+        //    userSections.Should().NotContainNulls();
+        //    userSections.Should().BeAssignableTo<ICollection<IUserSection>>();
+        //    userSections.Select(i => i.UserId).Distinct().Single().Should().BeEquivalentTo(_context.UserId);
+        //}
 
-            var userSections = _context.Service.GetUserSections(_context.UserId, _context.SurveyId);
+        //[Fact]
+        //public async Task GetUserSectionsAsync_will_return_all_sections_for_survey_and_user()
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities();
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-            userSections.Should().NotBeNull();
-            userSections.Should().NotContainNulls();
-            userSections.Should().BeAssignableTo<ICollection<IUserSection>>();
-            userSections.Select(i => i.UserId).Distinct().Single().Should().BeEquivalentTo(_context.UserId);
-        }
+        //    var userSections = await _context.Service.GetUserSectionsAsync(_context.UserId, _context.SurveyId);
 
-        [Fact]
-        public async Task GetUserSectionsAsync_will_return_all_sections_for_survey_and_user()
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities();
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
+        //    userSections.Should().NotBeNull();
+        //    userSections.Should().NotContainNulls();
+        //    userSections.Should().BeAssignableTo<ICollection<IUserSection>>();
+        //    userSections.Select(i => i.UserId).Distinct().Single().Should().BeEquivalentTo(_context.UserId);
+        //}
 
-            var userSections = await _context.Service.GetUserSectionsAsync(_context.UserId, _context.SurveyId);
+        //[Fact]
+        //public void GetUserSections_for_invalid_survey_will_throw_exception()
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities(invalidSurvey: true);
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-            userSections.Should().NotBeNull();
-            userSections.Should().NotContainNulls();
-            userSections.Should().BeAssignableTo<ICollection<IUserSection>>();
-            userSections.Select(i => i.UserId).Distinct().Single().Should().BeEquivalentTo(_context.UserId);
-        }
+        //    Action action = () => _context.Service.GetUserSections(_context.UserId, _context.SurveyId);
+        //    action.Should()
+        //        .Throw<SurveyNotFoundException>()
+        //        .WithMessage($"Survey `{_context.SurveyId}` could not be found.");
+        //}
 
-        [Fact]
-        public void GetUserSections_for_invalid_survey_will_throw_exception()
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities(invalidSurvey: true);
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
+        //[Fact]
+        //public void GetUserSectionsAsync_for_invalid_survey_will_throw_exception()
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities(invalidSurvey: true);
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-            Action action = () => _context.Service.GetUserSections(_context.UserId, _context.SurveyId);
-            action.Should()
-                .Throw<SurveyNotFoundException>()
-                .WithMessage($"Survey `{_context.SurveyId}` could not be found.");
-        }
+        //    Func<Task> action = async () => { await _context.Service.GetUserSectionsAsync(_context.UserId, _context.SurveyId); };
 
-        [Fact]
-        public void GetUserSectionsAsync_for_invalid_survey_will_throw_exception()
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities(invalidSurvey: true);
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
+        //    action.Should()
+        //        .Throw<SurveyNotFoundException>()
+        //        .WithMessage($"Survey `{_context.SurveyId}` could not be found.");
+        //}
 
-            Func<Task> action = async () => { await _context.Service.GetUserSectionsAsync(_context.UserId, _context.SurveyId); };
+        //[Fact]
+        //public void GetCurrentUserSection_gets_current_active_section_for_user()
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities();
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-            action.Should()
-                .Throw<SurveyNotFoundException>()
-                .WithMessage($"Survey `{_context.SurveyId}` could not be found.");
-        }
+        //    var userSection = _context.Service.GetCurrentUserSection(_context.UserId, _context.SurveyId);
 
-        [Fact]
-        public void GetCurrentUserSection_gets_current_active_section_for_user()
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities();
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
+        //    userSection.Should().NotBeNull();
+        //    userSection.UserId.Should().BeEquivalentTo(_context.UserId);
+        //    userSection.SurveyId.Should().Be(_context.SurveyId);
+        //    userSection.Started.Should().NotBeNull();
+        //    userSection.Completed.Should().BeNull();
+        //}
 
-            var userSection = _context.Service.GetCurrentUserSection(_context.UserId, _context.SurveyId);
+        //[Fact]
+        //public async Task GetCurrentUserSectionAsync_gets_current_active_section_for_user()
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities();
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-            userSection.Should().NotBeNull();
-            userSection.UserId.Should().BeEquivalentTo(_context.UserId);
-            userSection.SurveyId.Should().Be(_context.SurveyId);
-            userSection.Started.Should().NotBeNull();
-            userSection.Completed.Should().BeNull();
-        }
+        //    var userSection = await _context.Service.GetCurrentUserSectionAsync(_context.UserId, _context.SurveyId);
 
-        [Fact]
-        public async Task GetCurrentUserSectionAsync_gets_current_active_section_for_user()
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities();
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
+        //    userSection.Should().NotBeNull();
+        //    userSection.UserId.Should().BeEquivalentTo(_context.UserId);
+        //    userSection.SurveyId.Should().Be(_context.SurveyId);
+        //    userSection.Started.Should().NotBeNull();
+        //    userSection.Completed.Should().BeNull();
+        //}
 
-            var userSection = await _context.Service.GetCurrentUserSectionAsync(_context.UserId, _context.SurveyId);
+        //[Fact]
+        //public void GetCurrentUserPage_gets_current_acitve_page_for_user()
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities();
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-            userSection.Should().NotBeNull();
-            userSection.UserId.Should().BeEquivalentTo(_context.UserId);
-            userSection.SurveyId.Should().Be(_context.SurveyId);
-            userSection.Started.Should().NotBeNull();
-            userSection.Completed.Should().BeNull();
-        }
+        //    var userPage = _context.Service.GetCurrentUserPage(_context.UserId, _context.SurveyId);
 
-        [Fact]
-        public void GetCurrentUserPage_gets_current_acitve_page_for_user()
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities();
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
+        //    userPage.Should().NotBeNull();
+        //    userPage.UserId.Should().BeEquivalentTo(_context.UserId);
+        //    userPage.SurveyId.Should().Be(_context.SurveyId);
+        //    userPage.Page.SectionId.Should().Be(_context.SectionId);
+        //    userPage.Page.Id.Should().Be(_context.PageId);
+        //}
 
-            var userPage = _context.Service.GetCurrentUserPage(_context.UserId, _context.SurveyId);
+        //[Fact]
+        //public async Task GetCurrentUserPageAsync_gets_current_acitve_page_for_user()
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities();
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-            userPage.Should().NotBeNull();
-            userPage.UserId.Should().BeEquivalentTo(_context.UserId);
-            userPage.SurveyId.Should().Be(_context.SurveyId);
-            userPage.Page.SectionId.Should().Be(_context.SectionId);
-            userPage.Page.Id.Should().Be(_context.PageId);
-        }
+        //    var userPage = await _context.Service.GetCurrentUserPageAsync(_context.UserId, _context.SurveyId);
 
-        [Fact]
-        public async Task GetCurrentUserPageAsync_gets_current_acitve_page_for_user()
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities();
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
+        //    userPage.Should().NotBeNull();
+        //    userPage.UserId.Should().BeEquivalentTo(_context.UserId);
+        //    userPage.SurveyId.Should().Be(_context.SurveyId);
+        //    userPage.Page.SectionId.Should().Be(_context.SectionId);
+        //    userPage.Page.Id.Should().Be(_context.PageId);
+        //}
 
-            var userPage = await _context.Service.GetCurrentUserPageAsync(_context.UserId, _context.SurveyId);
+        //[Theory]
+        //[InlineData(false)]
+        //[InlineData(true)]
+        //public void GetSectionResponses_gets_section_responses_for_user(bool userHasResponses)
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities(userHasResponses: userHasResponses);
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-            userPage.Should().NotBeNull();
-            userPage.UserId.Should().BeEquivalentTo(_context.UserId);
-            userPage.SurveyId.Should().Be(_context.SurveyId);
-            userPage.Page.SectionId.Should().Be(_context.SectionId);
-            userPage.Page.Id.Should().Be(_context.PageId);
-        }
+        //    var userResponses = _context.Service.GetSectionResponses(_context.UserId, _context.SectionId);
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void GetSectionResponses_gets_section_responses_for_user(bool userHasResponses)
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities(userHasResponses: userHasResponses);
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
+        //    userResponses.Should().NotBeNull();
+        //    userResponses.Should().NotContainNulls();
 
-            var userResponses = _context.Service.GetSectionResponses(_context.UserId, _context.SectionId);
+        //    if (!userHasResponses)
+        //        return;
 
-            userResponses.Should().NotBeNull();
-            userResponses.Should().NotContainNulls();
+        //    userResponses.Should().NotBeEmpty();
+        //    userResponses.Select(ur => ur.UserId).Distinct().Single().Should().Be(_context.UserId);
+        //    userResponses.Select(ur => ur.SurveyId).Distinct().Single().Should().Be(_context.SurveyId);
+        //    userResponses.Select(ur => ur.SectionId).Distinct().Single().Should().Be(_context.SectionId);
+        //}
 
-            if (!userHasResponses)
-                return;
+        //[Theory]
+        //[InlineData(false)]
+        //[InlineData(true)]
+        //public async Task GetSectionResponsesAsync_gets_section_responses_for_user(bool userHasResponses)
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities(userHasResponses: userHasResponses);
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-            userResponses.Should().NotBeEmpty();
-            userResponses.Select(ur => ur.UserId).Distinct().Single().Should().Be(_context.UserId);
-            userResponses.Select(ur => ur.SurveyId).Distinct().Single().Should().Be(_context.SurveyId);
-            userResponses.Select(ur => ur.SectionId).Distinct().Single().Should().Be(_context.SectionId);
-        }
+        //    var userResponses = await _context.Service.GetSectionResponsesAsync(_context.UserId, _context.SectionId);
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task GetSectionResponsesAsync_gets_section_responses_for_user(bool userHasResponses)
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities(userHasResponses: userHasResponses);
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
+        //    userResponses.Should().NotBeNull();
+        //    userResponses.Should().NotContainNulls();
 
-            var userResponses = await _context.Service.GetSectionResponsesAsync(_context.UserId, _context.SectionId);
+        //    if (!userHasResponses)
+        //        return;
 
-            userResponses.Should().NotBeNull();
-            userResponses.Should().NotContainNulls();
+        //    userResponses.Should().NotBeEmpty();
+        //    userResponses.Select(ur => ur.UserId).Distinct().Single().Should().Be(_context.UserId);
+        //    userResponses.Select(ur => ur.SurveyId).Distinct().Single().Should().Be(_context.SurveyId);
+        //    userResponses.Select(ur => ur.SectionId).Distinct().Single().Should().Be(_context.SectionId);
+        //}
 
-            if (!userHasResponses)
-                return;
+        //[Fact]
+        //public void GetUserSurvey_gets_survey_for_user()
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities();
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-            userResponses.Should().NotBeEmpty();
-            userResponses.Select(ur => ur.UserId).Distinct().Single().Should().Be(_context.UserId);
-            userResponses.Select(ur => ur.SurveyId).Distinct().Single().Should().Be(_context.SurveyId);
-            userResponses.Select(ur => ur.SectionId).Distinct().Single().Should().Be(_context.SectionId);
-        }
+        //    var userSurvey = _context.Service.GetUserSurvey(_context.UserId, _context.SurveyId);
 
-        [Fact]
-        public void GetUserSurvey_gets_survey_for_user()
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities();
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
+        //    userSurvey.Should().NotBeNull();
+        //    userSurvey.UserId.Should().BeEquivalentTo(_context.UserId);
+        //    userSurvey.Id.Should().Be(_context.SurveyId);
+        //}
 
-            var userSurvey = _context.Service.GetUserSurvey(_context.UserId, _context.SurveyId);
+        //[Fact]
+        //public async Task GetUserSurveyAsync_gets_survey_for_user()
+        //{
+        //    _context.PrepareServiceConfiguration();
+        //    _context.PrepareTestEntities();
+        //    _context.PrepareServiceHelperCalls();
+        //    _context.PrepareService();
 
-            userSurvey.Should().NotBeNull();
-            userSurvey.UserId.Should().BeEquivalentTo(_context.UserId);
-            userSurvey.Id.Should().Be(_context.SurveyId);
-        }
+        //    var userSurvey = await _context.Service.GetUserSurveyAsync(_context.UserId, _context.SurveyId);
 
-        [Fact]
-        public async Task GetUserSurveyAsync_gets_survey_for_user()
-        {
-            _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities();
-            _context.PrepareServiceHelperCalls();
-            _context.PrepareService();
-
-            var userSurvey = await _context.Service.GetUserSurveyAsync(_context.UserId, _context.SurveyId);
-
-            userSurvey.Should().NotBeNull();
-            userSurvey.UserId.Should().BeEquivalentTo(_context.UserId);
-            userSurvey.Id.Should().Be(_context.SurveyId);
-        }
+        //    userSurvey.Should().NotBeNull();
+        //    userSurvey.UserId.Should().BeEquivalentTo(_context.UserId);
+        //    userSurvey.Id.Should().Be(_context.SurveyId);
+        //}
 
     }
 }
