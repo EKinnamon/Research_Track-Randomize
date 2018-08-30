@@ -135,38 +135,54 @@ namespace EKSurvey.Core.Services
         public ICollection<UserSurvey> GetUserSurveys(string userId, bool includeCompleted = false)
         {
             IEnumerable<UserSurvey> results;
+            IQueryable<Test> tests;
 
+            var surveys = GetActiveSurveys();
+            
             if (includeCompleted)
             {
-                results = _mapper.Map<IEnumerable<UserSurvey>>(GetActiveSurveys(), Opt(userId));
+                tests = from s in surveys
+                    from t in s.Tests
+                    where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase)
+                    select t;
+
+                results = _mapper.Map<IEnumerable<UserSurvey>>(tests);
                 return new HashSet<UserSurvey>(results);
             }
 
-            var surveys =
-                from s in GetActiveSurveys()
-                where !s.Tests.Any(st => st.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && st.Completed.HasValue)
-                select s;
+            tests = from s in surveys
+                from t in s.Tests
+                where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && t.Completed.HasValue
+                select t;
 
-            results = _mapper.Map<IEnumerable<UserSurvey>>(surveys, Opt(userId));
+            results = _mapper.Map<IEnumerable<UserSurvey>>(tests);
             return new HashSet<UserSurvey>(results);
         }
 
         public async Task<ICollection<UserSurvey>> GetUserSurveysAsync(string userId, bool includeCompleted = false, CancellationToken cancellationToken = default(CancellationToken))
         {
             IEnumerable<UserSurvey> results;
+            IQueryable<Test> tests;
+
+            var surveys = await GetActiveSurveysAsync(cancellationToken);
 
             if (includeCompleted)
             {
-                results = _mapper.Map<IEnumerable<UserSurvey>>(await GetActiveSurveysAsync(cancellationToken), Opt(userId));
+                tests = from s in surveys
+                    from t in s.Tests
+                    where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase)
+                    select t;
+
+                results = _mapper.Map<IEnumerable<UserSurvey>>(tests);
                 return new HashSet<UserSurvey>(results);
             }
 
-            var surveys =
-                from s in await GetActiveSurveysAsync(cancellationToken)
-                where !s.Tests.Any(st => st.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && st.Completed.HasValue)
-                select s;
+            tests = from s in surveys
+                from t in s.Tests
+                where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && t.Completed.HasValue
+                select t;
 
-            results = _mapper.Map<IEnumerable<UserSurvey>>(surveys, Opt(userId));
+            results = _mapper.Map<IEnumerable<UserSurvey>>(tests);
             return new HashSet<UserSurvey>(results);
         }
 

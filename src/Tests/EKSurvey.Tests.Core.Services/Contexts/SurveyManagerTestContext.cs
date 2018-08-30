@@ -4,11 +4,10 @@ using System.Data.Entity;
 using System.Linq;
 using AutoFixture;
 using AutoMapper;
+using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
-using EKSurvey.Core.Models.Enums;
 using EKSurvey.Core.Models.Profiles;
 using EKSurvey.Core.Services;
-using EKSurvey.Tests.Extensions;
 using FakeItEasy;
 using MoreLinq;
 
@@ -58,9 +57,33 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         //public void PrepareTestEntities(bool includeCompleted = false, bool invalidSurvey = false, bool invalidSection = false, bool userHasResponses = false, bool transferSections = false)
         public void PrepareTestEntities(bool includeCompleted = false)
         {
+            UserId = Guid.NewGuid().ToString();
+
+            IEnumerable<Test> TestBuilder(Survey survey) => Enumerable
+                .Range(0, Fixture.Create<int>() % 20 + 1)
+                .Select(i =>
+                {
+                    var test = Fixture.Build<Test>()
+                        .With(t => t.UserId, UserId)
+                        .With(t => t.SurveyId, survey.Id)
+                        .With(t => t.Modified, i % 10 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
+                        .With(t => t.Completed, i % 4 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
+                        .With(t => t.Survey, survey)
+                        .Without(t => t.TestResponses)
+                        .Without(t => t.TestSectionMarkers)
+                        .Create();
+
+                    //((HashSet<TestSectionMarker>)test.TestSectionMarkers).UnionWith(TestSectionMarkerBuilder(test));
+                    //((HashSet<TestResponse>)test.TestResponses).UnionWith(TestResponseBuilder(test));
+
+                    return test;
+                });
+
+
+
             Surveys = Enumerable.Range(0, 20).Select(i =>
             {
-                return Fixture
+                var survey = Fixture
                     .Build<Survey>()
                     .With(s => s.Id, i)
                     .With(s => s.Deleted, i % 4 == 0 ? Fixture.Create<DateTime>() : (DateTime?) null)
@@ -68,7 +91,34 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                     .Without(s => s.Sections)
                     .Without(s => s.Tests)
                     .Create();
+
+                survey.Tests = new HashSet<Test>(TestBuilder(survey));
+
+                return survey;
             }).ToList();
+
+            UserSurveys = Surveys.SelectMany(s => s.Tests)
+                .Select(t =>
+                {
+                    var userSurvey = Fixture
+                        .Build<UserSurvey>()
+                        .With(us => us.UserId, UserId)
+                        .With(us => us.Id, t.Survey.Id)
+                        .With(us => us.Name, t.Survey.Name)
+                        .With(us => us.Description, t.Survey.Description)
+                        .With(us => us.Version, t.Survey.Version)
+                        .With(us => us.Created, t.Survey.Created)
+                        .With(us => us.Modified, t.Survey.Modified)
+                        .With(us => us.Started, t.Started)
+                        .With(us => us.Completed, t.Completed)
+                        .Create();
+                    return userSurvey;
+                })
+                .ToList();
+
+
+
+
 
             //if (includeCompleted)
             //{
@@ -127,12 +177,15 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         }
 
         public IList<Survey> Surveys { get; set; }// = (FixtureData<Survey>.Load(SurveyFakeDataPath) ?? GenerateSurveyFixtureData(4).CacheAs(SurveyFakeDataPath)).Apply(SurveyJoiner).ToList();
-        public IList<Section> Sections => Surveys.SelectMany(s => s.Sections).ToList();
-        public IList<Page> Pages => Sections.SelectMany(s => s.Pages).ToList();
-        public IList<Test> Tests => Surveys.SelectMany(s => s.Tests).ToList();
-        public IList<TestSectionMarker> TestSectionMarkers => Tests.SelectMany(t => t.TestSectionMarkers).ToList();
-        public IList<TestResponse> TestResponses => Tests.SelectMany(t => t.TestResponses).ToList();
-        public IList<string> UserIds => Tests.Select(t => t.UserId).ToList();
+        //public IList<Section> Sections => Surveys.SelectMany(s => s.Sections).ToList();
+        //public IList<Page> Pages => Sections.SelectMany(s => s.Pages).ToList();
+        //public IList<Test> Tests => Surveys.SelectMany(s => s.Tests).ToList();
+        //public IList<TestSectionMarker> TestSectionMarkers => Tests.SelectMany(t => t.TestSectionMarkers).ToList();
+        //public IList<TestResponse> TestResponses => Tests.SelectMany(t => t.TestResponses).ToList();
+        //public IList<string> UserIds => Tests.Select(t => t.UserId).ToList();
+
+
+        public IList<UserSurvey> UserSurveys { get; set; }
 
         public string UserId { get; set; }
         public Survey Survey { get; set; }
@@ -147,11 +200,11 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         public void PrepareServiceHelperCalls()
         {
             SurveySet.FakedObject.SetupData(Surveys, i => Surveys.SingleOrDefault(s => i.OfType<int>().Any(si => s.Id == si)));
-            SectionSet.FakedObject.SetupData(Sections, i => Sections.SingleOrDefault(s => i.OfType<int>().Any(si => s.Id == si)));
-            PageSet.FakedObject.SetupData(Pages, i => Pages.SingleOrDefault(p => i.OfType<int>().Any(pi => p.Id == pi)));
-            TestSet.FakedObject.SetupData(Tests, i => Tests.SingleOrDefault(t => i.OfType<Guid>().Any(ti => t.Id == ti)));
-            TestSectionMarkerSet.FakedObject.SetupData(TestSectionMarkers, i => TestSectionMarkers.SingleOrDefault(t => i.OfType<Guid>().Any(tsi => t.Id == tsi)));
-            TestResponseSet.FakedObject.SetupData(TestResponses, i => TestResponses.SingleOrDefault(t => i.OfType<Guid>().Any(tri => t.Id == tri)));
+            //SectionSet.FakedObject.SetupData(Sections, i => Sections.SingleOrDefault(s => i.OfType<int>().Any(si => s.Id == si)));
+            //PageSet.FakedObject.SetupData(Pages, i => Pages.SingleOrDefault(p => i.OfType<int>().Any(pi => p.Id == pi)));
+            //TestSet.FakedObject.SetupData(Tests, i => Tests.SingleOrDefault(t => i.OfType<Guid>().Any(ti => t.Id == ti)));
+            //TestSectionMarkerSet.FakedObject.SetupData(TestSectionMarkers, i => TestSectionMarkers.SingleOrDefault(t => i.OfType<Guid>().Any(tsi => t.Id == tsi)));
+            //TestResponseSet.FakedObject.SetupData(TestResponses, i => TestResponses.SingleOrDefault(t => i.OfType<Guid>().Any(tri => t.Id == tri)));
 
             A.CallTo(() => DbContext.FakedObject.Set<Survey>()).Returns(SurveySet.FakedObject);
             A.CallTo(() => DbContext.FakedObject.Set<Section>()).Returns(SectionSet.FakedObject);

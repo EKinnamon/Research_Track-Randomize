@@ -13,6 +13,16 @@ namespace EKSurvey.Core.Models.Profiles
     {
         public DtoModelProfile()
         {
+            CreateMap<Test, UserSurvey>()
+                // UserId, Started, Completed mapped
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Survey.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Survey.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Survey.Description))
+                .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Survey.Version))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Survey.IsActive))
+                .ForMember(dest => dest.Created, opt => opt.MapFrom(src => src.Survey.Created));
+
+
             CreateMap<Survey, UserSurvey>()
                 // Id, Name, Version, IsActive, Created, Modified mapped
                 .ForMember(dest => dest.UserId, opt => opt.Ignore())

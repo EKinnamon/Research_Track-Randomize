@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
 using EKSurvey.Core.Services;
-using EKSurvey.Core.Services.Exceptions;
 using EKSurvey.Tests.Core.Services.Contexts;
 
 using FluentAssertions;
@@ -78,6 +76,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
         public void GetActiveSurveys_will_return_all_active_surveys()
         {
             _context.PrepareServiceConfiguration();
+            _context.PrepareTestEntities();
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
 
@@ -92,6 +91,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
         public async Task GetActiveSurveysAsync_will_return_all_active_surveys()
         {
             _context.PrepareServiceConfiguration();
+            _context.PrepareTestEntities();
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
 
@@ -103,23 +103,23 @@ namespace EKSurvey.Tests.Core.Services.Tests
             surveys.Should().BeEquivalentTo(_context.Surveys.Where(s => s.IsActive && !s.Deleted.HasValue));
         }
 
-        //[Theory]
-        //[InlineData(false)]
-        //[InlineData(true)]
-        //public void GetUserSurveys_will_return_all_surveys_for_user(bool includeCompleted)
-        //{
-        //    _context.PrepareServiceConfiguration();
-        //    _context.PrepareTestEntities(includeCompleted);
-        //    _context.PrepareServiceHelperCalls();
-        //    _context.PrepareService();
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void GetUserSurveys_will_return_all_surveys_for_user(bool includeCompleted)
+        {
+            _context.PrepareServiceConfiguration();
+            _context.PrepareTestEntities(includeCompleted);
+            _context.PrepareServiceHelperCalls();
+            _context.PrepareService();
 
-        //    var userSurveys = _context.Service.GetUserSurveys(_context.UserId, includeCompleted);
+            var userSurveys = _context.Service.GetUserSurveys(_context.UserId, includeCompleted);
 
-        //    userSurveys.Should().NotBeNull();
-        //    userSurveys.Should().NotContainNulls();
-        //    userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
-        //    userSurveys.Should().BeEquivalentTo(_context.UserSurveys);
-        //}
+            userSurveys.Should().NotBeNull();
+            userSurveys.Should().NotContainNulls();
+            userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
+            userSurveys.Should().BeEquivalentTo(_context.UserSurveys);
+        }
 
         //[Theory]
         //[InlineData(false)]
