@@ -87,6 +87,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Comparers\EntityComparer.cs" />
     <Compile Include="DataTransfer\IUserSection.cs" />
     <Compile Include="DataTransfer\UserPage.cs" />
     <Compile Include="DataTransfer\UserResponse.cs" />
