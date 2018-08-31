@@ -59,27 +59,50 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         {
             UserId = Guid.NewGuid().ToString();
 
-            IEnumerable<Test> TestBuilder(Survey survey) => Enumerable
-                .Range(0, Fixture.Create<int>() % 20 + 1)
-                .Select(i =>
-                {
-                    var test = Fixture.Build<Test>()
-                        .With(t => t.UserId, UserId)
-                        .With(t => t.SurveyId, survey.Id)
-                        .With(t => t.Modified, i % 10 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
-                        .With(t => t.Completed, i % 4 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
-                        .With(t => t.Survey, survey)
-                        .Without(t => t.TestResponses)
-                        .Without(t => t.TestSectionMarkers)
-                        .Create();
+            //IEnumerable<Test> TestBuilder(Survey survey) => Enumerable
+            //    .Range(0, Fixture.Create<int>() % 20 + 1)
+            //    .Select(i =>
+            //    {
+            //        var test = Fixture.Build<Test>()
+            //            .With(t => t.UserId, UserId)
+            //            .With(t => t.SurveyId, survey.Id)
+            //            .With(t => t.Modified, i % 10 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
+            //            .With(t => t.Completed, i % 4 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
+            //            .With(t => t.Survey, survey)
+            //            .Without(t => t.TestResponses)
+            //            .Without(t => t.TestSectionMarkers)
+            //            .Create();
 
-                    //((HashSet<TestSectionMarker>)test.TestSectionMarkers).UnionWith(TestSectionMarkerBuilder(test));
-                    //((HashSet<TestResponse>)test.TestResponses).UnionWith(TestResponseBuilder(test));
+            //        //((HashSet<TestSectionMarker>)test.TestSectionMarkers).UnionWith(TestSectionMarkerBuilder(test));
+            //        //((HashSet<TestResponse>)test.TestResponses).UnionWith(TestResponseBuilder(test));
 
-                    return test;
-                });
+            //        return test;
+            //    });
 
+            IEnumerable<Test> TestBuilder(Survey survey)
+            {
+                var callCount = 0;
+                var makeTest = ++callCount % 2 == 0;
 
+                if (!makeTest)
+                    yield break;
+
+                ++callCount;
+                var test = Fixture.Build<Test>()
+                            .With(t => t.UserId, UserId)
+                            .With(t => t.SurveyId, survey.Id)
+                            .With(t => t.Modified, callCount % 10 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
+                            .With(t => t.Completed, callCount % 4 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
+                            .With(t => t.Survey, survey)
+                            .Without(t => t.TestResponses)
+                            .Without(t => t.TestSectionMarkers)
+                            .Create();
+
+                //((HashSet<TestSectionMarker>)test.TestSectionMarkers).UnionWith(TestSectionMarkerBuilder(test));
+                //((HashSet<TestResponse>)test.TestResponses).UnionWith(TestResponseBuilder(test));
+
+                yield return test;
+            }
 
             Surveys = Enumerable.Range(0, 20).Select(i =>
             {
