@@ -22,23 +22,11 @@ namespace EKSurvey.Core.Models.Profiles
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Survey.IsActive))
                 .ForMember(dest => dest.Created, opt => opt.MapFrom(src => src.Survey.Created));
 
-
             CreateMap<Survey, UserSurvey>()
                 // Id, Name, Version, IsActive, Created, Modified mapped
                 .ForMember(dest => dest.UserId, opt => opt.Ignore())
                 .ForMember(dest => dest.Started, opt => opt.Ignore())
-                .ForMember(dest => dest.Completed, opt => opt.Ignore())
-                .AfterMap((src, dest, ctx) =>
-                {
-                    var userId = ctx.Items["userId"].ToString();
-                    dest.UserId = userId;
-
-                    var userTest = src.Tests.FirstOrDefault(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
-
-                    dest.Started = userTest?.Started;
-
-                    dest.Completed = userTest?.Completed;
-                });
+                .ForMember(dest => dest.Completed, opt => opt.Ignore());
 
             CreateMap<Section, UserSection>()
                 // Id, SurveyId, Name, Order mapped.
