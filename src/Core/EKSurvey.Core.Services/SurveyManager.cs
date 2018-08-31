@@ -136,7 +136,7 @@ namespace EKSurvey.Core.Services
         {
             IQueryable<Test> tests;
 
-            var userSurveys = new HashSet<UserSurvey>(EntityComparer<UserSurvey>.Default);
+            var userSurveys = new HashSet<UserSurvey>(EntityComparer<UserSurvey>.Id);
             var surveys = GetActiveSurveys();
             
             if (includeCompleted)
@@ -169,29 +169,37 @@ namespace EKSurvey.Core.Services
 
         public async Task<ICollection<UserSurvey>> GetUserSurveysAsync(string userId, bool includeCompleted = false, CancellationToken cancellationToken = default(CancellationToken))
         {
-            IEnumerable<UserSurvey> results;
             IQueryable<Test> tests;
 
+            var userSurveys = new HashSet<UserSurvey>(EntityComparer<UserSurvey>.Id);
             var surveys = await GetActiveSurveysAsync(cancellationToken);
 
             if (includeCompleted)
             {
-                tests = from s in surveys
+                tests =
+                    from s in surveys
                     from t in s.Tests
                     where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase)
                     select t;
-
-                results = _mapper.Map<IEnumerable<UserSurvey>>(tests);
-                return new HashSet<UserSurvey>(results);
+            }
+            else
+            {
+                tests =
+                    from s in surveys
+                    from t in s.Tests
+                    where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && !t.Completed.HasValue
+                    select t;
             }
 
-            tests = from s in surveys
-                from t in s.Tests
-                where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && t.Completed.HasValue
-                select t;
+            userSurveys.UnionWith(_mapper.Map<IEnumerable<UserSurvey>>(tests));
+            userSurveys.UnionWith(_mapper.Map<IEnumerable<UserSurvey>>(surveys)
+                .Select(us =>
+                {
+                    us.UserId = userId;
+                    return us;
+                }));
 
-            results = _mapper.Map<IEnumerable<UserSurvey>>(tests);
-            return new HashSet<UserSurvey>(results);
+            return userSurveys;
         }
 
         public ICollection<IUserSection> GetUserSections(string userId, int surveyId)

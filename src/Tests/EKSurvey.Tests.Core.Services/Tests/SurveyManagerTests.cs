@@ -119,46 +119,51 @@ namespace EKSurvey.Tests.Core.Services.Tests
             userSurveys.Should().NotContainNulls();
             userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
             userSurveys.Should().BeEquivalentTo(_context.UserSurveys);
+
+            if (!includeCompleted)
+            {
+                userSurveys.All(us => !us.Completed.HasValue).Should().BeTrue();
+            }
         }
 
-        //[Theory]
-        //[InlineData(false)]
-        //[InlineData(true)]
-        //public async Task GetUserSurveysAsync_will_return_all_surveys_for_user(bool includeCompleted)
-        //{
-        //    _context.PrepareServiceConfiguration();
-        //    _context.PrepareTestEntities(includeCompleted);
-        //    _context.PrepareServiceHelperCalls();
-        //    _context.PrepareService();
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task GetUserSurveysAsync_will_return_all_surveys_for_user(bool includeCompleted)
+        {
+            _context.PrepareServiceConfiguration();
+            _context.PrepareTestEntities(includeCompleted);
+            _context.PrepareServiceHelperCalls();
+            _context.PrepareService();
 
-        //    var userSurveys = await _context.Service.GetUserSurveysAsync(_context.UserId, includeCompleted);
+            var userSurveys = await _context.Service.GetUserSurveysAsync(_context.UserId, includeCompleted);
 
-        //    userSurveys.Should().NotBeNull();
-        //    userSurveys.Should().NotContainNulls();
-        //    userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
-        //    userSurveys.Select(i => i.UserId).Distinct().Single().Should().BeEquivalentTo(_context.UserId);
+            userSurveys.Should().NotBeNull();
+            userSurveys.Should().NotContainNulls();
+            userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
+            userSurveys.Should().BeEquivalentTo(_context.UserSurveys);
 
-        //    if (!includeCompleted)
-        //    {
-        //        userSurveys.Select(s => s.Completed.HasValue).Should().AllBeEquivalentTo(false);
-        //    }
-        //}
+            if (!includeCompleted)
+            {
+                userSurveys.All(us => !us.Completed.HasValue).Should().BeTrue();
+            }
+        }
 
-        //[Fact]
-        //public void GetUserSections_will_return_all_sections_for_survey_and_user()
-        //{
-        //    _context.PrepareServiceConfiguration();
-        //    _context.PrepareTestEntities();
-        //    _context.PrepareServiceHelperCalls();
-        //    _context.PrepareService();
+        [Fact]
+        public void GetUserSections_will_return_all_sections_for_survey_and_user()
+        {
+            _context.PrepareServiceConfiguration();
+            _context.PrepareTestEntities();
+            _context.PrepareServiceHelperCalls();
+            _context.PrepareService();
 
-        //    var userSections = _context.Service.GetUserSections(_context.UserId, _context.SurveyId);
+            var userSections = _context.Service.GetUserSections(_context.UserId, _context.SurveyId);
 
-        //    userSections.Should().NotBeNull();
-        //    userSections.Should().NotContainNulls();
-        //    userSections.Should().BeAssignableTo<ICollection<IUserSection>>();
-        //    userSections.Select(i => i.UserId).Distinct().Single().Should().BeEquivalentTo(_context.UserId);
-        //}
+            userSections.Should().NotBeNull();
+            userSections.Should().NotContainNulls();
+            userSections.Should().BeAssignableTo<ICollection<IUserSection>>();
+            userSections.Should().BeEquivalentTo(_context.UserSections);
+        }
 
         //[Fact]
         //public async Task GetUserSectionsAsync_will_return_all_sections_for_survey_and_user()

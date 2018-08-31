@@ -2,13 +2,19 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+
 using AutoFixture;
+
 using AutoMapper;
+
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
+using EKSurvey.Core.Models.Enums;
 using EKSurvey.Core.Models.Profiles;
 using EKSurvey.Core.Services;
+
 using FakeItEasy;
+
 using MoreLinq;
 
 namespace EKSurvey.Tests.Core.Services.Contexts
@@ -54,10 +60,32 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             Fixture.Inject(Rng.FakedObject);
         }
 
-        //public void PrepareTestEntities(bool includeCompleted = false, bool invalidSurvey = false, bool invalidSection = false, bool userHasResponses = false, bool transferSections = false)
         public void PrepareTestEntities(bool includeCompleted = false)
         {
             UserId = Guid.NewGuid().ToString();
+
+            var sectionId = 0;
+
+            IEnumerable<Section> SectionBuilder(Survey survey)
+            {
+                var i = 0;
+                while (true)
+                {
+                    var section = Fixture.Build<Section>()
+                        .With(s => s.Id, ++sectionId)
+                        .With(s => s.SurveyId, survey.Id)
+                        .With(s => s.SelectorType, SelectorType.Random)
+                        .With(s => s.Order, i++)
+                        .Without(s => s.Survey)
+                        .Without(s => s.Pages)
+                        .Without(s => s.TestSectionMarkers)
+                        .Create();
+
+                    //((HashSet<Page>)section.Pages).UnionWith(PageBuilder(section));
+
+                    yield return section;
+                }
+            }
 
             IEnumerable<Test> TestBuilder(Survey survey)
             {
@@ -81,26 +109,6 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 yield return test;
             }
 
-                if (!makeTest)
-                    yield break;
-
-                ++callCount;
-                var test = Fixture.Build<Test>()
-                            .With(t => t.UserId, UserId)
-                            .With(t => t.SurveyId, survey.Id)
-                            .With(t => t.Modified, callCount % 10 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
-                            .With(t => t.Completed, callCount % 4 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
-                            .With(t => t.Survey, survey)
-                            .Without(t => t.TestResponses)
-                            .Without(t => t.TestSectionMarkers)
-                            .Create();
-
-                //((HashSet<TestSectionMarker>)test.TestSectionMarkers).UnionWith(TestSectionMarkerBuilder(test));
-                //((HashSet<TestResponse>)test.TestResponses).UnionWith(TestResponseBuilder(test));
-
-                yield return test;
-            }
-
             Surveys = Enumerable.Range(0, 20).Select(i =>
             {
                 var survey = Fixture
@@ -112,129 +120,41 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                     .Without(s => s.Tests)
                     .Create();
 
+                survey.Sections = new HashSet<Section>(SectionBuilder(survey).Take(Fixture.Create<int>() % 5 + 2));
+
                 survey.Tests = new HashSet<Test>(TestBuilder(survey));
 
                 return survey;
             }).ToList();
 
-
             UserSurveys = Surveys
                 .Where(s => s.IsActive && !s.Deleted.HasValue)
                 .Select(s =>
-            {
-                var test = s.Tests.SingleOrDefault(t => t.UserId.Equals(UserId, StringComparison.OrdinalIgnoreCase));
-                if (test == null)
                 {
-                    return Fixture
-                        .Build<UserSurvey>()
-                        .With(us => us.UserId, UserId)
-                        .With(us => us.Id, s.Id)
-                        .With(us => us.Name, s.Name)
-                        .With(us => us.Description, s.Description)
-                        .With(us => us.Version, s.Version)
-                        .With(us => us.Created, s.Created)
-                        .With(us => us.Modified, s.Modified)
-                        .Without(us => us.Started)
-                        .Without(us => us.Completed)
-                        .Create();
-                }
+                    var test = includeCompleted
+                        ? s.Tests.SingleOrDefault(t => t.UserId.Equals(UserId, StringComparison.CurrentCulture))
+                        : s.Tests.SingleOrDefault(t => t.UserId.Equals(UserId, StringComparison.CurrentCulture) && !t.Completed.HasValue);
 
-                return Fixture
-                    .Build<UserSurvey>()
-                    .With(us => us.UserId, UserId)
-                    .With(us => us.Id, test.Survey.Id)
-                    .With(us => us.Name, test.Survey.Name)
-                    .With(us => us.Description, test.Survey.Description)
-                    .With(us => us.Version, test.Survey.Version)
-                    .With(us => us.Created, test.Survey.Created)
-                    .With(us => us.Modified, test.Survey.Modified)
-                    .With(us => us.Started, test.Started)
-                    .With(us => us.Completed, test.Completed)
-                    .Create();
-            }).ToList();
+                    var userSurvey = new UserSurvey
+                    {
+                        UserId = UserId,
+                        Id = s.Id,
+                        Name = s.Name,
+                        Description = s.Description,
+                        Version = s.Version,
+                        IsActive = s.IsActive,
+                        Created = s.Created,
+                        Modified = s.Modified,
+                        Started = test?.Started,
+                        Completed = test?.Completed
+                    };
 
-
-            //Surveys.SelectMany(s => s.Tests)
-            //.Select(t =>
-            //{
-            //    var userSurvey = Fixture
-            //        .Build<UserSurvey>()
-            //        .With(us => us.UserId, UserId)
-            //        .With(us => us.Id, t.Survey.Id)
-            //        .With(us => us.Name, t.Survey.Name)
-            //        .With(us => us.Description, t.Survey.Description)
-            //        .With(us => us.Version, t.Survey.Version)
-            //        .With(us => us.Created, t.Survey.Created)
-            //        .With(us => us.Modified, t.Survey.Modified)
-            //        .With(us => us.Started, t.Started)
-            //        .With(us => us.Completed, t.Completed)
-            //        .Create();
-            //    return userSurvey;
-            //})
-            //.ToList();
-
-
-
-
-
-            //if (includeCompleted)
-            //{
-            //    UserId = UserIds.Shuffle().First();
-            //    Test = Tests.Where(t => t.UserId.Equals(UserId, StringComparison.OrdinalIgnoreCase)).Shuffle().First();
-            //    SurveyId = Test.SurveyId;
-            //    Survey = Test.Survey;
-            //}
-            //else
-            //{
-            //    Test = userHasResponses 
-            //        ? Tests.Where(t => !t.Completed.HasValue && t.TestResponses.Any()).Shuffle().First() 
-            //        : Tests.Where(t => !t.Completed.HasValue).Shuffle().First();
-
-            //    TestId = Test.Id;
-            //    UserId = Test.UserId;
-            //    Survey = Test.Survey;
-            //    SurveyId = Test.SurveyId;
-            //    var testSections =
-            //        (from s in Test.Survey.Sections
-            //        join tsm in Test.TestSectionMarkers on s.Id equals tsm.SectionId into stsm
-            //        from tsm in stsm.DefaultIfEmpty()
-            //        select new {Section = s, TestSectionMarker = tsm})
-            //        .ToList();
-
-            //    Section = testSections
-            //        .First(i => !i.TestSectionMarker.Completed.HasValue || i.TestSectionMarker == default(TestSectionMarker))
-            //        .Section;
-            //    SectionId = Section.Id;
-
-            //    var testPages =
-            //        from p in testSections
-            //        .First(i => !i.TestSectionMarker.Completed.HasValue || i.TestSectionMarker == default(TestSectionMarker))
-            //        .Section.Pages
-            //        join tr in Test.TestResponses on p.Id equals tr.PageId into ptr
-            //        from tr in ptr.DefaultIfEmpty()
-            //        select new {Page = p, TestResponse = tr};
-
-            //    Page = testPages
-            //        .First(i => i.TestResponse == default(TestResponse))
-            //        .Page;
-
-            //    PageId = Page.Id;
-            //}
-
-            //if (invalidSurvey)
-            //{
-            //    SurveyId = Surveys.Max(s => s.Id) + 1;
-            //}
-
-            //if (invalidSection)
-            //{
-            //    SectionId = Sections.Max(s => s.Id) + 1;
-            //}
-
+                    return userSurvey;
+                }).ToList();
         }
 
-        public IList<Survey> Surveys { get; set; }// = (FixtureData<Survey>.Load(SurveyFakeDataPath) ?? GenerateSurveyFixtureData(4).CacheAs(SurveyFakeDataPath)).Apply(SurveyJoiner).ToList();
-        //public IList<Section> Sections => Surveys.SelectMany(s => s.Sections).ToList();
+        public IList<Survey> Surveys { get; set; }
+        public IList<Section> Sections => Surveys.SelectMany(s => s.Sections).ToList();
         //public IList<Page> Pages => Sections.SelectMany(s => s.Pages).ToList();
         //public IList<Test> Tests => Surveys.SelectMany(s => s.Tests).ToList();
         //public IList<TestSectionMarker> TestSectionMarkers => Tests.SelectMany(t => t.TestSectionMarkers).ToList();
@@ -243,6 +163,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
 
         public IList<UserSurvey> UserSurveys { get; set; }
+        public IList<IUserSection> UserSections { get; set; }
 
         public string UserId { get; set; }
         public Survey Survey { get; set; }

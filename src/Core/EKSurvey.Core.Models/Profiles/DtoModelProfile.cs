@@ -20,7 +20,8 @@ namespace EKSurvey.Core.Models.Profiles
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Survey.Description))
                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Survey.Version))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Survey.IsActive))
-                .ForMember(dest => dest.Created, opt => opt.MapFrom(src => src.Survey.Created));
+                .ForMember(dest => dest.Created, opt => opt.MapFrom(src => src.Survey.Created))
+                .ForMember(dest => dest.Modified, opt => opt.MapFrom(src => src.Survey.Modified));
 
             CreateMap<Survey, UserSurvey>()
                 // Id, Name, Version, IsActive, Created, Modified mapped
