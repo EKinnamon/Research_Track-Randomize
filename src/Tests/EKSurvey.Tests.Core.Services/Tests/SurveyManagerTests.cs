@@ -157,7 +157,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
 
-            var userSections = _context.Service.GetUserSections(_context.UserId, _context.SurveyId);
+            var userSections = _context.Service.GetUserSections(_context.UserId, _context.Survey.Id);
 
             userSections.Should().NotBeNull();
             userSections.Should().NotContainNulls();

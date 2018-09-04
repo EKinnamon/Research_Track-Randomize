@@ -21,7 +21,10 @@ namespace EKSurvey.Core.Models.Comparers
                 .ToArray();
         }
 
-        public bool Equals(T x, T y) => _properties.All(p => p.GetValue(x).Equals(p.GetValue(y)));
+        public bool Equals(T x, T y) => _properties.All(p => 
+            (x != null || y == null) && 
+            (x == null || y != null) && 
+            p.GetValue(x).Equals(p.GetValue(y)));
 
         public int GetHashCode(T obj) => _properties
             .Select(property => property.GetValue(obj))

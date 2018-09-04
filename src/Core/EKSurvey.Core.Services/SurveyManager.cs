@@ -248,7 +248,7 @@ namespace EKSurvey.Core.Services
 
         private void ThrowIfSurveyDoesNotExist(int surveyId)
         {
-            var survey = Surveys.Find(surveyId);
+            var survey = GetActiveSurveys().SingleOrDefault(s => s.Id == surveyId);
 
             if (survey == null)
                 throw new SurveyNotFoundException(surveyId);
@@ -256,7 +256,7 @@ namespace EKSurvey.Core.Services
 
         private async Task ThrowIfSurveyDoesNotExistAsync(int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var survey = await Surveys.FindAsync(cancellationToken, surveyId);
+            var survey = await (await GetActiveSurveysAsync(cancellationToken)).SingleOrDefaultAsync(s => s.Id == surveyId, cancellationToken);
 
             if (survey == null)
                 throw new SurveyNotFoundException(surveyId);
