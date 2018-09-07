@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Data.Entity;
 using System.Linq;
 
@@ -199,32 +200,27 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 }
                 else
                 {
-                    var markedSections =
-                        from s in test.Survey.Sections
-                        join tsm in test.Survey.Sections.SelectMany(s => s.TestSectionMarkers) on s.Id equals tsm.SectionId into sm
-                        from m in sm.DefaultIfEmpty()
-                        select new {s, m};
+                    var sections = test.Survey.Sections.GroupBy(s => s.Order);
+                    var unansweredSections = sections.TakeUntil(sg => sg.Any(i => i.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue)));
 
-                    var firstIncompleteSectionId = markedSections.First(s => s.m == null).s.Id;
+                    //var sections = test
+                    //    .Survey
+                    //    .Sections
+                    //    .OrderBy(s => s.Order)
+                    //    .TakeUntil(s => s.Id != sectionId);
 
-                    var sections = test
-                        .Survey
-                        .Sections
-                        .OrderBy(s => s.Order)
-                        .TakeUntil(s => s.Id != sectionId);
+                    //var section = test.Survey.Sections.Single(s => s.Id == sectionId);
 
-                    var section = test.Survey.Sections.Single(s => s.Id == sectionId);
+                    //selectedPageId = section
+                    //    .Pages
+                    //    .Shuffle()
+                    //    .First()
+                    //    .Id;
 
-                    selectedPageId = section
-                        .Pages
-                        .Shuffle()
-                        .First()
-                        .Id;
-
-                    pages = sections.OrderBy(s => s.Order)
-                        .SelectMany(s => s.Pages)
-                        .OrderBy(p => p.Order)
-                        .TakeWhile(p => p.Id != selectedPageId);
+                    //pages = sections.OrderBy(s => s.Order)
+                    //    .SelectMany(s => s.Pages)
+                    //    .OrderBy(p => p.Order)
+                    //    .TakeWhile(p => p.Id != selectedPageId);
                 }
 
                 foreach (var page in pages)
