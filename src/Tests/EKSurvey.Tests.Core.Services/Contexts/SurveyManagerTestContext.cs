@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Data.Entity;
 using System.Linq;
 
@@ -163,15 +162,16 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             {
                 var sectionGroupCount = test.Survey.Sections.Select(s => s.Order).Distinct().Count();
                 var sectionCount = Fixture.Create<int>() % sectionGroupCount + 1;
-                var sections = test.Completed.HasValue
+                var finishSection = Fixture.Create<bool>();
+                var sections = (test.Completed.HasValue
                     ? test.Survey.Sections.GroupBy(s => s.Order)
-                    : test.Survey.Sections.GroupBy(s => s.Order).Take(sectionCount);
+                    : test.Survey.Sections.GroupBy(s => s.Order).Take(sectionCount))
+                    .ToList();
 
                 var lastKey = sections.Last().Key;
 
                 foreach (var sectionGroup in sections.OrderBy(s => s.Key))
                 {
-                    var finishSection = Fixture.Create<bool>();
                     var section = sectionGroup.Count() == 1
                         ? sectionGroup.Single()
                         : sectionGroup.Shuffle().First();
@@ -182,7 +182,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                         .With(t => t.Test, test)
                         .With(t => t.SectionId, section.Id)
                         .With(t => t.Section, section)
-                        .With(t => t.Completed, sectionGroup.Key == lastKey && finishSection ? Fixture.Create<DateTime>() : (DateTime?) null)
+                        .With(t => t.Completed, sectionGroup.Key != lastKey || finishSection ? Fixture.Create<DateTime>() : (DateTime?) null)
                         .Create();
 
                     yield return userSection;
@@ -200,8 +200,57 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                 }
                 else
                 {
-                    var sections = test.Survey.Sections.GroupBy(s => s.Order);
-                    var unansweredSections = sections.TakeUntil(sg => sg.Any(i => i.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue)));
+                    var sections = test.Survey.Sections.GroupBy(s => s.Order).ToList();
+                    var sectionRun = sections
+                        .SkipWhile(sg => sg.Any(i => i.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue)))
+                        .ToList();
+                    int incompleteSectionId;
+                    if (sectionRun.First().Any(i => i.TestSectionMarkers.Any()))
+                    {
+                        var sectionGroup = sections.First(sg => !sg.Any(i => i.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue)));
+                        if (sectionGroup.Count() > 1)
+                        {
+                            incompleteSectionId = sectionGroup
+                                .Single(sg => sg.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue))
+                                .Id;
+                        }
+                        else
+                        {
+                            incompleteSectionId = sectionGroup.Single().Id;
+                        }
+                    }
+                    else
+                    {
+                        if (sectionRun.Count > 1)
+                        {
+
+                        }
+                        else
+                        {
+                            incompleteSectionId = sectionRun.First().First().Id;
+                        }
+                        
+                    }
+
+                    //var incompleteSectionId = sectionRun
+                    //    .First()
+                    //    .Single(i =>
+                    //    {
+                    //        if (i.TestSectionMarkers.Any(tsm => !tsm.Completed.HasValue))
+                    //            return true;
+                    //    })
+                    //    //.Single(i => i.TestSectionMarkers.Any(tsm => !tsm.Completed.HasValue) || i.)
+                    //    .Id;
+
+                    pages = sections.Select(sg =>
+                    {
+                        if (sg.Any(i => i.Id == incompleteSectionId))
+                            return sg.Single(s => s.Id == incompleteSectionId);
+                        return sg.Count() > 1 
+                            ? sg.Single(s => s.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue)) 
+                            : sg.Single();
+                    }).SelectMany(s => s.Pages)
+                    .ToList();
 
                     //var sections = test
                     //    .Survey
@@ -242,31 +291,34 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
             IEnumerable<Test> TestBuilder(Survey survey)
             {
-                var i = survey.Id ^ Fixture.Create<int>();
-                if (i % 2 == 0)
-                    yield break;
+                while (true)
+                {
+                    var i = survey.Id ^ Fixture.Create<int>();
+                    if (i % 2 == 0)
+                        yield break;
 
-                var test = Fixture.Build<Test>()
-                    .With(t => t.UserId, UserId)
-                    .With(t => t.SurveyId, survey.Id)
-                    .With(t => t.Modified, i % 10 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
-                    .With(t => t.Completed, i % 4 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
-                    .With(t => t.Survey, survey)
-                    .Without(t => t.TestResponses)
-                    .Without(t => t.TestSectionMarkers)
-                    .Create();
+                    var test = Fixture.Build<Test>()
+                        .With(t => t.UserId, UserId)
+                        .With(t => t.SurveyId, survey.Id)
+                        .With(t => t.Modified, i % 10 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
+                        .With(t => t.Completed, i % 4 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
+                        .With(t => t.Survey, survey)
+                        .Without(t => t.TestResponses)
+                        .Without(t => t.TestSectionMarkers)
+                        .Create();
 
-                test.TestSectionMarkers = new HashSet<TestSectionMarker>(TestSectionMarkerBuilder(test));
-                survey.Sections = new HashSet<Section>(survey.Sections.Select(s =>
+                    test.TestSectionMarkers = new HashSet<TestSectionMarker>(TestSectionMarkerBuilder(test));
+                    survey.Sections = new HashSet<Section>(survey.Sections.Select(s =>
                     {
                         s.TestSectionMarkers =
                             new HashSet<TestSectionMarker>(test.TestSectionMarkers.Where(tsm => tsm.SectionId == s.Id));
                         return s;
                     }));
 
-                test.TestResponses = new HashSet<TestResponse>(TestResponseBuilder(test));
+                    test.TestResponses = new HashSet<TestResponse>(TestResponseBuilder(test));
 
-                yield return test;
+                    yield return test;
+                }
             }
 
             Surveys = Enumerable.Range(1, 20).Select(i =>
@@ -282,7 +334,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
                 survey.Sections = new HashSet<Section>(SectionBuilder(survey).Take(Fixture.Create<int>() % 15 + 2));
 
-                survey.Tests = new HashSet<Test>(TestBuilder(survey));
+                survey.Tests = new HashSet<Test>(TestBuilder(survey).Take(1));
 
                 return survey;
             }).ToList();
@@ -325,9 +377,16 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                     IUserSection section;
                     if (s.Count() == 1)
                     {
-                        var test = s.Single().Survey.Tests.SingleOrDefault(t =>
-                            t.UserId.Equals(UserId, StringComparison.OrdinalIgnoreCase));
-                        section = new UserSection();
+                        var test = s.Single().Survey.Tests.SingleOrDefault(t => t.UserId.Equals(UserId, StringComparison.OrdinalIgnoreCase));
+                        section = new UserSection
+                        {
+                            UserId = test.UserId,
+                            SurveyId = test.SurveyId,
+                            TestId = test.Id,
+                            Order = s.Key,
+                            Started = s.Single().TestSectionMarkers.Single(tsm => tsm.TestId == test.Id).Started,
+                            Modified = s.Single().TestSectionMarkers.Single(tsm => tsm.TestId == test.Id).
+                        };
                     }
                     else
                     {
@@ -345,7 +404,6 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         public IList<TestSectionMarker> TestSectionMarkers => Tests.SelectMany(t => t.TestSectionMarkers).ToList();
         //public IList<TestResponse> TestResponses => Tests.SelectMany(t => t.TestResponses).ToList();
         //public IList<string> UserIds => Tests.Select(t => t.UserId).ToList();
-
 
         public IList<UserSurvey> UserSurveys { get; set; }
         public IList<IUserSection> UserSections { get; set; }
