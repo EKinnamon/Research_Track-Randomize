@@ -400,51 +400,150 @@ namespace EKSurvey.Tests.Core.Services.Contexts
         {
             UserId = Guid.NewGuid().ToString();
             var surveyId = 0;
+            var sectionId = 0;
 
             IEnumerable<UserSurvey> UserSurveyBuilder()
             {
                 while (true)
                 {
-                    var surveyComplete = includeCompleted || Fixture.Create<bool>();
+                    var surveyComplete = surveyId % 2 == 0;
                     var userSurvey = Fixture
                         .Build<UserSurvey>()
                         .With(us => us.UserId, UserId)
                         .With(us => us.Id, ++surveyId)
-                        .With(us => us.IsActive, true)
                         .With(us => us.Completed, surveyComplete ? Fixture.Create<DateTime?>() : null)
                         .Create();
 
                     yield return userSurvey;
                 }
             }
-                
-            UserSurveys = UserSurveyBuilder().Take(Fixture.Create<int>() % 20 + 1).ToList();
-        }
 
-        public IList<Survey> Surveys { get; set; }
-        public IList<Section> Sections => Surveys.SelectMany(s => s.Sections).ToList();
-        public IList<Page> Pages => Sections.SelectMany(s => s.Pages).ToList();
-        public IList<Test> Tests => Surveys.SelectMany(s => s.Tests).ToList();
-        public IList<TestSectionMarker> TestSectionMarkers => Tests.SelectMany(t => t.TestSectionMarkers).ToList();
-        //public IList<TestResponse> TestResponses => Tests.SelectMany(t => t.TestResponses).ToList();
-        //public IList<string> UserIds => Tests.Select(t => t.UserId).ToList();
+            IEnumerable<IUserSection> UserSectionBuilder()
+            {
+                IEnumerable<IUserSection> userSections;
+
+                var sectionCount = Fixture.Create<int>() % 8 + 3;
+                var sectionCompleteCount = UserSurvey.Completed.HasValue 
+                    ? sectionCount 
+                    : Fixture.Create<int>() % sectionCount;
+
+                var transition = Fixture.Create<bool>();
+                userSections = Enumerable.Range(0, sectionCount).Select(i =>
+                {
+                    IUserSection section;
+                    var isGroup = i % 5 == 2;
+                    if (isGroup)
+                    {
+                        var subSections = Fixture
+                            .Build<UserSection>()
+                            .With(us => us.UserId, UserId)
+                            .With(us => us.SurveyId, Survey.Id)
+                            .With(us => us.TestId, Test.Id)
+                            .With(us => us.Order, i)
+                            .With(us => us.Id, ++sectionId)
+                            .With(us => us.Started, i <= sectionCompleteCount || (i == sectionCompleteCount && transition) ? Fixture.Create<DateTime?>() : null)
+                            .With(us => us.Completed, i <= sectionCompleteCount ? Fixture.Create<DateTime?>() : null)
+                            .CreateMany(Fixture.Create<int>() % 5 + 1);
+
+                        section = new UserSectionGroup(subSections);
+                    }
+                    else
+                    {
+                        section = Fixture
+                            .Build<UserSection>()
+                            .With(us => us.UserId, UserId)
+                            .With(us => us.SurveyId, Survey.Id)
+                            .With(us => us.TestId, Test.Id)
+                            .With(us => us.Order, i)
+                            .With(us => us.Id, ++sectionId)
+                            .Create();
+                    }
+
+                    return section;
+                });
+
+               return userSections;
+            }
+
+            UserSurveys = UserSurveyBuilder().Take(Fixture.Create<int>() % 8 + 3).ToList();
+
+            Surveys = UserSurveys.Select(us =>
+            {
+                var tests = !us.Started.HasValue
+                    ? new HashSet<Test>()
+                    : new[]
+                    {
+                        Fixture
+                            .Build<Test>()
+                            .With(t => t.UserId, us.UserId)
+                            .With(t => t.SurveyId, us.Id)
+                            .With(t => t.Started, us.Started.GetValueOrDefault())
+                            .With(t => t.Modified, us.Modified)
+                            .With(t => t.Completed, us.Completed)
+                            .Without(t => t.Survey)
+                            .Without(t => t.TestResponses)
+                            .Without(t => t.TestSectionMarkers)
+                            .Create()
+                    }.ToHashSet();
+
+                var survey = Fixture
+                    .Build<Survey>()
+                    .With(s => s.Id, us.Id)
+                    .With(s => s.Name, us.Name)
+                    .With(s => s.Description, us.Description)
+                    .With(s => s.Version, us.Version)
+                    .With(s => s.IsActive, true)
+                    .With(s => s.Created, us.Created)
+                    .With(s => s.Modified, us.Modified)
+                    .With(s => s.Tests, tests)
+                    .Without(s => s.Deleted)
+                    .Without(s => s.Sections)
+                    .Create();
+
+                if (!tests.Any())
+                    return survey;
+
+                survey.Tests = survey.Tests.Select(t =>
+                {
+                    t.Survey = survey;
+                    return t;
+                }).ToHashSet();
+
+                return survey;
+            }).ToList();
+
+            Survey = Surveys.Shuffle().First();
+            UserSurvey = UserSurveys.Single(us => us.Id == Survey.Id);
+            Test = Survey.Tests.Single(t => t.UserId.Equals(UserId, StringComparison.OrdinalIgnoreCase));
+
+            UserSections = UserSectionBuilder().ToList();
+        }
 
         public IList<UserSurvey> UserSurveys { get; set; }
         public IList<IUserSection> UserSections { get; set; }
 
         public string UserId { get; set; }
         public Survey Survey { get; set; }
+        public UserSurvey UserSurvey { get; set; }
         public Section Section { get; set; }
         public Page Page { get; set; }
         public Test Test { get; set; }
 
+        public IList<Survey> Surveys { get; set; }
+        //public IList<Section> Sections => Surveys.SelectMany(s => s.Sections).ToList();
+        //public IList<Page> Pages => Sections.SelectMany(s => s.Pages).ToList();
+        public IList<Test> Tests => Surveys.SelectMany(s => s.Tests).ToList();
+        //public IList<TestSectionMarker> TestSectionMarkers => Tests.SelectMany(t => t.TestSectionMarkers).ToList();
+        //public IList<TestResponse> TestResponses => Tests.SelectMany(t => t.TestResponses).ToList();
+        //public IList<string> UserIds => Tests.Select(t => t.UserId).ToList();
+
         public void PrepareServiceHelperCalls()
         {
             SurveySet.FakedObject.SetupData(Surveys, i => Surveys.SingleOrDefault(s => i.OfType<int>().Any(si => s.Id == si)));
-            SectionSet.FakedObject.SetupData(Sections, i => Sections.SingleOrDefault(s => i.OfType<int>().Any(si => s.Id == si)));
-            PageSet.FakedObject.SetupData(Pages, i => Pages.SingleOrDefault(p => i.OfType<int>().Any(pi => p.Id == pi)));
+            //SectionSet.FakedObject.SetupData(Sections, i => Sections.SingleOrDefault(s => i.OfType<int>().Any(si => s.Id == si)));
+            //PageSet.FakedObject.SetupData(Pages, i => Pages.SingleOrDefault(p => i.OfType<int>().Any(pi => p.Id == pi)));
             TestSet.FakedObject.SetupData(Tests, i => Tests.SingleOrDefault(t => i.OfType<Guid>().Any(ti => t.Id == ti)));
-            TestSectionMarkerSet.FakedObject.SetupData(TestSectionMarkers, i => TestSectionMarkers.SingleOrDefault(t => i.OfType<Guid>().Any(tsi => t.Id == tsi)));
+            //TestSectionMarkerSet.FakedObject.SetupData(TestSectionMarkers, i => TestSectionMarkers.SingleOrDefault(t => i.OfType<Guid>().Any(tsi => t.Id == tsi)));
             //TestResponseSet.FakedObject.SetupData(TestResponses, i => TestResponses.SingleOrDefault(t => i.OfType<Guid>().Any(tri => t.Id == tri)));
 
             A.CallTo(() => DbContext.FakedObject.Set<Survey>()).Returns(SurveySet.FakedObject);

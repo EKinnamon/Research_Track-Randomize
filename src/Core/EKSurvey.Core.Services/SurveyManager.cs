@@ -134,70 +134,62 @@ namespace EKSurvey.Core.Services
 
         public ICollection<UserSurvey> GetUserSurveys(string userId, bool includeCompleted = false)
         {
-            IQueryable<Test> tests;
-
             var userSurveys = new HashSet<UserSurvey>(EntityComparer<UserSurvey>.Id);
             var surveys = GetActiveSurveys();
-            
+
+            var tests = from s in surveys
+                from t in s.Tests
+                where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase)
+                select t;
+
+            var unansweredSurveys =
+                from s in surveys
+                where !s.Tests.Any(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase))
+                select s;
+
+            userSurveys.UnionWith(_mapper.Map<IEnumerable<UserSurvey>>(tests.Where(t => !t.Completed.HasValue)));
+            userSurveys.UnionWith(_mapper.Map<IEnumerable<UserSurvey>>(unansweredSurveys)
+                .Select(us =>
+                {
+                    us.UserId = userId;
+                    return us;
+                }));
+
             if (includeCompleted)
             {
-                tests = 
-                    from s in surveys
-                    from t in s.Tests
-                    where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase)
-                    select t;
+                userSurveys.UnionWith(_mapper.Map<IEnumerable<UserSurvey>>(tests.Where(t => t.Completed.HasValue)));
             }
-            else
-            {
-                tests = 
-                    from s in surveys
-                    from t in s.Tests
-                    where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && !t.Completed.HasValue
-                    select t;
-            }
-
-            userSurveys.UnionWith(_mapper.Map<IEnumerable<UserSurvey>>(tests));
-            userSurveys.UnionWith(_mapper.Map<IEnumerable<UserSurvey>>(surveys)
-                .Select(us =>
-            {
-                us.UserId = userId;
-                return us;
-            }));
 
             return userSurveys;
         }
 
         public async Task<ICollection<UserSurvey>> GetUserSurveysAsync(string userId, bool includeCompleted = false, CancellationToken cancellationToken = default(CancellationToken))
         {
-            IQueryable<Test> tests;
-
             var userSurveys = new HashSet<UserSurvey>(EntityComparer<UserSurvey>.Id);
             var surveys = await GetActiveSurveysAsync(cancellationToken);
 
-            if (includeCompleted)
-            {
-                tests =
-                    from s in surveys
-                    from t in s.Tests
-                    where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase)
-                    select t;
-            }
-            else
-            {
-                tests =
-                    from s in surveys
-                    from t in s.Tests
-                    where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && !t.Completed.HasValue
-                    select t;
-            }
+            var tests = from s in surveys
+                from t in s.Tests
+                where t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase)
+                select t;
 
-            userSurveys.UnionWith(_mapper.Map<IEnumerable<UserSurvey>>(tests));
-            userSurveys.UnionWith(_mapper.Map<IEnumerable<UserSurvey>>(surveys)
+            var unansweredSurveys =
+                from s in surveys
+                where !s.Tests.Any(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase))
+                select s;
+
+            userSurveys.UnionWith(_mapper.Map<IEnumerable<UserSurvey>>(tests.Where(t => !t.Completed.HasValue)));
+            userSurveys.UnionWith(_mapper.Map<IEnumerable<UserSurvey>>(unansweredSurveys)
                 .Select(us =>
                 {
                     us.UserId = userId;
                     return us;
                 }));
+
+            if (includeCompleted)
+            {
+                userSurveys.UnionWith(_mapper.Map<IEnumerable<UserSurvey>>(tests.Except(tests.Where(t => !t.Completed.HasValue))));
+            }
 
             return userSurveys;
         }

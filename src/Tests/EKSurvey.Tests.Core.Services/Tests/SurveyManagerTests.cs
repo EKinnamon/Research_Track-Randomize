@@ -118,7 +118,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
             userSurveys.Should().NotBeNull();
             userSurveys.Should().NotContainNulls();
             userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
-            userSurveys.Should().BeEquivalentTo(_context.UserSurveys);
+            userSurveys.Should().BeEquivalentTo(_context.UserSurveys.Where(us => !us.Completed.HasValue || includeCompleted));
 
             if (!includeCompleted)
             {
@@ -141,7 +141,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
             userSurveys.Should().NotBeNull();
             userSurveys.Should().NotContainNulls();
             userSurveys.Should().BeAssignableTo<ICollection<UserSurvey>>();
-            userSurveys.Should().BeEquivalentTo(_context.UserSurveys);
+            userSurveys.Should().BeEquivalentTo(_context.UserSurveys.Where(us => !us.Completed.HasValue || includeCompleted));
 
             if (!includeCompleted)
             {

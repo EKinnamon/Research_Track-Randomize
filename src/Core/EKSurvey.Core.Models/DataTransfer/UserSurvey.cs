@@ -14,8 +14,6 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public string Version { get; set; }
 
-        public bool IsActive { get; set; }
-
         public DateTime Created { get; set; }
 
         public DateTime? Modified { get; set; }
