@@ -9,7 +9,6 @@ using AutoMapper;
 
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
-using EKSurvey.Core.Models.Enums;
 using EKSurvey.Core.Models.Profiles;
 using EKSurvey.Core.Services;
 
@@ -60,341 +59,366 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             Fixture.Inject(Rng.FakedObject);
         }
 
+        //public void PrepareTestEntities(bool includeCompleted = false)
+        //{
+        //    UserId = Guid.NewGuid().ToString();
+
+        //    var sectionId = 0;
+        //    var pageId = 0;
+
+        //    IEnumerable<Page> PageBuilder(Section section)
+        //    {
+        //        var pageTypes = new List<Func<Page>>
+        //            {
+        //                () => Fixture
+        //                    .Build<FreeTextQuestion>()
+        //                    .With(q => q.Id, ++pageId)
+        //                    .Without(q => q.Section)
+        //                    .Without(q => q.TestResponses)
+        //                    .Create(),
+        //                () => Fixture
+        //                    .Build<RangeQuestion>()
+        //                    .With(q => q.Id, ++pageId)
+        //                    .Without(q => q.Section)
+        //                    .Without(q => q.TestResponses)
+        //                    .Create(),
+        //                () => Fixture
+        //                    .Build<StaticTextPage>()
+        //                    .With(q => q.Id, ++pageId)
+        //                    .Without(q => q.Section)
+        //                    .Without(q => q.TestResponses)
+        //                    .Create(),
+        //                () => Fixture
+        //                    .Build<TrueFalseQuestion>()
+        //                    .With(q => q.Id, ++pageId)
+        //                    .Without(q => q.Section)
+        //                    .Without(q => q.TestResponses)
+        //                    .Create()
+        //            };
+
+        //        var order = 0;
+
+        //        while (true)
+        //        {
+        //            var page = pageTypes[Fixture.Create<int>() % pageTypes.Count].Invoke();
+        //            page.SectionId = section.Id;
+        //            page.Order = ++order;
+        //            yield return page;
+        //        }
+        //    }
+
+        //    IEnumerable<Section> SectionBuilder(Survey survey)
+        //    {
+        //        var i = 0;
+        //        while (true)
+        //        {
+        //            var makeCluster = Fixture.Create<int>() % 5 == 0;
+
+        //            if (!makeCluster)
+        //            {
+        //                var section = Fixture.Build<Section>()
+        //                    .With(s => s.Id, ++sectionId)
+        //                    .With(s => s.Survey, survey)
+        //                    .With(s => s.SurveyId, survey.Id)
+        //                    .With(s => s.SelectorType, SelectorType.Random)
+        //                    .With(s => s.Order, i++)
+        //                    .Without(s => s.Pages)
+        //                    .Without(s => s.TestSectionMarkers)
+        //                    .Create();
+
+        //                section.Pages = new HashSet<Page>(PageBuilder(section).Take(Fixture.Create<int>() % 15 + 2));
+
+        //                yield return section;
+        //            }
+        //            else
+        //            {
+        //                var order = i;
+        //                var cluster = Enumerable.Range(1, Fixture.Create<int>() % 5 + 1)
+        //                    .Select(j =>
+        //                    {
+        //                        var section = Fixture.Build<Section>()
+        //                            .With(s => s.Id, ++sectionId)
+        //                            .With(s => s.Survey, survey)
+        //                            .With(s => s.SurveyId, survey.Id)
+        //                            .With(s => s.SelectorType, SelectorType.Random)
+        //                            .With(s => s.Order, order)
+        //                            .Without(s => s.Pages)
+        //                            .Without(s => s.TestSectionMarkers)
+        //                            .Create();
+
+        //                        section.Pages = new HashSet<Page>(PageBuilder(section).Take(Fixture.Create<int>() % 15 + 2));
+
+        //                        return section;
+        //                    });
+
+        //                foreach (var section in cluster)
+        //                    yield return section;
+        //            }
+        //        }
+        //    }
+
+        //    IEnumerable<TestSectionMarker> TestSectionMarkerBuilder(Test test)
+        //    {
+        //        var sectionGroupCount = test.Survey.Sections.Select(s => s.Order).Distinct().Count();
+        //        var sectionCount = Fixture.Create<int>() % sectionGroupCount + 1;
+        //        var finishSection = Fixture.Create<bool>();
+        //        var sections = (test.Completed.HasValue
+        //            ? test.Survey.Sections.GroupBy(s => s.Order)
+        //            : test.Survey.Sections.GroupBy(s => s.Order).Take(sectionCount))
+        //            .ToList();
+
+        //        var lastKey = sections.Last().Key;
+
+        //        foreach (var sectionGroup in sections.OrderBy(s => s.Key))
+        //        {
+        //            var section = sectionGroup.Count() == 1
+        //                ? sectionGroup.Single()
+        //                : sectionGroup.Shuffle().First();
+
+        //            var userSection = Fixture
+        //                .Build<TestSectionMarker>()
+        //                .With(t => t.TestId, test.Id)
+        //                .With(t => t.Test, test)
+        //                .With(t => t.SectionId, section.Id)
+        //                .With(t => t.Section, section)
+        //                .With(t => t.Completed, sectionGroup.Key != lastKey || finishSection ? Fixture.Create<DateTime>() : (DateTime?) null)
+        //                .Create();
+
+        //            yield return userSection;
+        //        }
+        //    }
+
+        //    IEnumerable<TestResponse> TestResponseBuilder(Test test)
+        //    {
+        //        IEnumerable<Page> pages;
+        //        int? selectedPageId = null;
+
+        //        if (test.Completed.HasValue)
+        //        {
+        //            pages = test.Survey.Sections.SelectMany(s => s.Pages);
+        //        }
+        //        else
+        //        {
+        //            var sections = test.Survey.Sections.GroupBy(s => s.Order).ToList();
+        //            var sectionRun = sections
+        //                .SkipWhile(sg => sg.Any(i => i.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue)))
+        //                .ToList();
+        //            int incompleteSectionId;
+        //            if (sectionRun.First().Any(i => i.TestSectionMarkers.Any()))
+        //            {
+        //                var sectionGroup = sections.First(sg => !sg.Any(i => i.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue)));
+        //                if (sectionGroup.Count() > 1)
+        //                {
+        //                    incompleteSectionId = sectionGroup
+        //                        .Single(sg => sg.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue))
+        //                        .Id;
+        //                }
+        //                else
+        //                {
+        //                    incompleteSectionId = sectionGroup.Single().Id;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                if (sectionRun.Count > 1)
+        //                {
+
+        //                }
+        //                else
+        //                {
+        //                    incompleteSectionId = sectionRun.First().First().Id;
+        //                }
+                        
+        //            }
+
+        //            //var incompleteSectionId = sectionRun
+        //            //    .First()
+        //            //    .Single(i =>
+        //            //    {
+        //            //        if (i.TestSectionMarkers.Any(tsm => !tsm.Completed.HasValue))
+        //            //            return true;
+        //            //    })
+        //            //    //.Single(i => i.TestSectionMarkers.Any(tsm => !tsm.Completed.HasValue) || i.)
+        //            //    .Id;
+
+        //            pages = sections.Select(sg =>
+        //            {
+        //                if (sg.Any(i => i.Id == incompleteSectionId))
+        //                    return sg.Single(s => s.Id == incompleteSectionId);
+        //                return sg.Count() > 1 
+        //                    ? sg.Single(s => s.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue)) 
+        //                    : sg.Single();
+        //            }).SelectMany(s => s.Pages)
+        //            .ToList();
+
+        //            //var sections = test
+        //            //    .Survey
+        //            //    .Sections
+        //            //    .OrderBy(s => s.Order)
+        //            //    .TakeUntil(s => s.Id != sectionId);
+
+        //            //var section = test.Survey.Sections.Single(s => s.Id == sectionId);
+
+        //            //selectedPageId = section
+        //            //    .Pages
+        //            //    .Shuffle()
+        //            //    .First()
+        //            //    .Id;
+
+        //            //pages = sections.OrderBy(s => s.Order)
+        //            //    .SelectMany(s => s.Pages)
+        //            //    .OrderBy(p => p.Order)
+        //            //    .TakeWhile(p => p.Id != selectedPageId);
+        //        }
+
+        //        foreach (var page in pages)
+        //        {
+        //            var response = Fixture
+        //                .Build<TestResponse>()
+        //                .With(r => r.Page, page)
+        //                .With(r => r.PageId, page.Id)
+        //                .With(r => r.Test, test)
+        //                .With(r => r.TestId, test.Id)
+        //                .With(r => r.Modified)
+        //                .With(r => r.Modified, Fixture.Create<bool>() ? Fixture.Create<DateTime>() : (DateTime?) null)
+        //                .With(r => r.Responded, selectedPageId == page.Id ? Fixture.Create<DateTime>() : (DateTime?) null)
+        //                .Create();
+
+        //            yield return response;
+        //        }
+        //    }
+
+        //    IEnumerable<Test> TestBuilder(Survey survey)
+        //    {
+        //        while (true)
+        //        {
+        //            var i = survey.Id ^ Fixture.Create<int>();
+        //            if (i % 2 == 0)
+        //                yield break;
+
+        //            var test = Fixture.Build<Test>()
+        //                .With(t => t.UserId, UserId)
+        //                .With(t => t.SurveyId, survey.Id)
+        //                .With(t => t.Modified, i % 10 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
+        //                .With(t => t.Completed, i % 4 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
+        //                .With(t => t.Survey, survey)
+        //                .Without(t => t.TestResponses)
+        //                .Without(t => t.TestSectionMarkers)
+        //                .Create();
+
+        //            test.TestSectionMarkers = new HashSet<TestSectionMarker>(TestSectionMarkerBuilder(test));
+        //            survey.Sections = new HashSet<Section>(survey.Sections.Select(s =>
+        //            {
+        //                s.TestSectionMarkers =
+        //                    new HashSet<TestSectionMarker>(test.TestSectionMarkers.Where(tsm => tsm.SectionId == s.Id));
+        //                return s;
+        //            }));
+
+        //            test.TestResponses = new HashSet<TestResponse>(TestResponseBuilder(test));
+
+        //            yield return test;
+        //        }
+        //    }
+
+        //    Surveys = Enumerable.Range(1, 20).Select(i =>
+        //    {
+        //        var survey = Fixture
+        //            .Build<Survey>()
+        //            .With(s => s.Id, i)
+        //            .With(s => s.Deleted, i % 4 == 0 ? Fixture.Create<DateTime>() : (DateTime?) null)
+        //            .With(s => s.Modified, i % 2 == 0 ? Fixture.Create<DateTime>() : (DateTime?) null)
+        //            .Without(s => s.Sections)
+        //            .Without(s => s.Tests)
+        //            .Create();
+
+        //        survey.Sections = new HashSet<Section>(SectionBuilder(survey).Take(Fixture.Create<int>() % 15 + 2));
+
+        //        survey.Tests = new HashSet<Test>(TestBuilder(survey).Take(1));
+
+        //        return survey;
+        //    }).ToList();
+
+        //    Survey = Surveys
+        //        .Where(s => s.IsActive && !s.Deleted.HasValue)
+        //        .Shuffle()
+        //        .First();
+
+        //    UserSurveys = Surveys
+        //        .Where(s => s.IsActive && !s.Deleted.HasValue)
+        //        .Select(s =>
+        //        {
+        //            var test = includeCompleted
+        //                ? s.Tests.SingleOrDefault(t => t.UserId.Equals(UserId, StringComparison.CurrentCulture))
+        //                : s.Tests.SingleOrDefault(t => t.UserId.Equals(UserId, StringComparison.CurrentCulture) && !t.Completed.HasValue);
+
+        //            var userSurvey = new UserSurvey
+        //            {
+        //                UserId = UserId,
+        //                Id = s.Id,
+        //                Name = s.Name,
+        //                Description = s.Description,
+        //                Version = s.Version,
+        //                IsActive = s.IsActive,
+        //                Created = s.Created,
+        //                Modified = s.Modified,
+        //                Started = test?.Started,
+        //                Completed = test?.Completed
+        //            };
+
+        //            return userSurvey;
+        //        }).ToList();
+
+        //    UserSections = Survey
+        //        .Sections
+        //        .GroupBy(s => s.Order)
+        //        .Select(s =>
+        //        {
+        //            IUserSection section;
+        //            if (s.Count() == 1)
+        //            {
+        //                var test = s.Single().Survey.Tests.SingleOrDefault(t => t.UserId.Equals(UserId, StringComparison.OrdinalIgnoreCase));
+        //                section = new UserSection
+        //                {
+        //                    UserId = test.UserId,
+        //                    SurveyId = test.SurveyId,
+        //                    TestId = test.Id,
+        //                    Order = s.Key,
+        //                    Started = s.Single().TestSectionMarkers.Single(tsm => tsm.TestId == test.Id).Started,
+        //                    Modified = s.Single().TestSectionMarkers.Single(tsm => tsm.TestId == test.Id).
+        //                };
+        //            }
+        //            else
+        //            {
+        //                section = new UserSectionGroup();
+        //            }
+
+        //            return section;
+        //        }).ToList();
+        //}
+
         public void PrepareTestEntities(bool includeCompleted = false)
         {
             UserId = Guid.NewGuid().ToString();
+            var surveyId = 0;
 
-            var sectionId = 0;
-            var pageId = 0;
-
-            IEnumerable<Page> PageBuilder(Section section)
-            {
-                var pageTypes = new List<Func<Page>>
-                    {
-                        () => Fixture
-                            .Build<FreeTextQuestion>()
-                            .With(q => q.Id, ++pageId)
-                            .Without(q => q.Section)
-                            .Without(q => q.TestResponses)
-                            .Create(),
-                        () => Fixture
-                            .Build<RangeQuestion>()
-                            .With(q => q.Id, ++pageId)
-                            .Without(q => q.Section)
-                            .Without(q => q.TestResponses)
-                            .Create(),
-                        () => Fixture
-                            .Build<StaticTextPage>()
-                            .With(q => q.Id, ++pageId)
-                            .Without(q => q.Section)
-                            .Without(q => q.TestResponses)
-                            .Create(),
-                        () => Fixture
-                            .Build<TrueFalseQuestion>()
-                            .With(q => q.Id, ++pageId)
-                            .Without(q => q.Section)
-                            .Without(q => q.TestResponses)
-                            .Create()
-                    };
-
-                var order = 0;
-
-                while (true)
-                {
-                    var page = pageTypes[Fixture.Create<int>() % pageTypes.Count].Invoke();
-                    page.SectionId = section.Id;
-                    page.Order = ++order;
-                    yield return page;
-                }
-            }
-
-            IEnumerable<Section> SectionBuilder(Survey survey)
-            {
-                var i = 0;
-                while (true)
-                {
-                    var makeCluster = Fixture.Create<int>() % 5 == 0;
-
-                    if (!makeCluster)
-                    {
-                        var section = Fixture.Build<Section>()
-                            .With(s => s.Id, ++sectionId)
-                            .With(s => s.Survey, survey)
-                            .With(s => s.SurveyId, survey.Id)
-                            .With(s => s.SelectorType, SelectorType.Random)
-                            .With(s => s.Order, i++)
-                            .Without(s => s.Pages)
-                            .Without(s => s.TestSectionMarkers)
-                            .Create();
-
-                        section.Pages = new HashSet<Page>(PageBuilder(section).Take(Fixture.Create<int>() % 15 + 2));
-
-                        yield return section;
-                    }
-                    else
-                    {
-                        var order = i;
-                        var cluster = Enumerable.Range(1, Fixture.Create<int>() % 5 + 1)
-                            .Select(j =>
-                            {
-                                var section = Fixture.Build<Section>()
-                                    .With(s => s.Id, ++sectionId)
-                                    .With(s => s.Survey, survey)
-                                    .With(s => s.SurveyId, survey.Id)
-                                    .With(s => s.SelectorType, SelectorType.Random)
-                                    .With(s => s.Order, order)
-                                    .Without(s => s.Pages)
-                                    .Without(s => s.TestSectionMarkers)
-                                    .Create();
-
-                                section.Pages = new HashSet<Page>(PageBuilder(section).Take(Fixture.Create<int>() % 15 + 2));
-
-                                return section;
-                            });
-
-                        foreach (var section in cluster)
-                            yield return section;
-                    }
-                }
-            }
-
-            IEnumerable<TestSectionMarker> TestSectionMarkerBuilder(Test test)
-            {
-                var sectionGroupCount = test.Survey.Sections.Select(s => s.Order).Distinct().Count();
-                var sectionCount = Fixture.Create<int>() % sectionGroupCount + 1;
-                var finishSection = Fixture.Create<bool>();
-                var sections = (test.Completed.HasValue
-                    ? test.Survey.Sections.GroupBy(s => s.Order)
-                    : test.Survey.Sections.GroupBy(s => s.Order).Take(sectionCount))
-                    .ToList();
-
-                var lastKey = sections.Last().Key;
-
-                foreach (var sectionGroup in sections.OrderBy(s => s.Key))
-                {
-                    var section = sectionGroup.Count() == 1
-                        ? sectionGroup.Single()
-                        : sectionGroup.Shuffle().First();
-
-                    var userSection = Fixture
-                        .Build<TestSectionMarker>()
-                        .With(t => t.TestId, test.Id)
-                        .With(t => t.Test, test)
-                        .With(t => t.SectionId, section.Id)
-                        .With(t => t.Section, section)
-                        .With(t => t.Completed, sectionGroup.Key != lastKey || finishSection ? Fixture.Create<DateTime>() : (DateTime?) null)
-                        .Create();
-
-                    yield return userSection;
-                }
-            }
-
-            IEnumerable<TestResponse> TestResponseBuilder(Test test)
-            {
-                IEnumerable<Page> pages;
-                int? selectedPageId = null;
-
-                if (test.Completed.HasValue)
-                {
-                    pages = test.Survey.Sections.SelectMany(s => s.Pages);
-                }
-                else
-                {
-                    var sections = test.Survey.Sections.GroupBy(s => s.Order).ToList();
-                    var sectionRun = sections
-                        .SkipWhile(sg => sg.Any(i => i.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue)))
-                        .ToList();
-                    int incompleteSectionId;
-                    if (sectionRun.First().Any(i => i.TestSectionMarkers.Any()))
-                    {
-                        var sectionGroup = sections.First(sg => !sg.Any(i => i.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue)));
-                        if (sectionGroup.Count() > 1)
-                        {
-                            incompleteSectionId = sectionGroup
-                                .Single(sg => sg.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue))
-                                .Id;
-                        }
-                        else
-                        {
-                            incompleteSectionId = sectionGroup.Single().Id;
-                        }
-                    }
-                    else
-                    {
-                        if (sectionRun.Count > 1)
-                        {
-
-                        }
-                        else
-                        {
-                            incompleteSectionId = sectionRun.First().First().Id;
-                        }
-                        
-                    }
-
-                    //var incompleteSectionId = sectionRun
-                    //    .First()
-                    //    .Single(i =>
-                    //    {
-                    //        if (i.TestSectionMarkers.Any(tsm => !tsm.Completed.HasValue))
-                    //            return true;
-                    //    })
-                    //    //.Single(i => i.TestSectionMarkers.Any(tsm => !tsm.Completed.HasValue) || i.)
-                    //    .Id;
-
-                    pages = sections.Select(sg =>
-                    {
-                        if (sg.Any(i => i.Id == incompleteSectionId))
-                            return sg.Single(s => s.Id == incompleteSectionId);
-                        return sg.Count() > 1 
-                            ? sg.Single(s => s.TestSectionMarkers.Any(tsm => tsm.Completed.HasValue)) 
-                            : sg.Single();
-                    }).SelectMany(s => s.Pages)
-                    .ToList();
-
-                    //var sections = test
-                    //    .Survey
-                    //    .Sections
-                    //    .OrderBy(s => s.Order)
-                    //    .TakeUntil(s => s.Id != sectionId);
-
-                    //var section = test.Survey.Sections.Single(s => s.Id == sectionId);
-
-                    //selectedPageId = section
-                    //    .Pages
-                    //    .Shuffle()
-                    //    .First()
-                    //    .Id;
-
-                    //pages = sections.OrderBy(s => s.Order)
-                    //    .SelectMany(s => s.Pages)
-                    //    .OrderBy(p => p.Order)
-                    //    .TakeWhile(p => p.Id != selectedPageId);
-                }
-
-                foreach (var page in pages)
-                {
-                    var response = Fixture
-                        .Build<TestResponse>()
-                        .With(r => r.Page, page)
-                        .With(r => r.PageId, page.Id)
-                        .With(r => r.Test, test)
-                        .With(r => r.TestId, test.Id)
-                        .With(r => r.Modified)
-                        .With(r => r.Modified, Fixture.Create<bool>() ? Fixture.Create<DateTime>() : (DateTime?) null)
-                        .With(r => r.Responded, selectedPageId == page.Id ? Fixture.Create<DateTime>() : (DateTime?) null)
-                        .Create();
-
-                    yield return response;
-                }
-            }
-
-            IEnumerable<Test> TestBuilder(Survey survey)
+            IEnumerable<UserSurvey> UserSurveyBuilder()
             {
                 while (true)
                 {
-                    var i = survey.Id ^ Fixture.Create<int>();
-                    if (i % 2 == 0)
-                        yield break;
-
-                    var test = Fixture.Build<Test>()
-                        .With(t => t.UserId, UserId)
-                        .With(t => t.SurveyId, survey.Id)
-                        .With(t => t.Modified, i % 10 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
-                        .With(t => t.Completed, i % 4 == 0 ? Fixture.Create<DateTime>() : (DateTime?)null)
-                        .With(t => t.Survey, survey)
-                        .Without(t => t.TestResponses)
-                        .Without(t => t.TestSectionMarkers)
+                    var surveyComplete = includeCompleted || Fixture.Create<bool>();
+                    var userSurvey = Fixture
+                        .Build<UserSurvey>()
+                        .With(us => us.UserId, UserId)
+                        .With(us => us.Id, ++surveyId)
+                        .With(us => us.IsActive, true)
+                        .With(us => us.Completed, surveyComplete ? Fixture.Create<DateTime?>() : null)
                         .Create();
 
-                    test.TestSectionMarkers = new HashSet<TestSectionMarker>(TestSectionMarkerBuilder(test));
-                    survey.Sections = new HashSet<Section>(survey.Sections.Select(s =>
-                    {
-                        s.TestSectionMarkers =
-                            new HashSet<TestSectionMarker>(test.TestSectionMarkers.Where(tsm => tsm.SectionId == s.Id));
-                        return s;
-                    }));
-
-                    test.TestResponses = new HashSet<TestResponse>(TestResponseBuilder(test));
-
-                    yield return test;
+                    yield return userSurvey;
                 }
             }
-
-            Surveys = Enumerable.Range(1, 20).Select(i =>
-            {
-                var survey = Fixture
-                    .Build<Survey>()
-                    .With(s => s.Id, i)
-                    .With(s => s.Deleted, i % 4 == 0 ? Fixture.Create<DateTime>() : (DateTime?) null)
-                    .With(s => s.Modified, i % 2 == 0 ? Fixture.Create<DateTime>() : (DateTime?) null)
-                    .Without(s => s.Sections)
-                    .Without(s => s.Tests)
-                    .Create();
-
-                survey.Sections = new HashSet<Section>(SectionBuilder(survey).Take(Fixture.Create<int>() % 15 + 2));
-
-                survey.Tests = new HashSet<Test>(TestBuilder(survey).Take(1));
-
-                return survey;
-            }).ToList();
-
-            Survey = Surveys
-                .Where(s => s.IsActive && !s.Deleted.HasValue)
-                .Shuffle()
-                .First();
-
-            UserSurveys = Surveys
-                .Where(s => s.IsActive && !s.Deleted.HasValue)
-                .Select(s =>
-                {
-                    var test = includeCompleted
-                        ? s.Tests.SingleOrDefault(t => t.UserId.Equals(UserId, StringComparison.CurrentCulture))
-                        : s.Tests.SingleOrDefault(t => t.UserId.Equals(UserId, StringComparison.CurrentCulture) && !t.Completed.HasValue);
-
-                    var userSurvey = new UserSurvey
-                    {
-                        UserId = UserId,
-                        Id = s.Id,
-                        Name = s.Name,
-                        Description = s.Description,
-                        Version = s.Version,
-                        IsActive = s.IsActive,
-                        Created = s.Created,
-                        Modified = s.Modified,
-                        Started = test?.Started,
-                        Completed = test?.Completed
-                    };
-
-                    return userSurvey;
-                }).ToList();
-
-            UserSections = Survey
-                .Sections
-                .GroupBy(s => s.Order)
-                .Select(s =>
-                {
-                    IUserSection section;
-                    if (s.Count() == 1)
-                    {
-                        var test = s.Single().Survey.Tests.SingleOrDefault(t => t.UserId.Equals(UserId, StringComparison.OrdinalIgnoreCase));
-                        section = new UserSection
-                        {
-                            UserId = test.UserId,
-                            SurveyId = test.SurveyId,
-                            TestId = test.Id,
-                            Order = s.Key,
-                            Started = s.Single().TestSectionMarkers.Single(tsm => tsm.TestId == test.Id).Started,
-                            Modified = s.Single().TestSectionMarkers.Single(tsm => tsm.TestId == test.Id).
-                        };
-                    }
-                    else
-                    {
-                        section = new UserSectionGroup();
-                    }
-
-                    return section;
-                }).ToList();
+                
+            UserSurveys = UserSurveyBuilder().Take(Fixture.Create<int>() % 20 + 1).ToList();
         }
 
         public IList<Survey> Surveys { get; set; }
