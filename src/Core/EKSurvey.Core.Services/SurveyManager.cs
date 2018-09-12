@@ -11,6 +11,7 @@ using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
 using EKSurvey.Core.Models.Enums;
 using EKSurvey.Core.Services.Exceptions;
+using MoreLinq.Extensions;
 
 namespace EKSurvey.Core.Services
 {
@@ -198,44 +199,78 @@ namespace EKSurvey.Core.Services
         {
             ThrowIfSurveyDoesNotExist(surveyId);
 
-            var sectionStacks =
-                (from s in Sections
-                where s.SurveyId == surveyId
-                group s by s.Order
-                into st
-                select new { Order = st.Key, Stack = st.ToList() }).ToList();
-
-            var userSections = sectionStacks
-                .OrderBy(ss => ss.Order)
-                .Select(ss => ss.Stack.Count == 1
-                    ? (IUserSection)_mapper.Map<UserSection>(ss.Stack.First(), Opt(userId))
-                    : _mapper.Map<UserSectionGroup>(ss.Stack, Opt(userId)))
+            var sectionStacks = Sections
+                .Where(s => s.SurveyId == surveyId)
+                .GroupBy(s => s.Order)
                 .ToList();
 
-            return new HashSet<IUserSection>(userSections.OrderBy(i => i.Order));
+            var userSections = sectionStacks
+                .OrderBy(ss => ss.Key)
+                .Select<IGrouping<int,Section>, IUserSection>(ss =>
+                {
+                    var sectionMarker = ss
+                        .SelectMany(sm => sm.TestSectionMarkers)
+                        .SingleOrDefault(tsm => tsm.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
+
+                    switch (ss.Count())
+                    {
+                        case 1 when sectionMarker != null:
+                            return _mapper.Map<UserSection>(sectionMarker);
+                        case 1:
+                            var userSection = _mapper.Map<UserSection>(ss.Single());
+                            userSection.UserId = userId;
+                            return userSection;
+                        default:
+                            // fall through to process group section
+                            break;
+                    }
+
+                    var sectionGroup = _mapper.Map<UserSectionGroup>(ss);
+                    sectionGroup.Add(_mapper.Map<UserSection>(sectionMarker));
+
+                    return sectionGroup;
+                }).ToList();
+
+            return userSections.OrderBy(i => i.Order).ToHashSet();
         }
 
         public async Task<ICollection<IUserSection>> GetUserSectionsAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            await ThrowIfSurveyDoesNotExistAsync(surveyId, cancellationToken);
+            ThrowIfSurveyDoesNotExist(surveyId);
 
-            var sectionStacks =
-                await (from s in Sections
-                where s.SurveyId == surveyId
-                group s by s.Order
-                into st
-                select new { Order = st.Key, Stack = st.ToList() }).ToListAsync(cancellationToken);
+            var sectionStacks = await Sections
+                .Where(s => s.SurveyId == surveyId)
+                .GroupBy(s => s.Order)
+                .ToListAsync(cancellationToken);
 
             var userSections = sectionStacks
-                .OrderBy(ss => ss.Order)
-                .Select(ss => ss.Stack.Count == 1 
-                    ? (IUserSection) _mapper.Map<UserSection>(ss.Stack.First(), Opt(userId))
-                    : _mapper.Map<UserSectionGroup>(ss.Stack, Opt(userId)))
-                .ToList();
+                .OrderBy(ss => ss.Key)
+                .Select<IGrouping<int, Section>, IUserSection>(ss =>
+                {
+                    var sectionMarker = ss
+                        .SelectMany(sm => sm.TestSectionMarkers)
+                        .SingleOrDefault(tsm => tsm.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
 
+                    switch (ss.Count())
+                    {
+                        case 1 when sectionMarker != null:
+                            return _mapper.Map<UserSection>(sectionMarker);
+                        case 1:
+                            var userSection = _mapper.Map<UserSection>(ss.Single());
+                            userSection.UserId = userId;
+                            return userSection;
+                        default:
+                            // fall through to process group section
+                            break;
+                    }
 
-            var results = new HashSet<IUserSection>(userSections.OrderBy(i => i.Order));
-            return results;
+                    var sectionGroup = _mapper.Map<UserSectionGroup>(ss);
+                    sectionGroup.Add(_mapper.Map<UserSection>(sectionMarker));
+
+                    return sectionGroup;
+                }).ToList();
+
+            return userSections.OrderBy(i => i.Order).ToHashSet();
         }
 
         private void ThrowIfSurveyDoesNotExist(int surveyId)

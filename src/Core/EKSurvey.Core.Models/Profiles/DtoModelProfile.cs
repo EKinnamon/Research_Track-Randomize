@@ -28,58 +28,31 @@ namespace EKSurvey.Core.Models.Profiles
                 .ForMember(dest => dest.Started, opt => opt.Ignore())
                 .ForMember(dest => dest.Completed, opt => opt.Ignore());
 
+            CreateMap<TestSectionMarker, UserSection>()
+                // TestId, Started, Completed mapped
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Test.UserId))
+                .ForMember(dest => dest.SurveyId, opt => opt.MapFrom(src => src.Test.SurveyId))
+                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Section.Order))
+                .ForMember(dest => dest.Modified, opt => opt.MapFrom(src => src.Test.TestResponses.Where(tr => tr.Page.SectionId == src.SectionId).Select(tsm => tsm.Modified.GetValueOrDefault(tsm.Created)).Max()))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.SectionId))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Section.Name));
+
             CreateMap<Section, UserSection>()
                 // Id, SurveyId, Name, Order mapped.
                 .ForMember(dest => dest.UserId, opt => opt.Ignore())
                 .ForMember(dest => dest.TestId, opt => opt.Ignore())
                 .ForMember(dest => dest.Started, opt => opt.Ignore())
                 .ForMember(dest => dest.Modified, opt => opt.Ignore())
-                .ForMember(dest => dest.Completed, opt => opt.Ignore())
-                .AfterMap((src, dest, ctx) =>
-                {
-                    var dbContext = ctx.Items["dbContext"] as DbContext ?? throw new AutoMapperMappingException("DbContext must be supplied for this mapping."); 
-                    var userId = ctx.Items["userId"].ToString();
-                    dest.UserId = userId;
-                    var userTest = dbContext.Set<Test>().SingleOrDefault(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && t.SurveyId == src.SurveyId);
-                    var sectionResponses = dbContext.Set<TestResponse>().Where(tr => tr.Page.SectionId == src.Id);
-
-                    if (userTest == null)
-                        return;
-
-                    dest.TestId = userTest.Id;
-
-                    dest.Started = src.TestSectionMarkers
-                        .SingleOrDefault(tsm => tsm.TestId == userTest.Id && tsm.SectionId == src.Id)?.Started;
-
-                    if (sectionResponses.Any())
-                    {
-                        dest.Modified = sectionResponses
-                            .ToList()
-                            .Select(sr => sr.Modified.GetValueOrDefault(sr.Created))
-                            .Max();
-                    }
-
-                    dest.Completed = src.TestSectionMarkers
-                        .SingleOrDefault(tsm => tsm.TestId == userTest.Id && tsm.SectionId == src.Id)?.Completed;
-                });
+                .ForMember(dest => dest.Completed, opt => opt.Ignore());
 
             CreateMap<IEnumerable<Section>, UserSectionGroup>()
                 .ForMember(dest => dest.SelectorType, opt => opt.Ignore())
                 .AfterMap((src, dest, ctx) =>
                 {
-                    var dbContext = ctx.Items["dbContext"] as DbContext ?? throw new AutoMapperMappingException("DbContext must be supplied for this mapping.");
-                    var userId = ctx.Items["userId"].ToString();
-
-                    var userSections = ctx.Mapper.Map<IEnumerable<UserSection>>(src, opt =>
-                    {
-                        opt.Items.Add("dbContext", dbContext);
-                        opt.Items.Add("userId", userId);
-                    });
-
+                    var userSections = ctx.Mapper.Map<IEnumerable<UserSection>>(src);
                     dest.SelectorType = src.First().SelectorType;
                     dest.AddRange(userSections);
                 });
-
 
             CreateMap<IPage, UserPage>()
                 .ForMember(dest => dest.Page, opt => opt.MapFrom(src => src))

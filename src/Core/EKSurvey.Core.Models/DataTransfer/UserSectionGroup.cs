@@ -13,6 +13,7 @@ namespace EKSurvey.Core.Models.DataTransfer
     {
         private readonly List<UserSection> _collection = new List<UserSection>();
 
+        // ReSharper disable once UnusedMember.Global -- needed for mapping
         public UserSectionGroup() { }
 
         public UserSectionGroup(IEnumerable<UserSection> collection)
@@ -66,7 +67,14 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public void Add(UserSection item)
         {
+            if (_collection.Contains(item, UserSectionComparer.Default))
+            {
+                var existing = _collection.Single(i => UserSectionComparer.Default.Equals(i, item));
+                _collection.Remove(existing);
+            }
+
             _collection.Add(item);
+
             ThrowIfInvalid();
         }
 
@@ -77,7 +85,7 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public bool Contains(UserSection item)
         {
-            return _collection.Contains(item);
+            return _collection.Contains(item, UserSectionComparer.Default);
         }
 
         public void CopyTo(UserSection[] array, int arrayIndex)
@@ -108,8 +116,34 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public void AddRange(IEnumerable<UserSection> collection)
         {
-            _collection.AddRange(collection);
+            foreach (var item in collection)
+            {
+                _collection.Add(item);
+            }
+
             ThrowIfInvalid();
         }
+
+        internal class UserSectionComparer : IEqualityComparer<UserSection>
+        {
+            public static UserSectionComparer Default => new UserSectionComparer();
+
+            public bool Equals(UserSection x, UserSection y)
+            {
+                if (x == null && y == null)
+                    return true;
+
+                if (x == null || y == null)
+                    return false;
+
+                return x.Id == y.Id;
+            }
+
+            public int GetHashCode(UserSection obj)
+            {
+                return obj.Id.GetHashCode();
+            }
+        }
+
     }
 }
