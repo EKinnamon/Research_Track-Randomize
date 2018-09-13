@@ -97,18 +97,41 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                     {
                         IUserSection section;
                         var isGroup = i % 5 == 2;
+
+                        var started = i < sectionCompleteCount || (i == sectionCompleteCount - 1 && !isTransition) ? Fixture.Create<DateTime?>() : null;
+                        var modified = i < sectionCompleteCount && Fixture.Create<bool>()
+                            ? Fixture.Create<DateTime?>()
+                            : null;
+                        var completed = i < sectionCompleteCount ? Fixture.Create<DateTime?>() : null;
+
                         if (isGroup)
                         {
-                            section = new UserSectionGroup();
+                            var subSectionCount = Fixture.Create<int>() % 5 + 2;
+                            var subSections = Fixture
+                                .Build<UserSection>()
+                                .With(us => us.UserId, UserId)
+                                .With(us => us.SurveyId, sectionSurveyId)
+                                .With(us => us.TestId, test.Id)
+                                .With(us => us.Order, i)
+                                .With(us => us.Id, ++sectionId)
+                                .With(us => us.Started, started)
+                                .With(us => us.Modified, modified)
+                                .Without(us => us.Completed)
+                                .CreateMany(subSectionCount)
+                                .ToList();
+
+                            var finishSubsectionId = subSections.Shuffle().First().Id;
+
+                            subSections = subSections.Select(s =>
+                            {
+                                s.Completed = finishSubsectionId == s.Id && completed.HasValue ? completed : null;
+                                return s;
+                            }).ToList();
+
+                            section = new UserSectionGroup(subSections);
                         }
                         else
                         {
-                            var started = i < sectionCompleteCount || (i == sectionCompleteCount - 1 && !isTransition) ? Fixture.Create<DateTime?>() : null;
-                            var modified = i < sectionCompleteCount && Fixture.Create<bool>()
-                                ? Fixture.Create<DateTime?>()
-                                : null;
-                            var completed = i < sectionCompleteCount ? Fixture.Create<DateTime?>() : null;
-
                             section = Fixture
                                 .Build<UserSection>()
                                 .With(us => us.UserId, UserId)
@@ -125,44 +148,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                         return section;
                     }).ToList();
 
-                
-                //var userSections = Enumerable
-                //    .Range(0, sectionCount)
-                //    .Select(i =>
-                //    {
-                //        IUserSection section;
-                //        var isGroup = i % 5 == 2;
-                //        if (isGroup)
-                //        {
-                //            var subSections = Fixture
-                //                .Build<UserSection>()
-                //                .With(us => us.UserId, UserId)
-                //                .With(us => us.SurveyId, sectionSurveyId)
-                //                .With(us => us.TestId, test.Id)
-                //                .With(us => us.Order, i)
-                //                .With(us => us.Id, ++sectionId)
-                //                .With(us => us.Started, i <= sectionCompleteCount || (i == sectionCompleteCount && isTransition) ? Fixture.Create<DateTime?>() : null)
-                //                .With(us => us.Completed, i <= sectionCompleteCount ? Fixture.Create<DateTime?>() : null)
-                //                .CreateMany(Fixture.Create<int>() % 4 + 2);
-
-                //            section = new UserSectionGroup(subSections);
-                //        }
-                //        else
-                //        {
-                //            section = Fixture
-                //                .Build<UserSection>()
-                //                .With(us => us.UserId, UserId)
-                //                .With(us => us.SurveyId, sectionSurveyId)
-                //                .With(us => us.TestId, test.Id)
-                //                .With(us => us.Order, i)
-                //                .With(us => us.Id, ++sectionId)
-                //                .Create();
-                //        }
-
-                //    return section;
-                //});
-
-               return userSections;
+                return userSections;
             }
 
             UserSurveys = UserSurveyBuilder().Take(Fixture.Create<int>() % 8 + 3).ToList();
