@@ -9,6 +9,7 @@ using AutoMapper;
 
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
+using EKSurvey.Core.Models.Enums;
 using EKSurvey.Core.Models.Profiles;
 using EKSurvey.Core.Services;
 
@@ -107,19 +108,21 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                         if (isGroup)
                         {
                             var subSectionCount = Fixture.Create<int>() % 5 + 2;
-                            var subSections = Fixture
-                                .Build<UserSection>()
-                                .With(us => us.UserId, UserId)
-                                .With(us => us.SurveyId, sectionSurveyId)
-                                .With(us => us.TestId, test.Id)
-                                .With(us => us.Order, i)
-                                .With(us => us.Id, ++sectionId)
-                                .With(us => us.Started, started)
-                                .With(us => us.Modified, modified)
-                                .Without(us => us.Completed)
-                                .CreateMany(subSectionCount)
-                                .ToList();
-
+                            var subSections = Enumerable.Range(0, subSectionCount).Select(j =>
+                            {
+                                return Fixture
+                                    .Build<UserSection>()
+                                    .With(us => us.UserId, UserId)
+                                    .With(us => us.SurveyId, sectionSurveyId)
+                                    .With(us => us.TestId, test.Id)
+                                    .With(us => us.Order, i)
+                                    .With(us => us.Id, ++sectionId)
+                                    .With(us => us.Started, started)
+                                    .With(us => us.Modified, modified)
+                                    .Without(us => us.Completed)
+                                    .Create();
+                            }).ToList();
+                                
                             var finishSubsectionId = subSections.Shuffle().First().Id;
 
                             subSections = subSections.Select(s =>
@@ -152,6 +155,7 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             }
 
             UserSurveys = UserSurveyBuilder().Take(Fixture.Create<int>() % 8 + 3).ToList();
+            var testSurveyId = UserSurveys.Shuffle().First().Id;
 
             Surveys = UserSurveys.Select(us =>
             {
@@ -195,14 +199,62 @@ namespace EKSurvey.Tests.Core.Services.Contexts
                     return t;
                 }).ToHashSet();
 
+
                 return survey;
             }).ToList();
 
-            var testSurveyId = Surveys.Shuffle().First().Id;
-
             UserSections = UserSectionBuilder(testSurveyId, false).ToList();
 
+            Surveys = Surveys.Select(s =>
+            {
+                s.Sections = UserSections
+                    .Select(uss =>
+                        Fixture
+                            .Build<Section>()
+                            .With(sec => sec.Id, uss.Id)
+                            .With(sec => sec.SurveyId, uss.SurveyId)
+                            .With(sec => sec.Order, uss.Order)
+                            .With(sec => sec.SelectorType, SelectorType.Random)
+                            .With(sec => sec.Survey, s)
+                            .Without(sec => sec.Pages)
+                            .Without(sec => sec.TestSectionMarkers)
+                            .Create())
+                    .ToHashSet();
 
+                s.Sections = s.Sections.Select(ss =>
+                {
+                    var testSectionMarker = s.Tests
+                        .First()
+                        .TestSectionMarkers
+                        .Single(tsm => tsm.SectionId == s.Id);
+
+                    ss.TestSectionMarkers.Add(testSectionMarker);
+
+                    return ss;
+                }).ToHashSet();
+
+                if (testSurveyId == s.Id)
+                {
+                    s.Tests = s.Tests.Select(t =>
+                    {
+                        t.TestSectionMarkers = UserSections.Select(uss =>
+                        {
+                            return Fixture
+                                .Build<TestSectionMarker>()
+                                .With(tsm => tsm.TestId, t.Id)
+                                .With(tsm => tsm.SectionId, uss.Id)
+                                .With(tsm => tsm.Started, uss.Started)
+                                .With(tsm => tsm.Completed, uss.Completed)
+                                .With(tsm => tsm.Test, t)
+                                .Without(tsm => tsm.Section)
+                                .Create();
+                        }).ToHashSet();
+                        return t;
+                    }).ToHashSet();
+                }
+
+                return s;
+            }).ToList();
 
             Survey = Surveys.Single(s => s.Id == testSurveyId);
         }
