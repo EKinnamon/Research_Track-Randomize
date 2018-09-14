@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
-using Page = EKSurvey.Core.Models.Entities.Page;
 
 namespace EKSurvey.Core.Models.Profiles
 {
@@ -16,6 +13,7 @@ namespace EKSurvey.Core.Models.Profiles
             CreateMap<Test, UserSurvey>()
                 // UserId, Started, Completed mapped
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Survey.Id))
+                .ForMember(dest => dest.TestId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Survey.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Survey.Description))
                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Survey.Version))
@@ -32,6 +30,7 @@ namespace EKSurvey.Core.Models.Profiles
                 // TestId, Started, Completed mapped
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Test.UserId))
                 .ForMember(dest => dest.SurveyId, opt => opt.MapFrom(src => src.Test.SurveyId))
+                .ForMember(dest => dest.TestSectionMarkerId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Section.Order))
                 .ForMember(dest => dest.Modified, opt => opt.MapFrom(src => src.Test.TestResponses.Where(tr => tr.Page.SectionId == src.SectionId).Select(tsm => tsm.Modified.GetValueOrDefault(tsm.Created)).Max()))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.SectionId))
@@ -54,32 +53,13 @@ namespace EKSurvey.Core.Models.Profiles
                     dest.AddRange(userSections);
                 });
 
-            CreateMap<IPage, UserPage>()
-                .ForMember(dest => dest.Page, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.UserId, opt => opt.Ignore())
-                .ForMember(dest => dest.SurveyId, opt => opt.Ignore())
-                .ForMember(dest => dest.Response, opt => opt.Ignore())
-                .ForMember(dest => dest.Responded, opt => opt.Ignore())
-                .ForMember(dest => dest.Modified, opt => opt.Ignore())
-                .AfterMap((src, dest, ctx) =>
-                {
-                    var dbContext = ctx.Items["dbContext"] as DbContext ?? throw new AutoMapperMappingException("DbContext must be supplied for this mapping.");
-                    var userId = ctx.Items["userId"].ToString();
-                    dest.UserId = userId;
-
-                    var page = src as Page ?? throw new AutoMapperMappingException("Invalid page type being mapped.");
-
-                    dest.SurveyId = page.Section.SurveyId;
-
-                    var test = dbContext.Set<Test>().SingleOrDefault(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && t.SurveyId == page.Section.SurveyId);
-                    if (test == null)
-                        return;
-
-                    var userResponse = page.TestResponses.SingleOrDefault(tr => tr.TestId == test.Id);
-                    dest.Response = userResponse?.Response;
-                    dest.Responded = userResponse?.Responded;
-                    dest.Modified = userResponse?.Modified;
-                });
+            CreateMap<TestResponse, UserPage>()
+                .ForMember(dest => dest.Page, opt => opt.MapFrom(src => src.Page))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Test.UserId))
+                .ForMember(dest => dest.SurveyId, opt => opt.MapFrom(src => src.Test.SurveyId))
+                .ForMember(dest => dest.Response, opt => opt.MapFrom(src => src.Response))
+                .ForMember(dest => dest.Responded, opt => opt.MapFrom(src => src.Responded))
+                .ForMember(dest => dest.Modified, opt => opt.MapFrom(src => src.Modified));
 
             CreateMap<TestResponse, UserResponse>()
                 // PageId, TestId, Response mapped
@@ -92,12 +72,10 @@ namespace EKSurvey.Core.Models.Profiles
                 .ForMember(dest => dest.Range, opt => opt.MapFrom(src => src.Page is RangeQuestion ? ((RangeQuestion) src.Page).Range : (int?) null))
                 .ForMember(dest => dest.IsHtml, opt => opt.MapFrom(src => src.Page.IsHtml))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Page.Text))
-                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Test.UserId))
                 .ForMember(dest => dest.IsLikert, opt => opt.Ignore())
                 .AfterMap((src, dest, ctx) =>
                 {
-                    dest.UserId = ctx.Items["userId"].ToString();
-
                     if (!(src.Page is RangeQuestion question))
                         return;
 

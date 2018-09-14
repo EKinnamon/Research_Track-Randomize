@@ -8,6 +8,8 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public int Id { get; set; }
 
+        public int TestId { get; set; }
+
         public string Name { get; set; }
 
         public string Description { get; set; }

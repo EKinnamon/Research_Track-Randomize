@@ -33,12 +33,7 @@ namespace EKSurvey.Core.Services
         protected DbSet<Page> Pages => _dbContext.Set<Page>();
         protected DbSet<Test> Tests => _dbContext.Set<Test>();
         protected DbSet<TestSectionMarker> TestSectionMarkers => _dbContext.Set<TestSectionMarker>();
-
-        private Action<IMappingOperationOptions> Opt(string userId) => o =>
-        {
-            o.Items.Add("dbContext", _dbContext);
-            o.Items.Add("userId", userId);
-        };
+        protected DbSet<TestResponse> TestResponses => _dbContext.Set<TestResponse>();
 
         private UserSection SelectSection(UserSectionGroup sectionGroup)
         {
@@ -342,15 +337,25 @@ namespace EKSurvey.Core.Services
         public ICollection<UserPage> GetUserPages(string userId, int sectionId)
         {
             var section = Sections.Find(sectionId) ?? throw new SectionNotFoundException(sectionId);
-            var results = _mapper.Map<ICollection<UserPage>>(section.Pages, Opt(userId));
-            return new HashSet<UserPage>(results.OrderBy(i => i.Page.Order));
+            var responses = section
+                .Pages
+                .SelectMany(p => p.TestResponses)
+                .Where(tr => tr.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
+
+            var results = _mapper.Map<ICollection<UserPage>>(responses);
+            return results.ToHashSet();
         }
 
         public async Task<ICollection<UserPage>> GetUserPagesAsync(string userId, int sectionId, CancellationToken cancellationToken = default(CancellationToken))
         {
             var section = await Sections.FindAsync(cancellationToken, sectionId) ?? throw new SectionNotFoundException(sectionId);
-            var results = _mapper.Map<ICollection<UserPage>>(section.Pages, Opt(userId));
-            return new HashSet<UserPage>(results.OrderBy(i => i.Page.Order));
+            var responses = section
+                .Pages
+                .SelectMany(p => p.TestResponses)
+                .Where(tr => tr.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
+
+            var results = _mapper.Map<ICollection<UserPage>>(responses);
+            return results.ToHashSet();
         }
 
         public UserPage GetCurrentUserPage(string userId, int surveyId)
@@ -381,7 +386,7 @@ namespace EKSurvey.Core.Services
                 orderby r.Page.Order
                 select r;
 
-            var responses = _mapper.Map<ICollection<UserResponse>>(sectionResponses, Opt(userId));
+            var responses = _mapper.Map<ICollection<UserResponse>>(sectionResponses);
 
             return responses;
         }
@@ -398,23 +403,37 @@ namespace EKSurvey.Core.Services
                 orderby r.Page.Order
                 select r;
 
-            var responses = _mapper.Map<ICollection<UserResponse>>(sectionResponses, Opt(userId));
+            var responses = _mapper.Map<ICollection<UserResponse>>(sectionResponses);
 
             return responses;
         }
 
         public UserSurvey GetUserSurvey(string userId, int surveyId)
         {
-            var survey = Surveys.Find(surveyId) ?? throw new SurveyNotFoundException(surveyId);
-            var result = _mapper.Map<UserSurvey>(survey, Opt(userId));
-            return result;
+            var survey = GetActiveSurveys().SingleOrDefault(s => s.Id == surveyId);
+            if (survey == null)
+                return null;
+
+            var test = survey.Tests.SingleOrDefault(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
+            var userSurvey = test != null 
+                ? _mapper.Map<UserSurvey>(test) 
+                : _mapper.Map<UserSurvey>(survey);
+
+            return userSurvey;
         }
 
         public async Task<UserSurvey> GetUserSurveyAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var survey = await Surveys.FindAsync(cancellationToken, surveyId) ?? throw new SurveyNotFoundException(surveyId);
-            var result = _mapper.Map<UserSurvey>(survey, Opt(userId));
-            return result;
+            var survey = (await GetActiveSurveysAsync(cancellationToken)).SingleOrDefault(s => s.Id == surveyId);
+            if (survey == null)
+                return null;
+
+            var test = survey.Tests.SingleOrDefault(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
+            var userSurvey = test != null 
+                ? _mapper.Map<UserSurvey>(test) 
+                : _mapper.Map<UserSurvey>(survey);
+
+            return userSurvey;
         }
     }
 }

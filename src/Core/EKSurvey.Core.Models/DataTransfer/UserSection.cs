@@ -10,6 +10,8 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public Guid TestId { get; set; }
 
+        public Guid? TestSectionMarkerId { get; set; }
+
         public int Order { get; set; }
 
         public DateTime? Started { get; set; }
