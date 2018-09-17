@@ -21,8 +21,6 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 {
     public class SurveyManagerTestContext : ServiceBaseTestContext<SurveyManager>
     {
-        private const string SurveyFakeDataPath = "TestData/Surveys.json";
-
         public SurveyManagerTestContext()
         {
             Mapper = new MapperConfiguration(GenerateTestConfiguration).CreateMapper();
