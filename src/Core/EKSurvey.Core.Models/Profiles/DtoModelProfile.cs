@@ -33,9 +33,21 @@ namespace EKSurvey.Core.Models.Profiles
                 .ForMember(dest => dest.SurveyId, opt => opt.MapFrom(src => src.Test.SurveyId))
                 .ForMember(dest => dest.TestSectionMarkerId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Section.Order))
-                .ForMember(dest => dest.Modified, opt => opt.MapFrom(src => src.Test.TestResponses.Where(tr => tr.Page.SectionId == src.SectionId).Select(tsm => tsm.Modified.GetValueOrDefault(tsm.Created)).Max()))
+                .ForMember(dest => dest.Modified, opt => opt.Ignore())
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.SectionId))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Section.Name));
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Section.Name)).AfterMap((src, dest, ctx) =>
+                {
+                    var testResponses = src.Test.TestResponses;
+                    if (testResponses == null || !testResponses.Any())
+                        dest.Modified = null;
+                    else
+                    {
+                        dest.Modified = testResponses
+                            .Where(tr => tr.Page.SectionId == src.SectionId)
+                            .Select(tsm => tsm.Modified.GetValueOrDefault(tsm.Created))
+                            .Max();
+                    }
+                });
 
             CreateMap<Section, UserSection>()
                 // Id, SurveyId, Name, Order mapped.
