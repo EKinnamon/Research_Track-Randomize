@@ -9,7 +9,6 @@ using AutoMapper;
 
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
-using EKSurvey.Core.Models.Enums;
 using EKSurvey.Core.Models.Profiles;
 using EKSurvey.Core.Services;
 
@@ -58,7 +57,62 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             Fixture.Inject(Rng.FakedObject);
         }
 
-        public void PrepareTestEntities(bool includeCompleted = false)
+        private static UserSection GenerateUserSection(UserSection userSection)
+        {
+            userSection = Fixture
+                .Build<UserSection>()
+                .With(us => us.UserId, userSection.UserId)
+                .With(us => us.SurveyId, userSection.SurveyId)
+                .With(us => us.TestId, userSection.TestId)
+                .With(us => us.TestSectionMarkerId, userSection.TestSectionMarkerId)
+                .With(us => us.Order, userSection.Order)
+                .With(us => us.Started, userSection.Started)
+                .With(us => us.Modified, userSection.Modified)
+                .With(us => us.Completed, userSection.Completed)
+                .With(us => us.Id, userSection.Id)
+                .Create();
+
+            return userSection;
+        }
+
+        private static UserSectionGroup GenerateSectionGroup(string userId, 
+            int surveyId, 
+            int sectionId, 
+            Guid testId, 
+            int order, 
+            DateTime? modified)
+        {
+            const int subSectionCount = 5;
+            var subSections = Enumerable.Range(0, subSectionCount).Select(i =>
+            {
+                return Fixture
+                    .Build<UserSection>()
+                    .With(us => us.UserId, userId)
+                    .With(us => us.SurveyId, surveyId)
+                    .With(us => us.TestId, testId)
+                    .With(us => us.Order, order)
+                    .With(us => us.Id, ++sectionId)
+                    .With(us => us.Modified, modified)
+                    .Without(us => us.TestSectionMarkerId)
+                    .Without(us => us.Started)
+                    .Without(us => us.Completed)
+                    .Create();
+            });
+            //var activeSubSection = i < sectionCompleteCount ? null : subSections.Shuffle().First();
+            //subSections = subSections.Select(ss =>
+            //{
+            //    ss.TestSectionMarkerId = started.HasValue ? Fixture.Create<Guid?>() : null;
+            //    ss.Started = activeSubSection?.Id == ss.Id ? started : null;
+            //    ss.Completed = activeSubSection?.Id == ss.Id ? completed : null;
+            //    return ss;
+            //}).ToList();
+
+            //userSection = new UserSectionGroup(subSections);
+
+            return new UserSectionGroup(subSections);
+        }
+
+        public void PrepareTestEntities(bool includeCompleted = false, bool userSurveyComplete = false)
         {
             UserId = Guid.NewGuid().ToString();
             var surveyId = 0;
@@ -68,11 +122,11 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             {
                 while (true)
                 {
-                    var surveyComplete = surveyId % 2 == 0;
+                    var surveyComplete = ++surveyId % 4 == 0;
                     var userSurvey = Fixture
                         .Build<UserSurvey>()
                         .With(us => us.UserId, UserId)
-                        .With(us => us.Id, ++surveyId)
+                        .With(us => us.Id, surveyId)
                         .With(us => us.Completed, surveyComplete ? Fixture.Create<DateTime?>() : null)
                         .Create();
 
@@ -83,86 +137,68 @@ namespace EKSurvey.Tests.Core.Services.Contexts
             IEnumerable<IUserSection> UserSectionBuilder(int sectionSurveyId, bool isTransition)
             {
                 var userSurvey = UserSurveys.Single(us => us.Id == sectionSurveyId);
-                var test = Surveys.Single(s => s.Id == userSurvey.Id).Tests.Single();
+                var testId = userSurvey.TestId;
 
-                var sectionCount = Fixture.Create<int>() % 8 + 3;
-                var sectionCompleteCount = userSurvey.Completed.HasValue 
-                    ? sectionCount 
+                const int sectionCount = 10;
+                var sectionCompleteCount = userSurvey.Completed.HasValue
+                    ? sectionCount
                     : Fixture.Create<int>() % sectionCount;
 
                 var userSections = Enumerable
                     .Range(0, sectionCount)
                     .Select(i =>
                     {
-                        IUserSection section;
-                        var isGroup = i % 5 == 2;
+                        IUserSection userSection;
 
-                        var started = i < sectionCompleteCount || (i == sectionCompleteCount - 1 && !isTransition) ? Fixture.Create<DateTime?>() : null;
-                        var modified = i < sectionCompleteCount && Fixture.Create<bool>()
+                        var isSectionGroup = i % 5 == 2;
+                        var started = i < sectionCompleteCount || (i == sectionCompleteCount - 1 && !isTransition)
                             ? Fixture.Create<DateTime?>()
                             : null;
-                        var completed = i < sectionCompleteCount ? Fixture.Create<DateTime?>() : null;
+                        var modified = i < sectionCompleteCount || Fixture.Create<bool>()
+                            ? Fixture.Create<DateTime?>()
+                            : null;
+                        var completed = i < sectionCompleteCount 
+                            ? Fixture.Create<DateTime?>() 
+                            : null;
 
-                        if (isGroup)
+                        if (isSectionGroup)
                         {
-                            var subSectionCount = Fixture.Create<int>() % 5 + 2;
-                            var subSections = Enumerable.Range(0, subSectionCount).Select(j =>
-                            {
-                                return Fixture
-                                    .Build<UserSection>()
-                                    .With(us => us.UserId, UserId)
-                                    .With(us => us.SurveyId, sectionSurveyId)
-                                    .With(us => us.TestId, test.Id)
-                                    .With(us => us.Order, i)
-                                    .With(us => us.Id, ++sectionId)
-                                    .With(us => us.Started, started)
-                                    .With(us => us.Modified, modified)
-                                    .Without(us => us.Completed)
-                                    .Create();
-                            }).ToList();
-                                
-                            var finishSubsectionId = subSections.Shuffle().First().Id;
-
-                            subSections = subSections.Select(s =>
-                            {
-                                s.Completed = finishSubsectionId == s.Id && completed.HasValue ? completed : null;
-                                return s;
-                            }).ToList();
-
-                            section = new UserSectionGroup(subSections);
+                            userSection = GenerateSectionGroup(UserId, sectionSurveyId, ++sectionId, testId, i, modified);
                         }
                         else
                         {
-                            section = Fixture
-                                .Build<UserSection>()
-                                .With(us => us.UserId, UserId)
-                                .With(us => us.SurveyId, sectionSurveyId)
-                                .With(us => us.TestId, test.Id)
-                                .With(us => us.Order, i)
-                                .With(us => us.Id, ++sectionId)
-                                .With(us => us.Started, started)
-                                .With(us => us.Modified, modified)
-                                .With(us => us.Completed, completed)
-                                .Create();
+                            userSection = GenerateUserSection(new UserSection
+                            {
+                                UserId = UserId,
+                                SurveyId = sectionSurveyId,
+                                TestId = testId,
+                                Order = i,
+                                Id = ++sectionId,
+                                Started = started,
+                                Modified = modified,
+                                Completed = completed
+                            });
                         }
 
-                        return section;
+                        return userSection;
                     }).ToList();
 
                 return userSections;
             }
 
             UserSurveys = UserSurveyBuilder().Take(Fixture.Create<int>() % 8 + 3).ToList();
-            var testSurveyId = UserSurveys.Shuffle().First().Id;
+            var testSurveyId = UserSurveys.Shuffle().First(s => userSurveyComplete && s.Completed.HasValue || !userSurveyComplete).Id;
+            UserSections = UserSectionBuilder(testSurveyId, false).ToList();
 
             Surveys = UserSurveys.Select(us =>
             {
-                var tests = !us.Started.HasValue
+                var tests = !us.IsStarted
                     ? new HashSet<Test>()
                     : new[]
                     {
                         Fixture
                             .Build<Test>()
+                            .With(t => t.Id, us.TestId)
                             .With(t => t.UserId, us.UserId)
                             .With(t => t.SurveyId, us.Id)
                             .With(t => t.Started, us.Started.GetValueOrDefault())
@@ -200,60 +236,6 @@ namespace EKSurvey.Tests.Core.Services.Contexts
 
                 return survey;
             }).ToList();
-
-            UserSections = UserSectionBuilder(testSurveyId, false).ToList();
-
-            Surveys = Surveys.Select(s =>
-            {
-                s.Sections = UserSections
-                    .Select(uss =>
-                        Fixture
-                            .Build<Section>()
-                            .With(sec => sec.Id, uss.Id)
-                            .With(sec => sec.SurveyId, uss.SurveyId)
-                            .With(sec => sec.Order, uss.Order)
-                            .With(sec => sec.SelectorType, SelectorType.Random)
-                            .With(sec => sec.Survey, s)
-                            .Without(sec => sec.Pages)
-                            .Without(sec => sec.TestSectionMarkers)
-                            .Create())
-                    .ToHashSet();
-
-                s.Sections = s.Sections.Select(ss =>
-                {
-                    var testSectionMarker = s.Tests
-                        .First()
-                        .TestSectionMarkers
-                        .Single(tsm => tsm.SectionId == s.Id);
-
-                    ss.TestSectionMarkers.Add(testSectionMarker);
-
-                    return ss;
-                }).ToHashSet();
-
-                if (testSurveyId == s.Id)
-                {
-                    s.Tests = s.Tests.Select(t =>
-                    {
-                        t.TestSectionMarkers = UserSections.Select(uss =>
-                        {
-                            return Fixture
-                                .Build<TestSectionMarker>()
-                                .With(tsm => tsm.TestId, t.Id)
-                                .With(tsm => tsm.SectionId, uss.Id)
-                                .With(tsm => tsm.Started, uss.Started)
-                                .With(tsm => tsm.Completed, uss.Completed)
-                                .With(tsm => tsm.Test, t)
-                                .Without(tsm => tsm.Section)
-                                .Create();
-                        }).ToHashSet();
-                        return t;
-                    }).ToHashSet();
-                }
-
-                return s;
-            }).ToList();
-
             Survey = Surveys.Single(s => s.Id == testSurveyId);
         }
 

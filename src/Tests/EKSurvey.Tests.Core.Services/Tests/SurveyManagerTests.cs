@@ -152,10 +152,10 @@ namespace EKSurvey.Tests.Core.Services.Tests
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void GetUserSections_will_return_all_sections_for_survey_and_user(bool finishSection)
+        public void GetUserSections_will_return_all_sections_for_survey_and_user(bool surveyComplete)
         {
             _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities();
+            _context.PrepareTestEntities(userSurveyComplete: surveyComplete);
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
 

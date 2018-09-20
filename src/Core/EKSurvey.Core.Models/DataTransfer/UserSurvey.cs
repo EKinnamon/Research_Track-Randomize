@@ -8,7 +8,7 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public int Id { get; set; }
 
-        public int TestId { get; set; }
+        public Guid TestId { get; set; }
 
         public string Name { get; set; }
 
@@ -23,5 +23,8 @@ namespace EKSurvey.Core.Models.DataTransfer
         public DateTime? Started { get; set; }
 
         public DateTime? Completed { get; set; }
+
+        public bool IsStarted => Started.HasValue;
+        public bool IsCompleted => Completed.HasValue;
     }
 }

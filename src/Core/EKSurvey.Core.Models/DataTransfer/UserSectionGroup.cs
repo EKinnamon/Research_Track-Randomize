@@ -27,8 +27,11 @@ namespace EKSurvey.Core.Models.DataTransfer
                 throw new InvalidSectionGroupConfigurationException("Sections are not owned by the same user id.");
             if (!_collection.Select(i => i.SurveyId).IsUnanimous())
                 throw new InvalidSectionGroupConfigurationException("Sections are not associated to a single survey id.");
-            if (!_collection.Select(i => i.TestSectionMarkerId).IsUnanimous())
+
+            var testSectionMarkers = _collection.Where(i => i.TestSectionMarkerId.HasValue).Select(i => i.TestSectionMarkerId);
+            if (!testSectionMarkers.IsUnanimous())
                 throw new InvalidSectionGroupConfigurationException("Sections are not associated to a single test id.");
+
             if (!_collection.Select(i => i.Order).IsUnanimous())
                 throw new InvalidSectionGroupConfigurationException("Sections must all belong to the same order.");
         }

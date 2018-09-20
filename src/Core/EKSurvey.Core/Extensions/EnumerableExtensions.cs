@@ -10,9 +10,11 @@ namespace EKSurvey.Core.Extensions
             if (comparer == null)
                 comparer = EqualityComparer<T>.Default;
 
-            var distinction = collection.Distinct(comparer);
+            var distinction = collection
+                .Distinct(comparer)
+                .ToList();
 
-            return distinction.Count() == 1;
+            return distinction.Count == 0 || distinction.Count == 1;
         }
     }
 }

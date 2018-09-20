@@ -124,7 +124,7 @@ namespace EKSurvey.UI.Controllers
             try
             {
                 var userSurvey = await _testManager.CompleteCurrentSectionAsync(User.Identity.GetUserId(), id);
-                return userSurvey.Completed.HasValue
+                return userSurvey.IsCompleted
                     ? RedirectToAction("SurveyComplete") 
                     : RedirectToAction("Respond", new { id = userSurvey.Id });
             }
