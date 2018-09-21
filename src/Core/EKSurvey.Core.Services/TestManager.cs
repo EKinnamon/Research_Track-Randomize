@@ -149,7 +149,7 @@ namespace EKSurvey.Core.Services
         public UserSurvey CompleteCurrentSection(string userId, int surveyId)
         {
             var section = _surveyManager.GetCurrentUserSection(userId, surveyId);
-            var sectionMarker = TestSectionMarkers.Find(section.TestId, section.Id) ?? throw new SectionMarkerNotFoundException(section.TestId, section.Id.GetValueOrDefault());
+            var sectionMarker = TestSectionMarkers.Find(section.TestId, section.Id) ?? throw new SectionMarkerNotFoundException(section.TestId.GetValueOrDefault(), section.Id.GetValueOrDefault());
 
             sectionMarker.Completed = DateTime.UtcNow;
 
@@ -174,7 +174,7 @@ namespace EKSurvey.Core.Services
         public async Task<UserSurvey> CompleteCurrentSectionAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
             var section = await _surveyManager.GetCurrentUserSectionAsync(userId, surveyId, cancellationToken);
-            var sectionMarker = await TestSectionMarkers.FindAsync(cancellationToken, section.TestId, section.Id) ?? throw new SectionMarkerNotFoundException(section.TestId, section.Id.GetValueOrDefault());
+            var sectionMarker = await TestSectionMarkers.FindAsync(cancellationToken, section.TestId, section.Id) ?? throw new SectionMarkerNotFoundException(section.TestId.GetValueOrDefault(), section.Id.GetValueOrDefault());
             sectionMarker.Completed = DateTime.UtcNow;
 
             // Check if the survey is complete

@@ -76,7 +76,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
         public void GetActiveSurveys_will_return_all_active_surveys()
         {
             _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities();
+            _context.PrepareSurveys();
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
 
@@ -91,7 +91,8 @@ namespace EKSurvey.Tests.Core.Services.Tests
         public async Task GetActiveSurveysAsync_will_return_all_active_surveys()
         {
             _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities();
+            _context.PrepareSurveys();
+            //_context.PrepareTestEntities();
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
 
@@ -109,7 +110,7 @@ namespace EKSurvey.Tests.Core.Services.Tests
         public void GetUserSurveys_will_return_all_surveys_for_user(bool includeCompleted)
         {
             _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities(includeCompleted);
+            _context.PrepareSurveys();
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
 
@@ -132,7 +133,8 @@ namespace EKSurvey.Tests.Core.Services.Tests
         public async Task GetUserSurveysAsync_will_return_all_surveys_for_user(bool includeCompleted)
         {
             _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities(includeCompleted);
+            _context.PrepareTestEntities();
+            _context.PrepareSurveys();
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
 
@@ -155,7 +157,8 @@ namespace EKSurvey.Tests.Core.Services.Tests
         public void GetUserSections_will_return_all_sections_for_survey_and_user(bool surveyComplete)
         {
             _context.PrepareServiceConfiguration();
-            _context.PrepareTestEntities(userSurveyComplete: surveyComplete);
+            _context.PrepareSurveys();
+            _context.PrepareSections();
             _context.PrepareServiceHelperCalls();
             _context.PrepareService();
 

@@ -25,12 +25,15 @@ namespace EKSurvey.Core.Models.DataTransfer
         {
             if (!_collection.Select(i => i.UserId).IsUnanimous())
                 throw new InvalidSectionGroupConfigurationException("Sections are not owned by the same user id.");
+
             if (!_collection.Select(i => i.SurveyId).IsUnanimous())
                 throw new InvalidSectionGroupConfigurationException("Sections are not associated to a single survey id.");
 
-            var testSectionMarkers = _collection.Where(i => i.TestSectionMarkerId.HasValue).Select(i => i.TestSectionMarkerId);
-            if (!testSectionMarkers.IsUnanimous())
+            if (!_collection.Select(i => i.TestId).IsUnanimous())
                 throw new InvalidSectionGroupConfigurationException("Sections are not associated to a single test id.");
+
+            if (_collection.Where(t => t.TestSectionMarkerId.HasValue).Select(t => t.TestSectionMarkerId).Count() > 1)
+                throw new InvalidSectionGroupConfigurationException("There can only be one section selected.");
 
             if (!_collection.Select(i => i.Order).IsUnanimous())
                 throw new InvalidSectionGroupConfigurationException("Sections must all belong to the same order.");
@@ -38,11 +41,15 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public string UserId => _collection.FirstOrDefault()?.UserId;
         public int SurveyId => (_collection.FirstOrDefault()?.SurveyId).GetValueOrDefault();
-        public Guid TestId => (_collection.FirstOrDefault()?.TestId).GetValueOrDefault();
+        public Guid? TestId => _collection.FirstOrDefault()?.TestId;
         public Guid? TestSectionMarkerId => SelectedSection?.TestSectionMarkerId;
         public int Order => (_collection.FirstOrDefault()?.Order).GetValueOrDefault();
 
-        public int? Id => SelectedSection?.Id;
+        public int? Id
+        {
+            get => SelectedSection?.Id;
+            set => throw new NotSupportedException();
+        }
 
         public DateTime? Started => _collection.FirstOrDefault(i => i.Started.HasValue)?.Started;
         public DateTime? Modified => _collection.FirstOrDefault(i => i.Modified.HasValue)?.Modified;

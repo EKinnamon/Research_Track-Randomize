@@ -59,6 +59,7 @@ namespace EKSurvey.Core.Models.Profiles
                 .ForMember(dest => dest.Completed, opt => opt.Ignore());
 
             CreateMap<IEnumerable<Section>, UserSectionGroup>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.SelectorType, opt => opt.Ignore())
                 .AfterMap((src, dest, ctx) =>
                 {

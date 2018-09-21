@@ -8,11 +8,11 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         int SurveyId { get; }
 
-        Guid TestId { get; }
+        Guid? TestId { get; }
 
         Guid? TestSectionMarkerId { get; }
 
-        int? Id { get; }
+        int? Id { get; set; }
 
         int Order { get; }
 

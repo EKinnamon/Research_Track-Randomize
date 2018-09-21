@@ -68,7 +68,7 @@ namespace EKSurvey.Core.Services
             var section = Sections.Find(sectionId) ?? throw new SectionNotFoundException(sectionId);
             var sectionMarker = new TestSectionMarker
             {
-                TestId = userSection.TestId,
+                TestId = userSection.TestId.GetValueOrDefault(),
                 Section = section,
                 SectionId = sectionId,
                 Started = DateTime.UtcNow
@@ -94,7 +94,7 @@ namespace EKSurvey.Core.Services
             var section = await Sections.FindAsync(cancellationToken, sectionId) ?? throw new SectionNotFoundException(sectionId);
             var sectionMarker = new TestSectionMarker
             {
-                TestId = userSection.TestId,
+                TestId = userSection.TestId.GetValueOrDefault(),
                 Section = section,
                 SectionId = sectionId,
                 Started = DateTime.UtcNow
@@ -221,7 +221,17 @@ namespace EKSurvey.Core.Services
                     }
 
                     var sectionGroup = _mapper.Map<UserSectionGroup>(ss);
-                    sectionGroup.Add(_mapper.Map<UserSection>(sectionMarker));
+                    if (sectionMarker != null)
+                    {
+                        sectionGroup.Add(_mapper.Map<UserSection>(sectionMarker));
+                    }
+                    else
+                    {
+                        foreach (var userSection in sectionGroup)
+                        {
+                            userSection.UserId = userId;
+                        }
+                    }
 
                     return sectionGroup;
                 }).ToList();
@@ -260,7 +270,17 @@ namespace EKSurvey.Core.Services
                     }
 
                     var sectionGroup = _mapper.Map<UserSectionGroup>(ss);
-                    sectionGroup.Add(_mapper.Map<UserSection>(sectionMarker));
+                    if (sectionMarker != null)
+                    {
+                        sectionGroup.Add(_mapper.Map<UserSection>(sectionMarker));
+                    }
+                    else
+                    {
+                        foreach (var userSection in sectionGroup)
+                        {
+                            userSection.UserId = userId;
+                        }
+                    }
 
                     return sectionGroup;
                 }).ToList();
