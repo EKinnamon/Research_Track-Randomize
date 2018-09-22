@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using EKSurvey.Core.Models.Entities.Surveys;
 using EKSurvey.Core.Models.Enums;
 
 namespace EKSurvey.Core.Models.Entities

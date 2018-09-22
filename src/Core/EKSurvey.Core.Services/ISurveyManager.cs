@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
+using EKSurvey.Core.Models.Entities.Surveys;
 
 namespace EKSurvey.Core.Services
 {

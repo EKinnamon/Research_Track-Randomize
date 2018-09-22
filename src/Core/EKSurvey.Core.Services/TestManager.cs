@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
+using EKSurvey.Core.Models.Entities.Surveys;
 using EKSurvey.Core.Services.Exceptions;
 
 namespace EKSurvey.Core.Services

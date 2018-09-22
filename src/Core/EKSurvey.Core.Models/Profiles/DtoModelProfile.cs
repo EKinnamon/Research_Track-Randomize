@@ -3,6 +3,7 @@ using System.Linq;
 using AutoMapper;
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
+using EKSurvey.Core.Models.Entities.Surveys;
 
 namespace EKSurvey.Core.Models.Profiles
 {

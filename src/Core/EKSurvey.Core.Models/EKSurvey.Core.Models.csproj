@@ -101,10 +101,12 @@
     <Compile Include="Entities\Pages\RangeQuestion.cs" />
     <Compile Include="Entities\Pages\StaticTextPage.cs" />
     <Compile Include="Entities\Pages\TrueFalseQuestion.cs" />
+    <Compile Include="Entities\Surveys\ISurvey.cs" />
+    <Compile Include="Entities\Surveys\MonkeySurvey.cs" />
     <Compile Include="Entities\Test.cs" />
     <Compile Include="Entities\Section.cs" />
     <Compile Include="Entities\TestResponse.cs" />
-    <Compile Include="Entities\Survey.cs" />
+    <Compile Include="Entities\Surveys\Survey.cs" />
     <Compile Include="Entities\TestSectionMarker.cs" />
     <Compile Include="Enums\SelectorType.cs" />
     <Compile Include="Exceptions\InvalidSectionGroupConfigurationException.cs" />

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace EKSurvey.Core.Models.Entities
+namespace EKSurvey.Core.Models.Entities.Surveys
 {
     [Table("Surveys")]
-    public class Survey
+    public class Survey : ISurvey
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }

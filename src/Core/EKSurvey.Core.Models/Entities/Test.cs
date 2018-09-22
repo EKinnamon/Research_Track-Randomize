@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using EKSurvey.Core.Models.Entities.Surveys;
 
 namespace EKSurvey.Core.Models.Entities
 {
