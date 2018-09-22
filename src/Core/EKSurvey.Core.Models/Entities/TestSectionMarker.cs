@@ -6,6 +6,7 @@ namespace EKSurvey.Core.Models.Entities
     [Table("TestSectionMarkers")]
     public class TestSectionMarker
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
         public Guid TestId { get; set; }

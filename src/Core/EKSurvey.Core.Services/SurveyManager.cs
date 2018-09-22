@@ -194,6 +194,8 @@ namespace EKSurvey.Core.Services
         {
             ThrowIfSurveyDoesNotExist(surveyId);
 
+            var userSurvey = GetUserSurvey(userId, surveyId);
+
             var sectionStacks = Sections
                 .Where(s => s.SurveyId == surveyId)
                 .GroupBy(s => s.Order)
@@ -214,6 +216,7 @@ namespace EKSurvey.Core.Services
                         case 1:
                             var userSection = _mapper.Map<UserSection>(ss.Single());
                             userSection.UserId = userId;
+                            userSection.TestId = userSurvey.TestId;
                             return userSection;
                         default:
                             // fall through to process group section
@@ -221,16 +224,14 @@ namespace EKSurvey.Core.Services
                     }
 
                     var sectionGroup = _mapper.Map<UserSectionGroup>(ss);
+                    foreach (var userSection in sectionGroup)
+                    {
+                        userSection.UserId = userId;
+                        userSection.TestId = userSurvey.TestId;
+                    }
                     if (sectionMarker != null)
                     {
                         sectionGroup.Add(_mapper.Map<UserSection>(sectionMarker));
-                    }
-                    else
-                    {
-                        foreach (var userSection in sectionGroup)
-                        {
-                            userSection.UserId = userId;
-                        }
                     }
 
                     return sectionGroup;
@@ -242,6 +243,8 @@ namespace EKSurvey.Core.Services
         public async Task<ICollection<IUserSection>> GetUserSectionsAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
             ThrowIfSurveyDoesNotExist(surveyId);
+
+            var userSurvey = await GetUserSurveyAsync(userId, surveyId, cancellationToken);
 
             var sectionStacks = await Sections
                 .Where(s => s.SurveyId == surveyId)
@@ -263,6 +266,7 @@ namespace EKSurvey.Core.Services
                         case 1:
                             var userSection = _mapper.Map<UserSection>(ss.Single());
                             userSection.UserId = userId;
+                            userSection.TestId = userSurvey.TestId;
                             return userSection;
                         default:
                             // fall through to process group section
@@ -270,16 +274,15 @@ namespace EKSurvey.Core.Services
                     }
 
                     var sectionGroup = _mapper.Map<UserSectionGroup>(ss);
+                    foreach (var userSection in sectionGroup)
+                    {
+                        userSection.UserId = userId;
+                        userSection.TestId = userSurvey.TestId;
+                    }
+
                     if (sectionMarker != null)
                     {
                         sectionGroup.Add(_mapper.Map<UserSection>(sectionMarker));
-                    }
-                    else
-                    {
-                        foreach (var userSection in sectionGroup)
-                        {
-                            userSection.UserId = userId;
-                        }
                     }
 
                     return sectionGroup;
@@ -357,25 +360,39 @@ namespace EKSurvey.Core.Services
         public ICollection<UserPage> GetUserPages(string userId, int sectionId)
         {
             var section = Sections.Find(sectionId) ?? throw new SectionNotFoundException(sectionId);
-            var responses = section
-                .Pages
+            var pages = section.Pages;
+            var responses = pages
                 .SelectMany(p => p.TestResponses)
                 .Where(tr => tr.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
 
-            var results = _mapper.Map<ICollection<UserPage>>(responses);
-            return results.ToHashSet();
+            var unansweredPages = pages.Where(p => !p.TestResponses.Any(tr => tr.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase)));
+            var unansweredUserPages = _mapper.Map<ICollection<UserPage>>(unansweredPages).Select(p =>
+            {
+                p.UserId = userId;
+                return p;
+            });
+            var answeredPages = _mapper.Map<ICollection<UserPage>>(responses);
+
+            return answeredPages.Union(unansweredUserPages).OrderBy(i => i.Page.Order).ToHashSet();
         }
 
         public async Task<ICollection<UserPage>> GetUserPagesAsync(string userId, int sectionId, CancellationToken cancellationToken = default(CancellationToken))
         {
             var section = await Sections.FindAsync(cancellationToken, sectionId) ?? throw new SectionNotFoundException(sectionId);
-            var responses = section
-                .Pages
+            var pages = section.Pages;
+            var responses = pages
                 .SelectMany(p => p.TestResponses)
                 .Where(tr => tr.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase));
 
-            var results = _mapper.Map<ICollection<UserPage>>(responses);
-            return results.ToHashSet();
+            var unansweredPages = pages.Where(p => !p.TestResponses.Any(tr => tr.Test.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase)));
+            var unansweredUserPages = _mapper.Map<ICollection<UserPage>>(unansweredPages).Select(p =>
+            {
+                p.UserId = userId;
+                return p;
+            });
+            var answeredPages = _mapper.Map<ICollection<UserPage>>(responses);
+
+            return answeredPages.Union(unansweredUserPages).OrderBy(i => i.Page.Order).ToHashSet();
         }
 
         public UserPage GetCurrentUserPage(string userId, int surveyId)

@@ -84,7 +84,7 @@ namespace EKSurvey.Core.Services
         {
             var currentTest = Tests.SingleOrDefault(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && surveyId == t.SurveyId) ?? throw new TestNotFoundException(userId, surveyId);
             var currentPage = Pages.Find(pageId) ?? throw new PageNotFoundException(pageId);
-            var testResponse = TestResponses.Find(currentTest.Id, pageId);
+            var testResponse = TestResponses.SingleOrDefault(tr => tr.TestId == currentTest.Id && tr.PageId == pageId);
 
             var responseExpected = currentPage.GetType().IsAssignableFrom(typeof(IQuestion));
 
@@ -117,7 +117,7 @@ namespace EKSurvey.Core.Services
         {
             var currentTest = await Tests.SingleOrDefaultAsync(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && surveyId == t.SurveyId, cancellationToken) ?? throw new TestNotFoundException(userId, surveyId);
             var currentPage = await Pages.FindAsync(cancellationToken, pageId) ?? throw new PageNotFoundException(pageId);
-            var testResponse = await TestResponses.FindAsync(cancellationToken, currentTest.Id, pageId);
+            var testResponse = await TestResponses.SingleOrDefaultAsync(tr => tr.TestId == currentTest.Id && tr.PageId == pageId, cancellationToken);
 
             var responseExpected = currentPage.GetType().IsAssignableFrom(typeof(IQuestion));
 
@@ -149,7 +149,7 @@ namespace EKSurvey.Core.Services
         public UserSurvey CompleteCurrentSection(string userId, int surveyId)
         {
             var section = _surveyManager.GetCurrentUserSection(userId, surveyId);
-            var sectionMarker = TestSectionMarkers.Find(section.TestId, section.Id) ?? throw new SectionMarkerNotFoundException(section.TestId.GetValueOrDefault(), section.Id.GetValueOrDefault());
+            var sectionMarker = TestSectionMarkers.SingleOrDefault(tsm => tsm.TestId == section.TestId && tsm.SectionId == section.Id) ?? throw new SectionMarkerNotFoundException(section.TestId.GetValueOrDefault(), section.Id.GetValueOrDefault());
 
             sectionMarker.Completed = DateTime.UtcNow;
 
@@ -162,7 +162,7 @@ namespace EKSurvey.Core.Services
 
             if (sectionMarkers.All(sm => sm.Completed.HasValue))
             {
-                var test = Tests.Find(userId, surveyId) ?? throw new TestNotFoundException(userId, surveyId);
+                var test = Tests.SingleOrDefault(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && t.SurveyId == surveyId) ?? throw new TestNotFoundException(userId, surveyId);
                 test.Completed = DateTime.UtcNow;
             }
 
@@ -174,7 +174,10 @@ namespace EKSurvey.Core.Services
         public async Task<UserSurvey> CompleteCurrentSectionAsync(string userId, int surveyId, CancellationToken cancellationToken = default(CancellationToken))
         {
             var section = await _surveyManager.GetCurrentUserSectionAsync(userId, surveyId, cancellationToken);
-            var sectionMarker = await TestSectionMarkers.FindAsync(cancellationToken, section.TestId, section.Id) ?? throw new SectionMarkerNotFoundException(section.TestId.GetValueOrDefault(), section.Id.GetValueOrDefault());
+            var sectionMarker = await TestSectionMarkers
+                                    .SingleOrDefaultAsync(tsm => tsm.TestId == section.TestId && tsm.SectionId == section.Id, cancellationToken) 
+                                ?? throw new SectionMarkerNotFoundException(section.TestId.GetValueOrDefault(), section.Id.GetValueOrDefault());
+
             sectionMarker.Completed = DateTime.UtcNow;
 
             // Check if the survey is complete
@@ -183,7 +186,7 @@ namespace EKSurvey.Core.Services
             if (sections.Where(s => s.Id != section.Id).All(s => s.Completed.HasValue))
             {
                 // Close the test if all the section markers are complete.
-                var test = Tests.Find(userId, surveyId) ?? throw new TestNotFoundException(userId, surveyId);
+                var test = Tests.SingleOrDefault(t => t.UserId.Equals(userId, StringComparison.OrdinalIgnoreCase) && t.SurveyId == surveyId) ?? throw new TestNotFoundException(userId, surveyId);
                 test.Completed = DateTime.UtcNow;
             }
 

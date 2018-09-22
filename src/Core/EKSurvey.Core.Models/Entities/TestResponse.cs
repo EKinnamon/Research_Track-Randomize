@@ -6,6 +6,7 @@ namespace EKSurvey.Core.Models.Entities
     [Table("TestResponses")]
     public class TestResponse
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
         public Guid TestId { get; set; }

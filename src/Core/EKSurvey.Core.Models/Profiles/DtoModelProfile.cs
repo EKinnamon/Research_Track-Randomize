@@ -42,10 +42,15 @@ namespace EKSurvey.Core.Models.Profiles
                         dest.Modified = null;
                     else
                     {
-                        dest.Modified = testResponses
+
+                        if (testResponses
                             .Where(tr => tr.Page.SectionId == src.SectionId)
-                            .Select(tsm => tsm.Modified.GetValueOrDefault(tsm.Created))
-                            .Max();
+                            .Select(tr => tr.Modified.GetValueOrDefault(tr.Created)).ToList().Any())
+                        {
+                            dest.Modified = testResponses
+                            .Where(tr => tr.Page.SectionId == src.SectionId)
+                            .Select(tr => tr.Modified.GetValueOrDefault(tr.Created)).ToList().Max();
+                        }
                     }
                 });
 
@@ -67,6 +72,15 @@ namespace EKSurvey.Core.Models.Profiles
                     dest.SelectorType = src.First().SelectorType;
                     dest.AddRange(userSections);
                 });
+
+            CreateMap<Page, UserPage>()
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.SurveyId, opt => opt.MapFrom(src => src.Section.SurveyId))
+                .ForMember(dest => dest.TestResponseId, opt => opt.Ignore())
+                .ForMember(dest => dest.Page, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Response, opt => opt.Ignore())
+                .ForMember(dest => dest.Responded, opt => opt.Ignore())
+                .ForMember(dest => dest.Modified, opt => opt.Ignore());
 
             CreateMap<TestResponse, UserPage>()
                 .ForMember(dest => dest.Page, opt => opt.MapFrom(src => src.Page))
