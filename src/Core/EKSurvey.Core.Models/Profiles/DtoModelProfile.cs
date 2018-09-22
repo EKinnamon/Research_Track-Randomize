@@ -28,6 +28,15 @@ namespace EKSurvey.Core.Models.Profiles
                 .ForMember(dest => dest.Started, opt => opt.Ignore())
                 .ForMember(dest => dest.Completed, opt => opt.Ignore());
 
+            CreateMap<MonkeySurvey, UserSurvey>()
+                // Id, Name, Version, IsActive, Created, Modified mapped
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                .ForMember(dest => dest.IsMonkeySurvey, opt => opt.UseValue(true))
+                .ForMember(dest => dest.TestId, opt => opt.Ignore())
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.Started, opt => opt.Ignore())
+                .ForMember(dest => dest.Completed, opt => opt.Ignore());
+
             CreateMap<TestSectionMarker, UserSection>()
                 // TestId, Started, Completed mapped
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Test.UserId))

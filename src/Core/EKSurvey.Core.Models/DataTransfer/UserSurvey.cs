@@ -12,6 +12,24 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public string Name { get; set; }
 
+        private string _url;
+
+        public string Url
+        {
+            get => IsMonkeySurvey ? _url : null;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    _url = null;
+                    IsMonkeySurvey = false;
+                }
+
+                _url = value;
+                IsMonkeySurvey = true;
+            }
+        }
+
         public string Description { get; set; }
 
         public string Version { get; set; }
@@ -24,6 +42,7 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public DateTime? Completed { get; set; }
 
+        public bool IsMonkeySurvey { get; set; }
         public bool IsStarted => Started.HasValue;
         public bool IsCompleted => Completed.HasValue;
     }

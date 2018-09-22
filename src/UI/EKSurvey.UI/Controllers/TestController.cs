@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 
 using AutoMapper;
+using EKSurvey.Core.Models.Entities.Surveys;
 using EKSurvey.Core.Models.ViewModels.Test;
 using EKSurvey.Core.Services;
 
@@ -37,6 +38,11 @@ namespace EKSurvey.UI.Controllers
             try
             {
                 var test = await _testManager.CreateAsync(viewModel.SurveyId, viewModel.UserId);
+                if (test.Survey is MonkeySurvey monkeySurvey)
+                {
+                    return Redirect(monkeySurvey.Url);
+                }
+                    
                 return RedirectToAction("Respond", new { id = viewModel.SurveyId });
             }
             catch (Exception ex)

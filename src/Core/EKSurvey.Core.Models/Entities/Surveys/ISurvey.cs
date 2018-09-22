@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace EKSurvey.Core.Models.Entities.Surveys
 {
@@ -12,5 +13,6 @@ namespace EKSurvey.Core.Models.Entities.Surveys
         DateTime Created { get; set; }
         DateTime? Modified { get; set; }
         DateTime? Deleted { get; set; }
+        ICollection<Test> Tests { get; set; }
     }
 }
