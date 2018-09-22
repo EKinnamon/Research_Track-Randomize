@@ -2,6 +2,7 @@
 @model EKSurvey.Core.Models.ViewModels.Test.ResponseViewModel
 
 @{
+    ViewBag.Title = Model.SurveyName;
     var freeTextQuestion = (FreeTextQuestion)Model.Page;
 }
 

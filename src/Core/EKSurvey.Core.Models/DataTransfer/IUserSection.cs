@@ -8,6 +8,8 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         int SurveyId { get; }
 
+        string SurveyName { get; }
+
         Guid? TestId { get; }
 
         Guid? TestSectionMarkerId { get; }
@@ -21,6 +23,5 @@ namespace EKSurvey.Core.Models.DataTransfer
         DateTime? Modified { get; }
 
         DateTime? Completed { get; }
-
     }
 }

@@ -25,18 +25,21 @@ namespace EKSurvey.Core.Models.Profiles
 
             CreateMap<UserPage, ResponseViewModel>()
                 // UserId, SurveyId, Response, Page mapped.
+                .ForMember(dest => dest.SurveyName, opt => opt.MapFrom(src => src.SurveyName))
                 .ForMember(dest => dest.PriorPageId, opt => opt.Ignore())
                 .ForMember(dest => dest.TestId, opt => opt.Ignore())
                 .ForMember(dest => dest.PageId, opt => opt.MapFrom(src => src.Page.Id));
 
             CreateMap<IUserSection, SectionReviewViewModel>()
                 // SurveyId mapped
+                .ForMember(dest => dest.SurveyName, opt => opt.MapFrom(src => src.SurveyName))
                 .ForMember(dest => dest.SectionId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Responses, opt => opt.Ignore())
                 .ForMember(dest => dest.IsLastSection, opt => opt.Ignore());
 
             CreateMap<ICollection<UserResponse>, SectionReviewViewModel>()
                 .ForMember(dest => dest.SurveyId, opt => opt.Ignore())
+                .ForMember(dest => dest.SurveyName, opt => opt.Ignore())
                 .ForMember(dest => dest.SectionId, opt => opt.Ignore())
                 .ForMember(dest => dest.IsLastSection, opt => opt.Ignore())
                 .ForMember(dest => dest.Responses, opt => opt.MapFrom(src => src));

@@ -31,6 +31,7 @@ namespace EKSurvey.Core.Models.Profiles
                 // TestId, Started, Completed mapped
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Test.UserId))
                 .ForMember(dest => dest.SurveyId, opt => opt.MapFrom(src => src.Test.SurveyId))
+                .ForMember(dest => dest.SurveyName, opt => opt.MapFrom(src => src.Section.Survey.Name))
                 .ForMember(dest => dest.TestSectionMarkerId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Section.Order))
                 .ForMember(dest => dest.Modified, opt => opt.Ignore())
@@ -56,6 +57,7 @@ namespace EKSurvey.Core.Models.Profiles
 
             CreateMap<Section, UserSection>()
                 // Id, SurveyId, Name, Order mapped.
+                .ForMember(dest => dest.SurveyName, opt => opt.MapFrom(src => src.Survey.Name))
                 .ForMember(dest => dest.UserId, opt => opt.Ignore())
                 .ForMember(dest => dest.TestId, opt => opt.Ignore())
                 .ForMember(dest => dest.TestSectionMarkerId, opt => opt.Ignore())
@@ -76,17 +78,19 @@ namespace EKSurvey.Core.Models.Profiles
             CreateMap<Page, UserPage>()
                 .ForMember(dest => dest.UserId, opt => opt.Ignore())
                 .ForMember(dest => dest.SurveyId, opt => opt.MapFrom(src => src.Section.SurveyId))
+                .ForMember(dest => dest.SurveyName, opt => opt.MapFrom(src => src.Section.Survey.Name))
                 .ForMember(dest => dest.TestResponseId, opt => opt.Ignore())
                 .ForMember(dest => dest.Page, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.Response, opt => opt.Ignore())
                 .ForMember(dest => dest.Responded, opt => opt.Ignore())
                 .ForMember(dest => dest.Modified, opt => opt.Ignore());
-
+            
             CreateMap<TestResponse, UserPage>()
                 .ForMember(dest => dest.Page, opt => opt.MapFrom(src => src.Page))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Test.UserId))
                 .ForMember(dest => dest.TestResponseId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.SurveyId, opt => opt.MapFrom(src => src.Test.SurveyId))
+                .ForMember(dest => dest.SurveyName, opt => opt.MapFrom(src => src.Test.Survey.Name))
                 .ForMember(dest => dest.Response, opt => opt.MapFrom(src => src.Response))
                 .ForMember(dest => dest.Responded, opt => opt.MapFrom(src => src.Responded))
                 .ForMember(dest => dest.Modified, opt => opt.MapFrom(src => src.Modified));

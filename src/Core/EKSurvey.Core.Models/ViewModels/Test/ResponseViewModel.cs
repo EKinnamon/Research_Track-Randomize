@@ -11,6 +11,7 @@ namespace EKSurvey.Core.Models.ViewModels.Test
 
         [Required]
         public int SurveyId { get; set; }
+        public string SurveyName { get; set; }
 
         [Required]
         public Guid TestId { get; set; }

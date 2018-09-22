@@ -2,6 +2,8 @@
 @model EKSurvey.Core.Models.ViewModels.Test.SectionReviewViewModel
 
 @{
+    ViewBag.Title = Model.SurveyName;
+
     var surveyClosing = Model.IsLastSection
         ? "completing the survey"
         : "continuing to the next section";

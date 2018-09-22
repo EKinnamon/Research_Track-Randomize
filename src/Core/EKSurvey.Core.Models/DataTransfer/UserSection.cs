@@ -7,6 +7,7 @@ namespace EKSurvey.Core.Models.DataTransfer
         public string UserId { get; set; }
 
         public int SurveyId { get; set; }
+        public string SurveyName { get; set; }
 
         public Guid? TestId { get; set; }
 

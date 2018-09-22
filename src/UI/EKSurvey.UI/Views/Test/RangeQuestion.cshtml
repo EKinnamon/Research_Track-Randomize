@@ -3,6 +3,7 @@
 @model EKSurvey.Core.Models.ViewModels.Test.ResponseViewModel
 
 @{
+    ViewBag.Title = Model.SurveyName;
     var rangeQuestion = (RangeQuestion) Model.Page;
 }
 

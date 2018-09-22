@@ -41,6 +41,7 @@ namespace EKSurvey.Core.Models.DataTransfer
 
         public string UserId => _collection.FirstOrDefault()?.UserId;
         public int SurveyId => (_collection.FirstOrDefault()?.SurveyId).GetValueOrDefault();
+        public string SurveyName => _collection.FirstOrDefault()?.SurveyName;
         public Guid? TestId => _collection.FirstOrDefault()?.TestId;
         public Guid? TestSectionMarkerId => SelectedSection?.TestSectionMarkerId;
         public int Order => (_collection.FirstOrDefault()?.Order).GetValueOrDefault();

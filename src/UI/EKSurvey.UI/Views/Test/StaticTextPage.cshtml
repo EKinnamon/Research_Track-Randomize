@@ -1,6 +1,7 @@
 ﻿@using EKSurvey.Core.Models.Entities
 @model EKSurvey.Core.Models.ViewModels.Test.ResponseViewModel
 @{
+    ViewBag.Title = Model.SurveyName;
     var staticPage = (StaticTextPage) Model.Page;
 }
 
