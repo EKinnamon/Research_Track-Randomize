@@ -1,0 +1,15 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Survey Complete";
+}
+
+<h1 class="display-4">Survey complete.</h1>
+<p class="lead">
+    Thank you for your participation in this survey. You may close this browser window, or you may return to the surveys list to take another survey.
+</p>
+<div class="row">
+    <div class="offset-10 col-2">
+        @Html.ActionLink("Return to surveys.", "Index", "Survey", null, new { @class="btn btn-link" })
+    </div>
+</div>

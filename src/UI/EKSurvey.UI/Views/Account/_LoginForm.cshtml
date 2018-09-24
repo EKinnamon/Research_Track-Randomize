@@ -1,0 +1,48 @@
+﻿@using EKSurvey.Core.Models.ViewModels.Account
+@model LoginViewModel
+
+<section id="loginForm">
+    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class="mt-5", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.ValidationSummary(true, "", new { @class = "text-danger form-group row" })
+
+        <div class="form-group row">
+            @Html.LabelFor(m => m.Email, new { @class = "col-3 col-form-label text-right" })
+            <div class="col-9">
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group row">
+            @Html.LabelFor(m => m.Password, new { @class = "col-3 col-form-label text-right" })
+            <div class="col-9">
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="offset-3 col-9">
+                <div class="checkbox">
+                    @Html.CheckBoxFor(m => m.RememberMe)
+                    @Html.LabelFor(m => m.RememberMe)
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="offset-3 col-4">
+                <button class="btn btn-primary btn-block" type="submit">
+                    <i class="fa fa-sign-in"></i> Log in
+                </button>
+            </div>
+            <div class="col-5">
+                <p>
+                    <a href="#forgotPassword" data-toggle="collapse" role="button" aria-controls="forgotPassword">
+                        <i class="fa fa-question-circle-o text-primary"></i> Forgot your password?
+                    </a>
+                </p>
+            </div>
+        </div>
+    }
+</section>

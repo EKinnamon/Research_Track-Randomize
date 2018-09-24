@@ -1,0 +1,39 @@
+﻿@using EKSurvey.Core.Models.ViewModels.Account
+@{
+    ViewBag.Title = "Log in";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <h2 class="display-4">Welcome to EK Surveys Incorporated.</h2>
+        <p class="lead">Please register or login here.</p>
+    </div>
+    <div class="col-md-6 bg-light pt-4 pb-5 rounded">
+        <ul class="nav nav-tabs nav-fill" role="navigation">
+            <li class="nav-item">
+                <a href="#login" class="nav-link active" id="login-tab" data-toggle="tab" role="tab" aria-controls="login" aria-selected="true">
+                    <i class="fa fa-sign-in"></i> Log In
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#register" class="nav-link" id="register-tab" data-toggle="tab" role="tab" aria-controls="register" aria-selected="false">
+                    <i class="fa fa-edit"></i> Register
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content" id="authenticationContent">
+            <div class="tab-pane fade show active" id="login">
+                @Html.Partial("_LoginForm", new LoginViewModel())
+                
+                @Html.Partial("_ForgotPassword", new ForgotPasswordViewModel())
+            </div>
+            <div class="tab-pane fade show" id="register">
+                @Html.Partial("_RegisterForm", new RegisterViewModel())
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

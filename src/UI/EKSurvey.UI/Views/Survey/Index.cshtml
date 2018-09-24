@@ -1,0 +1,95 @@
+﻿@using EKSurvey.Core.Models.ViewModels.Survey
+@model IndexViewModel
+
+@{
+    ViewBag.Title = "Available Surveys";
+}
+
+@Html.Partial("_Notification")
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="jumbotron jumbotron-fluid px-5">
+            @if (Model.NextSurvey == null)
+            {
+                <p class="lead">There are no available surveys at this time. Thank you for your participation.</p>
+            }
+            else
+            {
+                <h2 class="display-4">@Model.NextSurvey.Name</h2>
+                if (!string.IsNullOrWhiteSpace(Model.NextSurvey.Description))
+                {
+                    <p class="lead">@Model.NextSurvey.Description</p>
+                }
+                <p class="small mt-5">
+                    <i class="fa fa-2x fa-info-circle align-middle text-primary"></i> You may start and stop the survey at any time.
+                </p>
+                <div class="row mt-5">
+                    <div class="offset-md-6 col-md-6">
+                        @Html.Partial("_TestStartContinuePrompt", Model.NextSurvey)
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        @if (Model.AvailableSurveys.Any())
+        {
+            <table class="table">
+                <thead>
+                <tr>
+                    <th colspan="2">Available Surveys</th>
+                </tr>
+                </thead>
+                <tfoot></tfoot>
+                <tbody>
+                    @foreach (var survey in Model.AvailableSurveys)
+                    {
+                        <tr>
+                            <th>@survey.Name</th>
+                            <td class="text-right">
+                                @Html.Partial("_TestStartContinuePrompt", survey, new ViewDataDictionary{{"formContext", "table"}})
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <h6>Available Surveys</h6>
+            <p class="lead">There are no available surveys.</p>
+            if (!Model.CompletedSurveys.Any()) { <hr /> }
+        }
+
+        @if (Model.CompletedSurveys.Any())
+        {
+            <table class="table">
+                <thead>
+                <tr>
+                    <th colspan="2">Completed Surveys</th>
+                </tr>
+                </thead>
+                <tfoot></tfoot>
+                <tbody>
+                @foreach (var survey in Model.CompletedSurveys)
+                {
+                    <tr>
+                        <th>@survey.Name</th>
+                        <td class="text-right">
+                            @survey.Completed.GetValueOrDefault().ToString("d")
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <h6>Completed Surveys</h6>
+            <p class="lead">You have no completed surveys.</p>
+        }
+    </div>
+</div>

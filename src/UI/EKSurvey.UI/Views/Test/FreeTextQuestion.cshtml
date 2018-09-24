@@ -1,0 +1,43 @@
+﻿@using EKSurvey.Core.Models.Entities
+@model EKSurvey.Core.Models.ViewModels.Test.ResponseViewModel
+
+@{
+    ViewBag.Title = Model.SurveyName;
+    var freeTextQuestion = (FreeTextQuestion)Model.Page;
+}
+
+@if (freeTextQuestion.IsHtml)
+{
+    @Html.Raw(freeTextQuestion.Text)
+}
+else
+{
+    <h2 class="display-4">@freeTextQuestion.Text</h2>
+}
+
+
+@using (Html.BeginForm("Respond", "Test", FormMethod.Post, new { @class = "mt-5" }))
+{
+    @Html.HiddenFor(m => m.UserId)
+    @Html.HiddenFor(m => m.SurveyId)
+    @Html.HiddenFor(m => m.TestId)
+    @Html.HiddenFor(m => m.PageId)
+    @Html.HiddenFor(m => m.PageTypeName)
+
+    <div class="form-group">
+        @Html.TextBoxFor(m => m.Response, new {@class="form-control form-control-lg", placeholder="Response..." })
+    </div>
+
+    <div class="row">
+        <div class="col-3">
+            @if (Model.PriorPageId.HasValue)
+            {
+                <a class="btn btn-link" href="@Url.Action("Respond","Test", new { pageId = Model.PriorPageId })">Back</a>
+            }
+        </div>
+        <div class="offset-6 col-3">
+            <button class="btn btn-block btn-success" type="submit"> Continue <i class="fa fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+}

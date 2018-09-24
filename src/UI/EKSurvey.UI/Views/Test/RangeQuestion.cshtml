@@ -1,0 +1,92 @@
+﻿@using EKSurvey.Core
+@using EKSurvey.Core.Models.Entities
+@model EKSurvey.Core.Models.ViewModels.Test.ResponseViewModel
+
+@{
+    ViewBag.Title = Model.SurveyName;
+    var rangeQuestion = (RangeQuestion) Model.Page;
+}
+
+@if (rangeQuestion.IsHtml)
+{
+    @Html.Raw(rangeQuestion.Text)
+}
+else
+{
+    <h2 class="display-4">@rangeQuestion.Text</h2>
+}
+
+@using (Html.BeginForm("Respond", "Test", FormMethod.Post, new { @class = "mt-5" }))
+{
+    @Html.HiddenFor(m => m.UserId)
+    @Html.HiddenFor(m => m.SurveyId)
+    @Html.HiddenFor(m => m.TestId)
+    @Html.HiddenFor(m => m.PageId)
+    @Html.HiddenFor(m => m.PageTypeName)
+
+    <div class="form-group row">
+        @if (rangeQuestion.IsLikert)
+        {
+            var rangeItems = Enumerable.Range(-1 * (rangeQuestion.Range >> 1), rangeQuestion.Range).ToList();
+            <div class="col-md-3 text-right py-2">
+                @Constants.LikertScaleValues.First()
+            </div>
+            <div class="col-md-6">
+                <div class="btn-group d-flex justify-content-between btn-group-toggle" data-toggle="buttons">
+                    @foreach (var i in rangeItems)
+                    {
+                        var btnClass = string.Empty;
+                        if (i == rangeItems.First())
+                        {
+                            btnClass = "btn-danger";
+                        }
+                        if (i < 0 && i > rangeItems.First())
+                        {
+                            btnClass = "btn-warning";
+                        }
+
+                        if (i == 0)
+                        {
+                            btnClass = "btn-dark text-light";
+                        }
+                        if (i > 0 && i < rangeItems.Last())
+                        {
+                            btnClass = "btn-secondary";
+                        }
+
+                        if (i == rangeItems.Last())
+                        {
+                            btnClass = "btn-success";
+                        }
+
+                        <label class="btn @btnClass flex-fill py-3 @((Model.Response?.Equals(i.ToString(), StringComparison.OrdinalIgnoreCase)).GetValueOrDefault(false) ? "active" : string.Empty)">
+                            @Html.RadioButtonFor(m => m.Response, i, new { autocomplete = "off", @class = "" })
+                            <i class="fa fa-circle-o show-inactive"></i>
+                            <i class="fa fa-circle show-active"></i>
+                        </label>
+                    }
+                </div>
+            </div>
+            <div class="col-md-3 text-left py-2">
+                @Constants.LikertScaleValues.Last()
+            </div>
+        }
+        else
+        {
+
+        }
+    </div>
+
+    <div class="row">
+        <div class="col-3">
+            @if (Model.PriorPageId.HasValue)
+            {
+                <a class="btn btn-link" href="@Url.Action("Respond","Test", new { pageId = Model.PriorPageId })">Back</a>
+            }
+        </div>
+        <div class="offset-6 col-3">
+            <button class="btn btn-block btn-success" type="submit"> Continue <i class="fa fa-arrow-right"></i></button>
+        </div>
+
+    </div>
+}

@@ -1,0 +1,27 @@
+﻿@using EKSurvey.Core.Models.ViewModels.Test
+@model CreateViewModel
+@using (Html.BeginForm("Create", "Test", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.UserId)
+    @Html.HiddenFor(m => m.SurveyId)
+
+    var formContext = ViewBag.FormContext ?? string.Empty;
+
+    var isTable = formContext.Equals("table", StringComparison.OrdinalIgnoreCase);
+    var buttonClass = isTable
+        ? "btn-primary"
+        : "btn-success btn-block";
+
+<button class="btn @buttonClass" type="submit">
+    <i class="fa fa-check-square-o"></i>
+    @if (isTable)
+    {
+        <text>Begin</text>
+    }
+    else
+    {
+        <text>Begin </text> @Model.SurveyName
+    }
+</button>
+}
