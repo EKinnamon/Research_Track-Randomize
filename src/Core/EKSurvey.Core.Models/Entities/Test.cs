@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using EKSurvey.Core.Models.Entities.Surveys;
 
 namespace EKSurvey.Core.Models.Entities
 {
@@ -14,6 +15,9 @@ namespace EKSurvey.Core.Models.Entities
         [Required]
         [StringLength(128)]
         public string UserId { get; set; }
+
+        [NotMapped]
+        public string UserIdSimple => UserId.Replace("-", string.Empty);
 
         public int SurveyId { get; set; }
 

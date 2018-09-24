@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
+using EKSurvey.Core.Models.Entities.Surveys;
 using EKSurvey.Core.Services.Exceptions;
 
 namespace EKSurvey.Core.Services
@@ -30,13 +31,14 @@ namespace EKSurvey.Core.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        protected static Test GenerateTest(int surveyId, string userId)
+        protected static Test GenerateTest(int surveyId, string userId, bool isMonkeySurvey = false)
         {
             var test = new Test
             {
                 SurveyId = surveyId,
                 UserId = userId,
-                Started = DateTime.UtcNow
+                Started = DateTime.UtcNow,
+                Completed = isMonkeySurvey ? DateTime.UtcNow : (DateTime?) null
             };
 
             return test;
@@ -57,11 +59,13 @@ namespace EKSurvey.Core.Services
 
         public async Task<Test> CreateAsync(int surveyId, string userId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var survey = Surveys.FindAsync(cancellationToken, surveyId);
+            var survey = await Surveys.FindAsync(cancellationToken, surveyId);
             if (survey == null)
                 throw new SurveyNotFoundException(surveyId);
 
-            var test = GenerateTest(surveyId, userId);
+            var isMonkeySurvey = survey is MonkeySurvey;
+
+            var test = GenerateTest(surveyId, userId, isMonkeySurvey);
             Tests.Add(test);
             await _dbContext.SaveChangesAsync(cancellationToken);
 

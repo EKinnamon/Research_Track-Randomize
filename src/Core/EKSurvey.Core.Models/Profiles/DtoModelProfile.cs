@@ -3,6 +3,7 @@ using System.Linq;
 using AutoMapper;
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
+using EKSurvey.Core.Models.Entities.Surveys;
 
 namespace EKSurvey.Core.Models.Profiles
 {
@@ -22,6 +23,15 @@ namespace EKSurvey.Core.Models.Profiles
 
             CreateMap<Survey, UserSurvey>()
                 // Id, Name, Version, IsActive, Created, Modified mapped
+                .ForMember(dest => dest.TestId, opt => opt.Ignore())
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.Started, opt => opt.Ignore())
+                .ForMember(dest => dest.Completed, opt => opt.Ignore());
+
+            CreateMap<MonkeySurvey, UserSurvey>()
+                // Id, Name, Version, IsActive, Created, Modified mapped
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                .ForMember(dest => dest.IsMonkeySurvey, opt => opt.UseValue(true))
                 .ForMember(dest => dest.TestId, opt => opt.Ignore())
                 .ForMember(dest => dest.UserId, opt => opt.Ignore())
                 .ForMember(dest => dest.Started, opt => opt.Ignore())

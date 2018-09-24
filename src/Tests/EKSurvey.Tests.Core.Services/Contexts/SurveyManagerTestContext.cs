@@ -9,6 +9,7 @@ using AutoMapper;
 
 using EKSurvey.Core.Models.DataTransfer;
 using EKSurvey.Core.Models.Entities;
+using EKSurvey.Core.Models.Entities.Surveys;
 using EKSurvey.Core.Models.Profiles;
 using EKSurvey.Core.Services;
 

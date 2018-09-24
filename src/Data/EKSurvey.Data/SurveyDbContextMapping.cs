@@ -1,5 +1,6 @@
 ﻿using System.Data.Entity.ModelConfiguration;
 using EKSurvey.Core.Models.Entities;
+using EKSurvey.Core.Models.Entities.Surveys;
 
 namespace EKSurvey.Data
 {
