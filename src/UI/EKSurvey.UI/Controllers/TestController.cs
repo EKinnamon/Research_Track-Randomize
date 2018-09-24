@@ -7,7 +7,7 @@ using AutoMapper;
 using EKSurvey.Core.Models.Entities.Surveys;
 using EKSurvey.Core.Models.ViewModels.Test;
 using EKSurvey.Core.Services;
-
+using EKSurvey.UI.Extensions;
 using Elmah;
 using Microsoft.AspNet.Identity;
 using Exception = System.Exception;
@@ -38,12 +38,11 @@ namespace EKSurvey.UI.Controllers
             try
             {
                 var test = await _testManager.CreateAsync(viewModel.SurveyId, viewModel.UserId);
-                if (test.Survey is MonkeySurvey monkeySurvey)
-                {
-                    return Redirect(monkeySurvey.Url);
-                }
-                    
-                return RedirectToAction("Respond", new { id = viewModel.SurveyId });
+                if (!(test.Survey is MonkeySurvey monkeySurvey))
+                    return RedirectToAction("Respond", new {id = viewModel.SurveyId});
+
+                var url = monkeySurvey.Url.ApplyValues(test);
+                return Redirect(url);
             }
             catch (Exception ex)
             {

@@ -16,6 +16,9 @@ namespace EKSurvey.Core.Models.Entities
         [StringLength(128)]
         public string UserId { get; set; }
 
+        [NotMapped]
+        public string UserIdSimple => UserId.Replace("-", string.Empty);
+
         public int SurveyId { get; set; }
 
         public DateTime Started { get; set; }
